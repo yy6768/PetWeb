@@ -23,22 +23,28 @@ const router = createRouter({
         {
           path:'/role-preview',
           name: 'role-preview',
-          component: () => import('../views/RolePreview.vue')
+          component: () => import('../views/rolePreview/RolePreview.vue')
         },
         {
           path:'/case-study',
           name: 'case-study',
-          component: () => import('../views/CaseStudy.vue')
+          component: () => import('../views/caseStudy/CaseStudy.vue')
         },
         {
           path:'/analysis-evaluation',
           name: 'analysis-evaluation',
-          component: () => import('../views/AnalysisEvaluation.vue')
+          component: () => import('../views/analysisEvaluation/AnalysisEvaluation.vue')
         },
         {
           path:'/panorama-tour',
           name: 'panorama-tour',
-          component: () => import('../views/PanoramaTour.vue')
+          component: () => import('../views/panoramaTour/PanoramaTour.vue')
+        }
+        ,
+        {
+          path:'/ai-chat',
+          name: 'ai-chat',
+          component: () => import('../views/aiChat/AiChat.vue')
         }
       ]
     },
