@@ -23,7 +23,6 @@
     { key: '2', title: '病例学习', path: '/case-study' },
     { key: '3', title: '全景导览', path: '/panorama-tour' },
     { key: '4', title: '分析测评', path: '/analysis-evaluation' },
-
   ]);
   
   const navigateTo = (path: string) => {
