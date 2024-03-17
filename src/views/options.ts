@@ -1,0 +1,30 @@
+export const options =[
+    {
+        label:'编号',
+        prop:'id'
+    },
+    {
+        label:'病种',
+        prop:'caseName'
+    },
+    {
+        label:'病名',
+        prop:'caseCategory'
+    },
+    {
+        label:'年份',
+        prop:'caseYear'
+    },
+    {
+        label:'月份',
+        prop:'caseMonth'
+    },
+    {
+        label:'就诊医师',
+        prop:'doctorName'
+    },
+    {
+        label:'操作',
+        prop:'operation'
+    },
+]
