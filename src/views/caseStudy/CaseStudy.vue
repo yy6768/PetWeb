@@ -98,27 +98,20 @@
       </div>
       <div class="margin"></div><!--    间距-->
       <el-table :data="tableData" stripe style="width: 100%">
-        <el-table-column prop="id" label="编号" width="150" />
-        <el-table-column prop="caseName" label="病种" width="150" />
-        <el-table-column prop="caseCategory" label="病名" width="150" />
-        <el-table-column prop="caseYear" label="年份" width="150" />
-        <el-table-column prop="caseMonth" label="月份" width="150" />
-        <el-table-column prop="doctorName" label="就诊医师" width="150"/>
-        <el-table-column prop="operation" label="操作" width="160" />
-
-
+        <el-table-column
+            :width="item.width"
+            :prop="item.prop"
+            :label="item.label"
+            v-for="(item,index) in options "
+            :key="index"
+        >
         <template #default v-if="item.prop === 'operation'">
           <el-button size="small"  type="primary" >详情</el-button>
-          <el-button size="small"  type="warning" >删除</el-button>
-        </template>
+          <el-button size="small"  type="danger" >删除</el-button>
+        </template></el-table-column
+        >
       </el-table>
     </el-card>
-
-<!--  <div class="about">-->
-<!--      <h1>This is 病例学习</h1>-->
-<!--      <p> Post test</p>-->
-<!--      <p>{{ testData }}</p>-->
-<!--  </div>-->
 </template>
 
 <script setup lang="ts">
