@@ -25,6 +25,7 @@ export const options =[
     },
     {
         label:'操作',
-        prop:'operation'
+        prop:'operation',
+        width: 150
     },
 ]
