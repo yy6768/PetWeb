@@ -6,7 +6,7 @@
 </template>
   
 <script lang="ts">
-import PanoramaMap from '../components/PanoramaMap.vue'
+import PanoramaMap from '../../components/PanoramaMap.vue'
 export default {
   name:"PanoramaTour",
   components:{
