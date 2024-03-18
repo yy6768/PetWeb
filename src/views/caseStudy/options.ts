@@ -5,23 +5,23 @@ export const options =[
     },
     {
         label:'病种',
-        prop:'caseName'
+        prop:'category'
     },
     {
         label:'病名',
-        prop:'caseCategory'
+        prop:'name'
     },
     {
-        label:'年份',
-        prop:'caseYear'
+        label:'创建时间',
+        prop:'create_time'
     },
-    {
-        label:'月份',
-        prop:'caseMonth'
-    },
+    // {
+    //     label:'月份',
+    //     prop:'caseMonth'
+    // },
     {
         label:'就诊医师',
-        prop:'doctorName'
+        prop:'doctor_name'
     },
     {
         label:'操作',
