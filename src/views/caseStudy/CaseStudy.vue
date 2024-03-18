@@ -8,31 +8,31 @@
     </div>
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
-            <div class="input_box-1">
-              <el-input
-                  placeholder="请输入关键字"
-                  class="input-with-select"
-              >
-                <template #append>
-                  <el-button ><el-icon><Search /></el-icon></el-button>
-                </template>
-              </el-input>
-            </div>
-            <div class="input_box-2">
-              <el-input
-                  placeholder="按编号排序"
-                  class="input-with-select"
-              >
-                <template #append>
-                  <el-select style="width: 40px">
-                    <el-option label="按编号排序" value="1" />
-                    <el-option label="按姓名排序" value="2" />
-                    <el-option label="按时间排序" value="3" />
-                  </el-select>
-                </template>
-              </el-input>
-            </div>
-          </div>
+        <div class="input_box-1">
+          <el-input
+              placeholder="请输入关键字"
+              class="input-with-select"
+          >
+            <template #append>
+              <el-button ><el-icon><Search /></el-icon></el-button>
+            </template>
+          </el-input>
+        </div>
+        <div class="input_box-2">
+          <el-input
+              placeholder="按编号排序"
+              class="input-with-select"
+          >
+            <template #append>
+              <el-select style="width: 40px">
+                <el-option label="按编号排序" value="1" />
+                <el-option label="按姓名排序" value="2" />
+                <el-option label="按时间排序" value="3" />
+              </el-select>
+            </template>
+          </el-input>
+        </div>
+      </div>
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
           <div class="input_box-2">
@@ -92,9 +92,9 @@
             </el-input>
           </div>
         </div>
-      <div class="margin"></div>
+      <div class="margin"></div><!--    间距-->
       <div style="margin-left:1000px">
-          <el-button size="small"  type="primary" round >新增</el-button>
+        <el-button size="small"  type="primary" round @click="handleDialogValueAdd">新增+</el-button>
       </div>
       <div class="margin"></div><!--    间距-->
       <el-table :data="tableData" stripe style="width: 100%">
@@ -106,39 +106,68 @@
             :key="index"
         >
         <template #default v-if="item.prop === 'operation'">
-          <el-button size="small"  type="primary" >详情</el-button>
-          <el-button size="small"  type="danger" >删除</el-button>
+          <el-button type="primary" @click="handleDialogValueDetail" size="small">详情</el-button>
+          <el-button type="danger" @click="delCase(row)" size="small" >删除</el-button>
         </template></el-table-column
         >
       </el-table>
+      <div class="margin"></div><!--    间距-->
+      <el-pagination
+          v-model:current-page="currentPage4"
+          v-model:page-size="pageSize4"
+          :page-sizes="[5, 10, 15, 20]"
+          :small="small"
+          :disabled="disabled"
+          :background="background"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="100"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+      />
     </el-card>
+  <DialogDetail v-model = "dialogVisibleDetail" :dialogTitleDetail="dialogTitleDetail"/>
+  <DialogAdd v-model="dialogVisibleAdd" :dialogTitleAdd="dialogTitleAdd"/>
 </template>
 
 <script setup lang="ts">
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-import {ArrowRight} from '@element-plus/icons-vue';
+import {ArrowRight, Search} from '@element-plus/icons-vue';
 import {options} from './options';
+import DialogDetail from './components/dialog_detail.vue'
+import DialogAdd from './components/dialog_add.vue'
+import {ElMessage, ElMessageBox} from "element-plus";
+
+// const queryForm = ref({
+//   query:'',
+//   pagenum: 1,
+//   pagesize: 2
+// })
 
 const tableData = ref([
   {
     id: '1',
-    caseName:'病种一',
-    caseCategory:'病名一',
-    caseYear:'2023',
-    caseMonth:'1',
-    doctorName:'医师一',
+    category:'病种一',
+    name:'病名一',
+    create_time:'2023-01-11',
+    doctor_name:'医师一',
   },
   {
     id: '2',
-    caseName:'病种二',
-    caseCategory:'病名二',
-    caseYear:'2024',
-    caseMonth:'2',
-    doctorName:'医师二',
+    category:'病种二',
+    name:'病名二',
+    create_time:'2024-02-23',
+    doctor_name:'医师二',
   },
 ])
 
+const dialogVisibleDetail = ref(false)
+const dialogTitleDetail = ref('')
+
+const dialogVisibleAdd = ref(false)
+const dialogTitleAdd = ref('')
+
+//数据传递
 const testData = ref<string>('');
 onMounted(async () => {
   try {
@@ -151,6 +180,40 @@ onMounted(async () => {
       console.error(error);
     }
 })
+
+const handleDialogValueDetail = () => {
+  dialogTitleDetail.value= '病例详情'
+  dialogVisibleDetail.value = true
+}
+const handleDialogValueAdd = () =>{
+  dialogTitleAdd.value = '添加病例'
+  dialogVisibleAdd.value = true
+}
+
+//删除弹窗
+const delCase = (row) => {
+  ElMessageBox.confirm(
+      'proxy will permanently delete the file. Continue?',
+      'Warning',
+      {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: 'Delete completed',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: 'Delete canceled',
+        })
+      })
+}
 </script>
 
 <style scoped>
@@ -168,9 +231,12 @@ onMounted(async () => {
       width:180px;
       margin-right:80px;
     }
-    .page_content {
-      background-color:white;
-      height:100px;
+
+    ::v-deep .el-pagination{
+      padding-top: 16px;
+      box-sizing: border-box;
+      text-alian: right
     }
+
 </style>
   
