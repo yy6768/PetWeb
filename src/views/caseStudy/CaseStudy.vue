@@ -8,17 +8,18 @@
     </div>
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
+        <el-row gutter="20">
+          <el-col :span="15">
+            <el-input
+                placeholder="请输入搜索内容"
+                clearable
+                v-model="queryForm.query"
+            >
+            </el-input>
+          </el-col>
+          <el-button type="primary" :icon="Search">搜索</el-button>
+        </el-row>
         <div class="input_box-1">
-          <el-input
-              placeholder="请输入关键字"
-              class="input-with-select"
-          >
-            <template #append>
-              <el-button ><el-icon><Search /></el-icon></el-button>
-            </template>
-          </el-input>
-        </div>
-        <div class="input_box-2">
           <el-input
               placeholder="按编号排序"
               class="input-with-select"
@@ -138,11 +139,12 @@ import DialogDetail from './components/dialog_detail.vue'
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 
-// const queryForm = ref({
-//   query:'',
-//   pagenum: 1,
-//   pagesize: 2
-// })
+//
+const queryForm = ref({
+  query:'',
+  pagenum: 1,
+  pagesize: 2
+})
 
 const tableData = ref([
   {
@@ -225,7 +227,7 @@ const delCase = (row) => {
     }
     .input_box-1{
       width:200px;
-      margin-right:320px;
+      margin-left:240px;
     }
     .input_box-2 {
       width:180px;
