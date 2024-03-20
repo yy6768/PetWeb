@@ -1,5 +1,5 @@
 <template>
-    <a-layout-header class="header">
+    <div class="header">
       <div class="logo">Pet System</div>
       <div class="profile">
         <a-dropdown>
@@ -12,7 +12,7 @@
           </a-menu>
         </a-dropdown>
       </div>
-    </a-layout-header>
+    </div>
   </template>
   
   <script setup lang="ts">
@@ -29,6 +29,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: aqua;
   }
   
   .logo {
