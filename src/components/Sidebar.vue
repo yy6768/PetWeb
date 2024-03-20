@@ -1,6 +1,6 @@
 <template>
     <a-layout-sider
-      :style="{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0, top: 0, bottom: 0 }"
+      :style="{ overflow: 'auto', height: '100%', position: 'fixed', left: 0, top: 0, bottom: 0 }"
     >
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-menu-item v-for="item in menuItems" :key="item.key" @click="navigateTo(item.path)">
