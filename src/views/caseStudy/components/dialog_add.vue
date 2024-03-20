@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import  {defineEmits,ref,defineProps} from 'vue'
 
-//标签内容
+//顶部文字内容
 defineProps({
   dialogTitleAdd:{
     type:String,
@@ -44,7 +44,7 @@ defineProps({
     required:true
   }
 })
-//标签关闭
+//弹窗关闭
 const emits = defineEmits(['update:modelValue'])
 const handleClose = () => {
   emits('update:modelValue',false)

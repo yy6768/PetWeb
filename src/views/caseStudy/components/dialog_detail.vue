@@ -24,12 +24,21 @@
       <el-form-item label="化验项目">
         <el-input v-model="form.laboratory" type="textarea" style="width: 425px;" />
       </el-form-item>
-
+<!--      <div style="margin-left:440px; margin-bottom: 20px">-->
+<!--        <el-button size="small"  type="primary" round >新增+</el-button>-->
+<!--      </div>-->
       <el-form-item label="治疗药品">
         <el-select v-model="form.medicine" placeholder="请选择药品" style="width: 425px;">
-            <el-option label="药品一" value="shanghai" />
-            <el-option label="药品二" value="beijing" />
+          <el-option label="药品一" value="one" />
+          <el-option label="药品二" value="two" />
         </el-select>
+      </el-form-item>
+
+      <el-form-item label="诊断结果">
+        <el-input v-model="form.results" type="textarea" style="width: 425px;" />
+      </el-form-item>
+      <el-form-item label="治疗方案">
+        <el-input v-model="form.plan" type="textarea" style="width: 425px;" />
       </el-form-item>
     </el-form>
 
@@ -44,8 +53,10 @@
 
 <script setup lang="ts">
 import {defineEmits,ref,defineProps} from 'vue'
+import {ElMessage, ElMessageBox} from "element-plus";
+import {meds} from './meds'
 
-//标签内容
+//顶部文字内容
 defineProps({
   dialogTitleDetail:{
     type:String,
@@ -53,12 +64,34 @@ defineProps({
     required:true
   }
 })
-//标签关闭
+//弹窗关闭
 const emits = defineEmits(['update:modelValue'])
 const handleClose = () =>{
   emits('update:modelValue',false)
 }
+//修改确认
 const handleConfirm = () =>{
+  ElMessageBox.confirm(
+      'Modify details content. Continue?',
+      'Warning',
+      {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: 'Modification successful',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: 'Modification failed',
+        })
+      })
   handleClose()
 }
 // 详情页信息
@@ -68,7 +101,9 @@ const form = ref({
   name:'',
   basic:'',
   laboratory:'',
-  medicine:''
+  medicine:'',
+  results:'',
+  plan:''
 })
 // //药品信息
 // const medsData = ref([
