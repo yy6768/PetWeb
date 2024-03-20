@@ -52,3 +52,5 @@ Thumbs.db
 /tmp
 /npm-debug.log*
 /yarn-error.log*
+
+.env
