@@ -4,8 +4,8 @@
       <Header />    
     </a-layout-header>
     <a-layout :style="{ marginTop: '64px'}" >
-      <Sidebar :style="{ marginTop: '64px'}"/>
-      <a-layout :style="{ marginLeft: '200px' }">
+      <Sidebar :style="{ marginTop: '64px' ,background:'white' }"/>
+      <a-layout :style="{ marginLeft: '220px'}">
         <a-layout-content >
           <RouterView />
         </a-layout-content>
