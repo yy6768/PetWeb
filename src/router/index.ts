@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Login from '../views/login/Login.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -6,12 +7,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/login/Login.vue')
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('../views/login/Register.vue')
+      component: Login
     },
     {
       path:'/',
@@ -49,39 +45,7 @@ const router = createRouter({
           path:'/ai-chat',
           name: 'ai-chat',
           component: () => import('../views/aiChat/AiChat.vue')
-        },
-        {
-          path: '/manage-cases',
-          name: 'manage-cases',
-          component: () => import('../views/management/ManageCases.vue')
-        },
-        {
-          path: '/manage-exams',
-          name: 'manage-exams',
-          component: () => import('../views/management/ManageExams.vue')
-        },
-        {
-          path: '/manage-questions',
-          name: 'manage-questions',
-          component: () => import('../views/management/ManageQuestions.vue')
-        },
-        {
-          path: '/manage-users',
-          name: 'manage-users',
-          component: () => import('../views/management/ManageUsers.vue')
-        },
-        {
-          path: '/manage-assays',
-          name: 'manage-assays',
-          component: () => import('../views/management/ManageAssays.vue')
-        },
-        {
-          path: '/manage-drugs',
-          name: 'manage-drugs',
-          component: () => import('../views/management/ManageDrugs.vue')
         }
-        
-        
       ]
     },
     
