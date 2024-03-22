@@ -7,7 +7,7 @@
 ###### 开发前的配置要求
 
 1. 安装Vue/React
-1. 输入npx 命令启动
+2. 安装nvm（可选）进行node版本管理
 
 ###### **安装步骤**
 
@@ -17,25 +17,42 @@ git clone https://github.com/shaojintian/Best_README_template.git
 
 ```
 
-### 文件目录说明
-
-```
-
-```
-
-
-
 ### 开发的架构
 
 请阅读[ARCHITECTURE.md]() 查阅为该项目的架构。
 
 ### 部署
 
+采用的node相关版本如下：
+```
+% node -v
+v21.7.1
+% npm -v
+10.5.0
+% nvm -v
+0.39.7
+```
+
+每次运行前运行：
+```
+npm install
+```
+
+启动接口测试服务器(deprecated later)
+```
+node test_server.js
+```
+启动：
+```
+npm run dev
+```
+
+
 
 
 ### 使用到的框架
 
-- Vue/React
+- Vue + Typescript
 
 ### 如何贡献
 
