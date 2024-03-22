@@ -1,11 +1,12 @@
 <template>
   <a-layout>
-    <!-- <a-layout-header :style="{ position: 'fixed', zIndex: 1, width: '100%'}">    
-    </a-layout-header> -->
+    <a-layout-header>
+      <Header />    
+    </a-layout-header>
     <a-layout :style="{ marginTop: '64px'}" >
-      <Sidebar :style="{ marginTop: '64px'}"/>
-      <a-layout :style="{ marginLeft: '200px' }">
-        <a-layout-content :style="{ margin: '24px 16px 0', overflow: 'initial' }">
+      <Sidebar :style="{ marginTop: '64px' ,background:'white' }"/>
+      <a-layout :style="{ marginLeft: '220px'}">
+        <a-layout-content >
           <RouterView />
         </a-layout-content>
       </a-layout>
@@ -28,8 +29,16 @@ import {
   TeamOutlined,
   ShopOutlined,
 } from '@ant-design/icons-vue';
-const selectedKeys = ref<string[]>(['4']);
 </script>
-<style scoped>
-
+<style lang="scss" scoped>
+.ant-layout-header {
+  position: fixed;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  background: #0082f0;
+  border: 0;
+  padding: 0;
+  margin-left: -8px;
+}
 </style>

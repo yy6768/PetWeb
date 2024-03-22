@@ -39,7 +39,7 @@ import axios from 'axios';
 const router = useRouter();
 
 const onRegister = () => {
-  router.push('/home');
+  router.push('/register');
 };
 
 const onLogin = async () => {
