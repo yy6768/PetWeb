@@ -85,6 +85,6 @@ const handleOk = (e: MouseEvent) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: gray;
+  background-color: #1890ff;
 }
 </style>
