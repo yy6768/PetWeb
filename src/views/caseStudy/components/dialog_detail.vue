@@ -9,12 +9,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="编号">
-            <el-input v-model="form.id" style="width: 150px;" />
+            <el-input v-model="form.id" placeholder="请输入编号" style="width: 150px;" borderless />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="疾病名称">
-            <el-input v-model="form.name" style="width: 150px;" />
+            <el-input v-model="form.name" placeholder="请输入疾病名称" style="width: 150px;" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -55,6 +55,7 @@
 import {defineEmits,ref,defineProps} from 'vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {meds} from './meds'
+
 
 //顶部文字内容
 defineProps({
