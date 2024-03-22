@@ -1,31 +1,27 @@
 export const options =[
     {
         label:'编号',
-        prop:'id'
+        prop:'cid'
     },
     {
         label:'病种',
-        prop:'category'
+        prop:'cate_name'
     },
     {
         label:'病名',
-        prop:'name'
+        prop:'ill_name'
     },
     {
         label:'创建时间',
         prop:'create_time'
     },
-    // {
-    //     label:'月份',
-    //     prop:'caseMonth'
-    // },
     {
         label:'就诊医师',
-        prop:'doctor_name'
+        prop:'username'
     },
     {
         label:'操作',
         prop:'operation',
-        width: 150
+        width: 140
     },
 ]

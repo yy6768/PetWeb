@@ -17,7 +17,8 @@
             >
             </el-input>
           </el-col>
-          <el-button type="primary" :icon="Search">搜索</el-button>
+          <el-button type="primary" :icon="Search" @click="initGetCasesListTest">搜索</el-button>
+<!--          @click="initGetCasesList"-->
         </el-row>
         <div class="input_box-1">
           <el-input
@@ -106,9 +107,13 @@
             v-for="(item,index) in options "
             :key="index"
         >
+<!--          <template v-slot="{row}" v-if="item.prop ==='create_time'">-->
+<!--            {{$filters.filterTimes(row.create_time)}}-->
+<!--          </template>-->
+<!--          到时候要改成v-else-if-->
         <template #default v-if="item.prop === 'operation'">
-          <el-button type="primary" @click="handleDialogValueDetail" size="small">详情</el-button>
-          <el-button type="danger" @click="delCase(row)" size="small" >删除</el-button>
+          <el-button type="primary" @click="handleDialogValueDetail" size="small" :icon="Edit"></el-button>
+          <el-button type="danger" @click="delCase(row)" size="small" :icon="Delete"></el-button>
         </template></el-table-column
         >
       </el-table>
@@ -133,43 +138,68 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-import {ArrowRight, Search} from '@element-plus/icons-vue';
+import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
 import DialogDetail from './components/dialog_detail.vue'
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
+import {getCase} from "@/api/case";
 
-//
+//查询表
 const queryForm = ref({
   query:'',
   pagenum: 1,
   pagesize: 2
 })
-
+//表格内容
 const tableData = ref([
   {
-    id: '1',
-    category:'病种一',
-    name:'病名一',
+    cid: '1',
+    cate_name:'病种一',
+    ill_name:'病名一',
     create_time:'2023-01-11',
-    doctor_name:'医师一',
+    username:'医师一',
   },
   {
-    id: '2',
-    category:'病种二',
-    name:'病名二',
+    cid: '2',
+    cate_name:'病种二',
+    ill_name:'病名二',
     create_time:'2024-02-23',
-    doctor_name:'医师二',
+    username:'医师二',
   },
 ])
 
+//测试搜索
+const initGetCasesListTest = () =>{
+  const searchTerm = queryForm.value.query.toLowerCase();
+  const filteredData = tableData.value.filter(item => {
+    return Object.values(item).some(val =>
+        String(val).toLowerCase().includes(searchTerm)
+    );
+  });
+  // 更新表格显示的内容
+  tableData.value = filteredData;
+}
+
+//GET
+// const initGetCasesList = async () =>{
+//   const res = await getCase(queryForm.value)
+//   // 打印返回内容
+//   console.log(res)
+//   tableData.value = res.case
+// }
+// initGetCasesList()
+
+
+//详情框
 const dialogVisibleDetail = ref(false)
 const dialogTitleDetail = ref('')
 
+//新增框
 const dialogVisibleAdd = ref(false)
 const dialogTitleAdd = ref('')
 
-//数据传递
+//POST
 const testData = ref<string>('');
 onMounted(async () => {
   try {
@@ -232,6 +262,10 @@ const delCase = (row) => {
     .input_box-2 {
       width:180px;
       margin-right:80px;
+    }
+
+    ::v-deep .el-input_suffix{
+      align-items : center;
     }
 
     ::v-deep .el-pagination{
