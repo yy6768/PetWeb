@@ -15,13 +15,6 @@ app.get('/api/test1', (req, res) => {
 app.post('/api/test2', (req, res) => {
   res.json({ message: 'Response from Test2' });
 });
-app.post('/api/login', (req, res) => {
-  res.json({
-    "msg": "登陆成功",
-    "uid": 1,
-    "authority": 1
-  });
-})
 
 app.listen(port, () => {
     console.log(`Server listening at http://127.0.0.1:${port}`);
