@@ -1,3 +1,4 @@
+//不用了有更好的
 <template>
   <el-dialog
       :model-value="dialogVisibleDetail"
