@@ -160,7 +160,7 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
-import DialogDetail from './components/dialog_detail.vue'
+// import DialogDetail from './components/dialog_detail.vue'
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase,deleteCase} from "@/api/case";
