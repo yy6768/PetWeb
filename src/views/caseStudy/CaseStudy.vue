@@ -115,7 +115,7 @@
               type="primary"
               size="small"
               :icon="Edit"
-              @click="handleDialogValueAdd(row)"
+              @click="handleDialogValueAdd(row)"gi
           ></el-button>
           <el-button
               type="danger"
