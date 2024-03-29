@@ -170,7 +170,7 @@ import {isNull} from '@/views/caseStudy/filters';
 const queryForm = ref({
   query:'',
   pagenum: 1,
-  pagesize: 1
+  pagesize: 2
 })
 
 //分页器
@@ -193,6 +193,7 @@ const tableData = ref([
     username:'医师二',
   },
 ])
+
 
 //测试搜索
 // const initGetCasesListTest = () =>{
