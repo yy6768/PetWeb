@@ -59,8 +59,7 @@ const onLogin = async () => {
     if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
       message.success('登录成功');
-      sessionStorage.setItem('authority', '1');
-      //sessionStorage.setItem('authority', response.data.authority);
+      sessionStorage.setItem('authority', response.data.authority);
       router.push('/home');
     } else {
       // Handle login failure
