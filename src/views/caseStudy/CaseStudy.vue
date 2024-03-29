@@ -20,81 +20,79 @@
           <el-button type="primary" :icon="Search" @click="initGetCasesList">搜索</el-button>
 <!--          @click="initGetCasesListTest"-->
         </el-row>
-        <div class="input_box-1">
-          <el-input
+
+        <div class="flex flex-wrap gap-4 items-center">
+          <el-select
+              v-model="sortValue"
               placeholder="按编号排序"
-              class="input-with-select"
+              size="default"
+              style="width: 180px"
           >
-            <template #append>
-              <el-select style="width: 40px">
-                <el-option label="按编号排序" value="1" />
-                <el-option label="按姓名排序" value="2" />
-                <el-option label="按时间排序" value="3" />
-              </el-select>
-            </template>
-          </el-input>
+            <el-option
+                v-for="item in sortOptions "
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
         </div>
       </div>
+
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
-          <div class="input_box-2">
-            <el-input
-                placeholder="病种"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="病种1" value="1" />
-                  <el-option label="病种2" value="2" />
-                  <el-option label="病种3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="病名"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="病名1" value="1" />
-                  <el-option label="病名2" value="2" />
-                  <el-option label="病名3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="年份"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="2022" value="1" />
-                  <el-option label="2023" value="2" />
-                  <el-option label="2024" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="月份"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="1" value="1" />
-                  <el-option label="2" value="2" />
-                  <el-option label="3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-        </div>
-      <div class="margin"></div><!--    间距-->
+        <el-select
+            v-model="cateValue"
+            placeholder="病种"
+            size="default"
+            style="width: 180px"
+        >
+          <el-option
+              v-for="item in cateOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="illValue"
+            placeholder="病名"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+        >
+          <el-option
+              v-for="item in illOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="yearValue"
+            placeholder="年份"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+        >
+          <el-option
+              v-for="item in yearOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="monthValue"
+            placeholder="年份"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+        >
+          <el-option
+              v-for="item in monthOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+      </div>
       <div style="margin-left:1000px">
         <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>
       </div>
@@ -160,11 +158,11 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
-// import DialogDetail from './components/dialog_detail.vue'
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase,deleteCase} from "@/api/case";
 import {isNull} from '@/views/caseStudy/filters';
+
 
 //查询表
 const queryForm = ref({
@@ -194,6 +192,112 @@ const tableData = ref([
   },
 ])
 
+//下拉框
+const sortValue = ref('')
+
+const sortOptions = [
+  { value: 'Option1', label: '按编号排序'},
+  { value: 'Option2', label: '按病名排序'},
+  { value: 'Option3', label: '按修改时间排序'},
+]
+
+const cateValue = ref('')
+
+const cateOptions = [
+  { value: 'Option1', label: '病种一'},
+  { value: 'Option2', label: '病种二'},
+  { value: 'Option3', label: '病种三'},
+]
+
+const illValue = ref('')
+
+const illOptions = [
+  {
+    value: 'Option1',
+    label: '病名一',
+  },
+  {
+    value: 'Option2',
+    label: '病名二',
+  },
+  {
+    value: 'Option3',
+    label: '病名三',
+  },
+]
+
+const yearValue = ref('')
+
+const yearOptions = [
+  {
+    value: 'Option1',
+    label: '2022',
+  },
+  {
+    value: 'Option2',
+    label: '2023',
+  },
+  {
+    value: 'Option3',
+    label: '2024',
+  },
+]
+
+const monthValue = ref('')
+
+const monthOptions = [
+  {
+    value: 'Option1',
+    label: '1月',
+  },
+  {
+    value: 'Option2',
+    label: '2月',
+  },
+  {
+    value: 'Option3',
+    label: '3月',
+  },
+  {
+    value: 'Option3',
+    label: '4月',
+  },
+  {
+    value: 'Option3',
+    label: '5月',
+  },
+  {
+    value: 'Option3',
+    label: '6月',
+  },
+  {
+    value: 'Option3',
+    label: '7月',
+  },
+  {
+    value: 'Option3',
+    label: '8月',
+  },  {
+    value: 'Option3',
+    label: '9月',
+  },  {
+    value: 'Option3',
+    label: '10月',
+  },
+  {
+    value: 'Option3',
+    label: '11月',
+  },
+  {
+    value: 'Option3',
+    label: '12月',
+  },
+
+
+
+]
+
+
 
 //测试搜索
 // const initGetCasesListTest = () =>{
@@ -220,12 +324,12 @@ const initGetCasesList = async () =>{
 initGetCasesList()
 
 //页码改变方法
-const handleSizeChange = (pageSize) => {
+const handleSizeChange = (pageSize:any) => {
   queryForm.value.pagenum=1
   queryForm.value.pagesize=pageSize
   initGetCasesList()
 }
-const handleCurrentChange = (pageNum) =>{
+const handleCurrentChange = (pageNum:any) =>{
   queryForm.value.pagenum=pageNum
   initGetCasesList()
 }
@@ -260,7 +364,7 @@ const handleDialogValueDetail = () => {
 }
 
 //新增标题
-const handleDialogValueAdd = (row) =>{
+const handleDialogValueAdd = (row:any) =>{
   if(isNull(row)){
     dialogTitleAdd.value = '添加病例'
     dialogTableValueAdd.value={}
@@ -272,7 +376,7 @@ const handleDialogValueAdd = (row) =>{
 }
 
 //删除弹窗
-const delCase = (row) => {
+const delCase = (row:any) => {
   ElMessageBox.confirm(
       '确定删除病例?',
       'Warning',
