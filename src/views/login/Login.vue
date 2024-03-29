@@ -36,6 +36,8 @@ import backgroundSvg from '../../assets/background.svg';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
+
 const router = useRouter();
 
 const onRegister = () => {
@@ -45,20 +47,29 @@ const onRegister = () => {
 const onLogin = async () => {
   
   try {
-    const response = await axios.post('/api/login', {
-      username: formState.username,
-      password: formState.password,
-    });
+    const params = new URLSearchParams({
+            username: formState.username,
+            password: formState.password,
+        }).toString();
+        
+    const response = await axios.post(`/api/user/login?${params}`);
+
+
     
-    if (response.data && response.data.msg === '登陆成功') {
+    if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
+      message.success('登录成功');
       sessionStorage.setItem('authority', response.data.authority);
       router.push('/home');
     } else {
       // Handle login failure
+      message.error(`登录失败: ${response.data.error_message}`);
+
       console.error('Login failed:', response.data.msg);
     }
   } catch (error) {
+    message.error(`登录错误`);
+
     console.error('Login error:', error);
   }
 };
