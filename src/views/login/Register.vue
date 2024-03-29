@@ -89,7 +89,7 @@ const onRegister = async () => {
             password: formState.password,
         }).toString();
         
-        const response = await axios.post(`http://localhost:3000/api/user/register?${params}`);
+        const response = await axios.post(`/api/user/register?${params}`);
 
         if (response.data && response.data.error_message === 'success') {
             console.log('注册成功:', response.data);
