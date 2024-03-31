@@ -12,7 +12,7 @@ export default defineConfig({
     // ... other server options
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // the target host
+        target: 'http://localhost:3000', // the target host
         changeOrigin: true, // needed for virtual hosted sites
         ws: true, // proxy websockets
       }

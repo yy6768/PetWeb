@@ -3,10 +3,8 @@
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <div style="font-size: 30px; text-align: center; padding: 50px; color: #333">用户注册🐒</div>
 
-            <a-form name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" :model="formState" @finish="onFinish">
-                <a-form-item label="电子邮箱" name="email" :rules="emailRules">
-                    <a-input v-model:value="formState.email" />
-                </a-form-item>
+            <a-form name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" :model="formState">
+
                 <a-form-item label="用户名" name="username" :rules="usernameRules">
                     <a-input v-model:value="formState.username" />
                 </a-form-item>
@@ -36,18 +34,17 @@ import { reactive } from 'vue';
 import backgroundSvg from '../../assets/background.svg';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
 
 const router = useRouter();
 
 interface FormState {
-    email: string;
     username: string;
     password: string;
     confirmPassword: string;
 }
 
 // Replace the following rules with your actual validation logic
-const emailRules = [{ required: true, message: '请输入您的电子邮箱', type: 'email' }];
 
 
 // 添加额外的规则来验证用户名和密码
@@ -75,7 +72,6 @@ const confirmPasswordRules = [
 ];
 
 const formState = reactive<FormState>({
-    email: '',
     username: '',
     password: '',
     confirmPassword: '',
@@ -88,37 +84,29 @@ const onReturn = () => {
 
 const onRegister = async () => {
     try {
-        const response = await axios.post('/api/register', {
-            email: formState.email,
+        const params = new URLSearchParams({
             username: formState.username,
             password: formState.password,
-            confirmPassword: formState.confirmPassword,
-        });
-        if (response.data && response.data.msg === '注册成功') {
+        }).toString();
+        
+        const response = await axios.post(`/api/user/register?${params}`);
+
+        if (response.data && response.data.error_message === 'success') {
+            console.log('注册成功:', response.data);
+            message.success('注册成功');
             router.push('/login');
         } else {
-            console.error('注册失败:', response.data.msg);
+            console.error('注册失败:', response.data.error_message);
+            message.error(`注册失败: ${response.data.error_message}`);
+
         }
     } catch (error) {
+        message.error('注册错误');
         console.error('注册错误:', error);
     }
 };
-const onFinish = async (values: FormState) => {
-    // Here you would handle the form submission for registration.
-    // This could involve an HTTP request to your backend to create the new user account.
-    console.log('Received form values:', values);
-    try {
-        const response = await axios.post('/api/register', values);
-        if (response.data.success) {
-            // Registration was successful
-            router.push('/login');
-        } else {
-            // Handle errors, e.g., show a message to the user
-        }
-    } catch (error) {
-        console.error('Registration error:', error);
-    }
-};
+
+
 </script>
 
 <style scoped>
