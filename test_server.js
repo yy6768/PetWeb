@@ -5,7 +5,7 @@ import cors from 'cors';
 const app = express();
 app.use(cors()); // This enables CORS for all routes
 
-const port = 8080;
+const port = 3000;
 
 
 app.get('/api/test1', (req, res) => {

@@ -3,12 +3,13 @@
     <div style="margin-left: 10px; font-size: 32px;">🐶🐱🐯</div>
     <div class="profile">
       <a-dropdown>
-        <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-          <a-avatar shape="square" :size="32" style="margin-right: 10px;">
-            <template #icon>
-              <UserOutlined />
-            </template>
-          </a-avatar>
+        <a @click="e => e.preventDefault()" style="display: flex; align-items: center;">
+            <div style="color: aliceblue;">admin</div>
+            <a-avatar shape="square" :size="32" style="margin-right: 10px; margin-left: 10px;">
+              <template #icon>
+                <UserOutlined />
+              </template>
+            </a-avatar>
         </a>
         <template #overlay>
           <a-menu style="margin-top: 10px;">
