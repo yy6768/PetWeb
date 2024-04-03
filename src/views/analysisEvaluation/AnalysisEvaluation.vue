@@ -47,7 +47,7 @@ const testData = ref([
 },
 {
   id:1,
-  name:"第2场考试",
+  name:"第二场考试",
   maker:"user2",
   startTime:"2023-03-15 09:00:00",
   finishTime:"2023-04-15 09:00:00",
@@ -104,7 +104,7 @@ const search = () =>{
       <div>
         <el-breadcrumb :separator-icon="ArrowRight" class="breadcrumb">
           <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>病例学习</el-breadcrumb-item>
+          <el-breadcrumb-item>分析测评</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
       <el-container class="search-head">
