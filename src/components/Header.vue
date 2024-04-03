@@ -3,12 +3,13 @@
     <div style="margin-left: 10px; font-size: 32px;">🐶🐱🐯</div>
     <div class="profile">
       <a-dropdown>
-        <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-          <a-avatar shape="square" :size="32" style="margin-right: 10px;">
-            <template #icon>
-              <UserOutlined />
-            </template>
-          </a-avatar>
+        <a @click="e => e.preventDefault()" style="display: flex; align-items: center;">
+            <div style="color: aliceblue;">admin</div>
+            <a-avatar shape="square" :size="32" style="margin-right: 10px; margin-left: 10px;">
+              <template #icon>
+                <UserOutlined />
+              </template>
+            </a-avatar>
         </a>
         <template #overlay>
           <a-menu style="margin-top: 10px;">
@@ -22,61 +23,116 @@
         </template>
       </a-dropdown>
     </div>
-    <a-modal v-model:open="open" title="修改密码" @ok="handleOk">
-      <a-form :model="formState"  autocomplete="off"
-        @finish="onFinish" @finishFailed="onFinishFailed">
+    <a-modal v-model:open="openPwdChange" title="修改密码" @ok="onPwdFinish">
+      <a-form :model="formState"  autocomplete="off" @finishFailed="onFinishFailed">
         <a-form-item label="旧密码" name="oldPassword" :rules="[{ required: true, message: '输入旧密码' }]">
-          <a-input v-model:value="formState.username" />
+          <a-input v-model:value="formState.oldPassword" />
         </a-form-item>
 
         <a-form-item label="新密码" name="newPassword" :rules="[{ required: true, message: '输入新密码' }]">
-          <a-input-password v-model:value="formState.password" />
+          <a-input-password v-model:value="formState.newPassword" />
         </a-form-item>
 
       </a-form>
     </a-modal>
+
+    <a-modal v-model:open="openUsernameChange" title="修改用户名" @ok="handleOk">
+      <a-form :model="formState"  autocomplete="off"
+              @finish="onUsernameFinish" @finishFailed="onFinishFailed">
+        <a-form-item label="新用户名" name="newUsername" >
+          <a-input v-model:value="newUsername" />
+        </a-form-item>
+]
+
+      </a-form>
+    </a-modal>
+
   </div>
 
 </template>
 
 <script setup lang="ts">
-import { Avatar, Dropdown, Menu } from 'ant-design-vue';
+import {Avatar, Dropdown, Menu, message} from 'ant-design-vue';
 import { UserOutlined } from '@ant-design/icons-vue';
-import router from '@/router';
 import { ref, reactive } from 'vue';
-const open = ref<boolean>(false);
+import axios from "axios";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const openPwdChange = ref<boolean>(false);
+const openUsernameChange = ref<boolean>(false);
+const newUsername = ref<string>('');
 
 interface FormState {
   username: string;
-  password: string;
-  remember: boolean;
+  oldPassword: string;
+  newPassword: string;
 }
 
 const formState = reactive<FormState>({
   username: '',
-  password: '',
-  remember: true,
+  oldPassword: '',
+  newPassword: ''
 });
-const onFinish = (values: any) => {
+
+const onPwdFinish = async (values: any) => {
+  try {
+    const token = sessionStorage.getItem('token');
+    const uid = sessionStorage.getItem('uid');
+    const params = new URLSearchParams({
+      uid: '14',
+      old_password: formState.oldPassword,
+      new_password: formState.newPassword
+    }).toString();
+
+    const response = await axios.post(`/api/user/update_password?${params}`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.data && response.data.error_message === 'success') {
+      // Optionally store the user's authority level in sessionStorage
+      message.success('修改成功');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('uid');
+      sessionStorage.removeItem('authority');
+      router.push('/login');
+    } else {
+      // Handle login failure
+      message.error(`修改失败: ${response.data.error_message}`);
+      console.error('change failed:', response.data.msg);
+    }
+  } catch (error) {
+    message.error(`修改错误`);
+  }
   console.log('Success:', values);
 };
+const onUsernameFinish = (values: any) => {
+  console.log('Success:', values);
+};
+
 
 const onFinishFailed = (errorInfo: any) => {
   console.log('Failed:', errorInfo);
 };
 
 const logout = () => {
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('uid');
+  sessionStorage.removeItem('authority');
   router.push('/login');
 };
 
 const showChangePwd = () => {
-  open.value = true;
+  openPwdChange.value = true;
 
 };
 
 const handleOk = (e: MouseEvent) => {
   console.log(e);
-  open.value = false;
+  openPwdChange.value = false;
 };
 </script>
 
