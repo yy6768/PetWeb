@@ -41,9 +41,8 @@
       </a-form>
     </a-modal>
 
-    <a-modal v-model:open="openUsernameChange" title="修改用户名" @ok="handleOk">
-      <a-form :model="formState"  autocomplete="off"
-              @finish="onUsernameFinish" @finishFailed="onFinishFailed">
+    <a-modal v-model:open="openUsernameChange" title="修改用户名" @ok="onUsernameFinish">
+      <a-form :model="formState"  autocomplete="off" @finishFailed="onFinishFailed">
         <a-form-item label="新用户名" name="newUsername" >
           <a-input v-model:value="newUsername" />
         </a-form-item>
@@ -99,15 +98,15 @@ const onPwdFinish = async (values: any) => {
 
     if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
-      message.success('修改成功');
+      message.success('修改密码成功');
       logout();
     } else {
       // Handle login failure
-      message.error(`修改失败: ${response.data.error_message}`);
+      message.error(`修改密码失败: ${response.data.error_message}`);
       console.error('change failed:', response.data.msg);
     }
   } catch (error) {
-    message.error(`修改错误`);
+    message.error(`修改密码错误`);
   }
   console.log('Success:', values);
 };
@@ -128,15 +127,15 @@ const onUsernameFinish = async (values: any) => {
 
     if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
-      message.success('修改成功');
+      message.success('修改用户名成功');
       logout();
     } else {
       // Handle login failure
-      message.error(`修改失败: ${response.data.error_message}`);
+      message.error(`修改用户名失败: ${response.data.error_message}`);
       console.error('change failed:', response.data.msg);
     }
   } catch (error) {
-    message.error(`修改错误`);
+    message.error(`修改用户名错误`);
   }
   console.log('Success:', values);
 };
