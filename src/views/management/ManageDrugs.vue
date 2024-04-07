@@ -27,7 +27,7 @@
 
       </el-table-column>
     </el-table>
-    <el-dialog v-model="dialogFormVisible" title="修改药品信息" width="500">
+    <el-dialog v-model="changeVisible" title="修改药品信息" width="500">
       <el-form :model="form">
         <el-form-item label="medicineId" >
           <el-input v-model="form.medication_id" autocomplete="off" />
@@ -35,16 +35,32 @@
         <el-form-item label="价格" >
           <el-input v-model="form.medication_cost" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="密码" >
-          <el-input v-model="form.password" autocomplete="off" placeholder="(可选)" />
-        </el-form-item>
-
 
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">Cancel</el-button>
+          <el-button @click="changeVisible = false">Cancel</el-button>
           <el-button type="primary" @click="medicationChangeSubmit">
+            Confirm
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+
+    <el-dialog v-model="addVisible" title="新建药品信息" width="500">
+      <el-form :model="newMedicine">
+        <el-form-item label="药品名称" >
+          <el-input v-model="newMedicine.medicine_name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="药品价格" >
+          <el-input v-model="newMedicine.medicine_cost" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="addMedicine">
             Confirm
           </el-button>
         </div>
@@ -81,24 +97,25 @@ const medications = ref([]); // 药品列表数据
 const totalMedications = ref<number>(0); // 总药品数量
 const page = ref<number>(1); // 当前页码
 const pageSize = ref<number>(10); // 每页显示数量
-const dialogFormVisible = ref(false)
+const changeVisible = ref(false)
+const addVisible = ref(false)
 const form = ref({
 })
-
+const newMedicine = ref({
+  medicine_name: '',
+  medicine_cost: ''
+})
+const newFunc = () => {
+  addVisible.value = true;
+}
 const medicationChangeSubmit = async () => {
   // 提交药品修改的逻辑
   console.log('提交药品修改', form.value);
   try {
-    // 创建 URLSearchParams 对象，先不包括 password
     const params = new URLSearchParams({
       medicineId: form.value.medicineId.toString(),
       medicineName: form.value.medicineName.toString(),
-      authority: form.value.authority.toString(),
     });
-
-    if (form.value.password.toString() !== '') {
-      params.append('password', form.value.password.toString());
-    }
 
     const paramString = params.toString();
 
@@ -126,17 +143,17 @@ const medicationChangeSubmit = async () => {
     console.error('修改错误:', error);
     ElMessage.error('修改错误');
   }
-  dialogFormVisible.value = false;
+  changeVisible.value = false;
 };
 const editMedication = (medication) => {
   // 编辑药品的逻辑
-  dialogFormVisible.value = true;
+  changeVisible.value = true;
   form.value = { ...medication, password: '' }; // Use spread operator to copy medication properties
 
   console.log('编辑药品', medication);
 };
 
-const deletemedication = async (medication) => {
+const deleteMedicine = async (medication) => {
   // 禁用药品的逻辑
   console.log('禁用药品', medications);
   try {
@@ -168,16 +185,16 @@ const deletemedication = async (medication) => {
     ElMessage.error('禁用错误');
   }
 };
-const addMedication = async (medication) => {
+const addMedicine = async () => {
   // 启用药品的逻辑
   console.log('启用药品', medications);
   try {
     const params = new URLSearchParams({
-      medicineId: medication.medicineId.toString(),
-      authority: '1',
+      medicine_name: newMedicine.value.medicine_name.toString(),
+      medicine_cost: newMedicine.value.medicine_cost.toString(),
     }).toString();
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/medication/unban?${params}`,{}, {
+    const response = await axios.post(`/api/medications/add?${params}`,{}, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -187,15 +204,16 @@ const addMedication = async (medication) => {
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
       ElMessage({
-        message: '启用成功',
+        message: '添加成功',
         type: 'success',
       });
+      addVisible.value = false;
     } else {
-      ElMessage.error(`启用失败: ${response.data.error_message}`);
+      ElMessage.error(`添加失败: ${response.data.error_message}`);
     }
   } catch (error) {
-    console.error('启用错误:', error);
-    ElMessage.error('启用错误');
+    console.error('添加错误:', error);
+    ElMessage.error('添加错误');
   }
   fetchMedications();
 };

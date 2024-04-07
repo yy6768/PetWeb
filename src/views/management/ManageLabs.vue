@@ -124,9 +124,6 @@ const labChangeSubmit = async () => {
       lab_cost: form.value.labName.toString(),
     });
 
-    if (form.value.password.toString() !== '') {
-      params.append('password', form.value.password.toString());
-    }
 
     const paramString = params.toString();
 
