@@ -47,6 +47,7 @@ const menuItems = ref([
 const manageMenuItems = ref([
   { key: 'manage-cases', title: '病例管理', path: '/manage-cases' },
   { key: 'manage-exams', title: '考试管理', path: '/manage-exams' },
+  { key: 'manage-papers', title: '试卷管理', path: '/manage-papers' },
   { key: 'manage-questions', title: '题目管理', path: '/manage-questions' },
   { key: 'manage-users', title: '用户管理', path: '/manage-users' },
   { key: 'manage-drugs', title: '药品管理', path: '/manage-drugs' },
