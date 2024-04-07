@@ -27,6 +27,7 @@
               placeholder="按编号排序"
               size="default"
               style="width: 180px"
+              clearable
           >
             <el-option
                 v-for="item in sortOptions "
@@ -45,6 +46,7 @@
             placeholder="病种"
             size="default"
             style="width: 180px"
+            clearable
         >
           <el-option
               v-for="item in cateOptions "
@@ -58,6 +60,7 @@
             placeholder="病名"
             size="default"
             style="width: 180px ; margin-left: 40px"
+            clearable
         >
           <el-option
               v-for="item in illOptions "
@@ -71,6 +74,7 @@
             placeholder="年份"
             size="default"
             style="width: 180px ; margin-left: 40px"
+            clearable
         >
           <el-option
               v-for="item in yearOptions "
@@ -81,9 +85,10 @@
         </el-select>
         <el-select
             v-model="monthValue"
-            placeholder="年份"
+            placeholder="月份"
             size="default"
             style="width: 180px ; margin-left: 40px"
+            clearable
         >
           <el-option
               v-for="item in monthOptions "
@@ -97,7 +102,7 @@
         <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>
       </div>
       <div class="margin"></div><!--    间距-->
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="displayedTableData" stripe style="width: 100%">
         <el-table-column
             :width="item.width"
             :prop="item.prop"
@@ -115,7 +120,7 @@
               type="primary"
               size="small"
               :icon="Edit"
-              @click="handleDialogValueAdd(row)"gi
+              @click="handleDialogValueAdd(row)"
           ></el-button>
           <el-button
               type="danger"
@@ -155,7 +160,7 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
 import DialogAdd from './components/dialog_add.vue'
@@ -192,124 +197,94 @@ const tableData = ref([
   },
 ])
 
-//下拉框
+//排序方式下拉框
 const sortValue = ref('')
 
 const sortOptions = [
-  { value: 'Option1', label: '按编号排序'},
-  { value: 'Option2', label: '按病名排序'},
-  { value: 'Option3', label: '按修改时间排序'},
+  { value: 'Sort1', label: '按编号排序'},
+  { value: 'Sort2', label: '按病名排序'},
+  { value: 'Sort3', label: '按修改时间排序'},
 ]
+// 监听sortValue的变化
+watch(sortValue, (newValue) => {
+  if (newValue === 'Sort1') {
+    // 按编号排序
+    tableData.value.sort((a, b) => a.cid.localeCompare(b.cid));
+  } else if (newValue === 'Sort2') {
+    // 按病名排序
+    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+  } else if (newValue === 'Sort3') {
+    // 按修改时间排序
+    tableData.value.sort((a, b) => {
+      const timeA = new Date(a.create_time).getTime();
+      const timeB = new Date(b.create_time).getTime();
+      return timeA - timeB;
+    });
+  }
+});
 
+//病种选择
 const cateValue = ref('')
-
 const cateOptions = [
-  { value: 'Option1', label: '病种一'},
-  { value: 'Option2', label: '病种二'},
-  { value: 'Option3', label: '病种三'},
+  { value: '病种一', label: '病种一'},
+  { value: '病种二', label: '病种二'},
+  { value: '病种三', label: '病种三'},
 ]
 
+//病名选择
 const illValue = ref('')
-
 const illOptions = [
-  {
-    value: 'Option1',
-    label: '病名一',
-  },
-  {
-    value: 'Option2',
-    label: '病名二',
-  },
-  {
-    value: 'Option3',
-    label: '病名三',
-  },
+  { value: '病名一', label: '病名一'},
+  { value: '病名二', label: '病名二'},
+  { value: '病名三', label: '病名三'},
 ]
 
+//年份选择
 const yearValue = ref('')
-
 const yearOptions = [
-  {
-    value: 'Option1',
-    label: '2022',
-  },
-  {
-    value: 'Option2',
-    label: '2023',
-  },
-  {
-    value: 'Option3',
-    label: '2024',
-  },
+  { value: '2022', label: '2022'},
+  { value: '2023', label: '2023'},
+  { value: '2024', label: '2024'},
 ]
 
+//月份选择
 const monthValue = ref('')
-
 const monthOptions = [
-  {
-    value: 'Option1',
-    label: '1月',
-  },
-  {
-    value: 'Option2',
-    label: '2月',
-  },
-  {
-    value: 'Option3',
-    label: '3月',
-  },
-  {
-    value: 'Option3',
-    label: '4月',
-  },
-  {
-    value: 'Option3',
-    label: '5月',
-  },
-  {
-    value: 'Option3',
-    label: '6月',
-  },
-  {
-    value: 'Option3',
-    label: '7月',
-  },
-  {
-    value: 'Option3',
-    label: '8月',
-  },  {
-    value: 'Option3',
-    label: '9月',
-  },  {
-    value: 'Option3',
-    label: '10月',
-  },
-  {
-    value: 'Option3',
-    label: '11月',
-  },
-  {
-    value: 'Option3',
-    label: '12月',
-  },
-
-
-
+  { value: '01', label: '1月'},
+  { value: '02', label: '2月'},
+  { value: '03', label: '3月'},
+  { value: '04', label: '4月'},
+  { value: '05', label: '5月'},
+  { value: '06', label: '6月'},
+  { value: '07', label: '7月'},
+  { value: '08', label: '8月'},
+  { value: '09', label: '9月'},
+  { value: '10', label: '10月'},
+  { value: '11', label: '11月'},
+  { value: '12', label: '12月'},
 ]
 
-
-
-//测试搜索
-// const initGetCasesListTest = () =>{
-//   const searchTerm = queryForm.value.query.toLowerCase();
-//   const filteredData = tableData.value.filter(item => {
-//     return Object.values(item).some(val =>
-//         String(val).toLowerCase().includes(searchTerm)
-//     );
-//   });
-//   // 更新表格显示的内容
-//   tableData.value = filteredData;
-// }
+// 计算属性，根据cateValue和illValue的值动态过滤数据
+const displayedTableData = computed(() => {
+  let filteredData = tableData.value;
+  if (cateValue.value) {
+    filteredData = filteredData.filter(item => item.cate_name === cateValue.value);
+  }
+  if (illValue.value) {
+    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+  }
+  if (yearValue.value) {
+    filteredData = filteredData.filter(item => item.create_time.startsWith(yearValue.value));
+  }
+  if (monthValue.value) {
+    const month = monthValue.value.slice(-2); // Extract the month number from the value
+    filteredData = filteredData.filter(item => {
+      const itemMonth = item.create_time.split('-')[1]; // Extract the month from the create_time
+      return itemMonth === month;
+    });
+  }
+  return filteredData;
+});
 
 // GET
 const initGetCasesList = async () =>{
@@ -358,10 +333,10 @@ onMounted(async () => {
 })
 
 //详情
-const handleDialogValueDetail = () => {
-  dialogTitleDetail.value= '病例详情'
-  dialogVisibleDetail.value = true
-}
+// const handleDialogValueDetail = () => {
+//   dialogTitleDetail.value= '病例详情'
+//   dialogVisibleDetail.value = true
+// }
 
 //新增标题
 const handleDialogValueAdd = (row:any) =>{
