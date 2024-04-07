@@ -1,3 +1,4 @@
+//不用了有更好的
 <template>
   <el-dialog
       :model-value="dialogVisibleDetail"
@@ -54,7 +55,7 @@
 <script setup lang="ts">
 import {defineEmits,ref,defineProps} from 'vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {meds} from './meds'
+// import {meds} from './meds'
 
 
 //顶部文字内容
