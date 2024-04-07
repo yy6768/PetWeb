@@ -60,7 +60,9 @@ const onLogin = async () => {
       sessionStorage.setItem('authority', response.data.authority);
       sessionStorage.setItem('token', response.data.token);
       sessionStorage.setItem('uid', response.data.uid);
-      router.push('/home');
+      sessionStorage.setItem('username', response.data.username);
+
+      router.push('/role-preview');
     } else {
       // Handle login failure
       message.error(`登录失败: ${response.data.error_message}`);
