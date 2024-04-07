@@ -8,16 +8,14 @@
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" >
       <el-col :span="22">
-      <el-form-item label="编号" prop="id" >
-        <el-input v-model="form.id" v-if="dialogTitleAdd === '添加病例'"/>
-        <el-text>{{ form.id }}</el-text>
+      <el-form-item label="编号" prop="id" v-if="dialogTitleAdd === '添加病例'" >
+        <el-input v-model="form.id"/>
       </el-form-item>
       <el-form-item label="病种" prop="category" v-if="dialogTitleAdd === '添加病例'">
         <el-input v-model="form.category" />
       </el-form-item>
-      <el-form-item label="病名" prop="name" >
-        <el-input v-model="form.name" v-if="dialogTitleAdd === '添加病例'"/>
-        <el-text>{{ form.name }}</el-text>
+      <el-form-item label="病名" prop="name" v-if="dialogTitleAdd === '添加病例'">
+        <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >
           <el-date-picker
@@ -30,7 +28,13 @@
       <el-form-item label="就诊医师" prop="doctor_name" v-if="dialogTitleAdd === '添加病例'" >
         <el-input v-model="form.doctor_name" />
       </el-form-item>
-      <el-form-item label="基本情况" prop="basic" v-if="dialogTitleAdd === '病例详情'">
+      <el-form-item label="编号" prop="id" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.id" readonly/>
+      </el-form-item>
+      <el-form-item label="病名" prop="name" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.name" readonly/>
+      </el-form-item>
+        <el-form-item label="基本情况" prop="basic" v-if="dialogTitleAdd === '病例详情'">
         <el-input v-model="form.basic" type="textarea" style="width: 425px;" />
       </el-form-item>
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
