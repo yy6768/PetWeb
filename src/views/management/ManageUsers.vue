@@ -122,8 +122,8 @@
   const editUser = (user) => {
     // 编辑用户的逻辑
     dialogFormVisible.value = true;
-    form.value = user;
-    form.value.password = '';
+    form.value = { ...user, password: '' }; // Use spread operator to copy user properties
+
     console.log('编辑用户', user);
   };
 
