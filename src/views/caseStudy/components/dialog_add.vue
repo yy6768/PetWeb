@@ -28,17 +28,34 @@
       <el-form-item label="就诊医师" prop="doctor_name" v-if="dialogTitleAdd === '添加病例'" >
         <el-input v-model="form.doctor_name" />
       </el-form-item>
-      <el-form-item label="编号" prop="id" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.id" readonly/>
+
+      <el-form-item v-if="dialogTitleAdd === '病例详情'" class="form-item-inline">
+        <el-text style="margin-right:13px">编号</el-text>
+        <el-input v-model="form.id" readonly class="inline-input"/>
+        <el-text style="margin-right:13px">病名</el-text>
+        <el-input v-model="form.name" readonly class="inline-input"/>
       </el-form-item>
-      <el-form-item label="病名" prop="name" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.name" readonly/>
-      </el-form-item>
+
         <el-form-item label="基本情况" prop="basic" v-if="dialogTitleAdd === '病例详情'">
         <el-input v-model="form.basic" type="textarea" style="width: 425px;" />
       </el-form-item>
+
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.laboratory" type="textarea" style="width: 425px;" />
+        <el-card class="lab-card">
+          <el-input v-model="form.lab_name" placeholder="项目名称"></el-input>
+          <el-input v-model="form.lab_result" placeholder="项目结果"></el-input>
+          <el-input v-model="form.lab_cost" placeholder="项目费用"></el-input>
+          <!-- 项目图片 -->
+          <el-upload
+              action="#"
+              list-type="picture-card"
+              :file-list="form.lab_image"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+          >
+          </el-upload>
+        </el-card>
+<!--        <el-button class="add-item-btn" size="small"  type="primary" round @click="storeItem">保存</el-button>-->
       </el-form-item>
       <el-form-item label="治疗药品" prop="medicine" v-if="dialogTitleAdd === '病例详情'">
         <el-select v-model="form.medicine" placeholder="请选择药品" style="width: 425px;">
@@ -51,6 +68,16 @@
       </el-form-item>
       <el-form-item label="治疗方案" prop="plan" v-if="dialogTitleAdd === '病例详情'">
         <el-input v-model="form.plan" type="textarea" style="width: 425px;" />
+      </el-form-item>
+      <el-form-item label="治疗视频" prop="video" v-if="dialogTitleAdd === '病例详情'">
+        <el-upload
+            action="#"
+            :file-list="form.video"
+            class="video-upload"
+            :show-file-list="false"
+        >
+          <el-button size="small" type="primary">添加视频</el-button>
+        </el-upload>
       </el-form-item>
       </el-col>
     </el-form>
@@ -66,7 +93,7 @@
 <script setup lang="ts">
 import  {defineEmits,ref,defineProps,watch} from 'vue'
 import  {addCase,editCase} from '@/api/case'
-import {ElMessage} from "element-plus";
+import { ElMessage, ElUpload, ElButton, ElInput } from "element-plus";
 
 //顶部文字内容
 const props = defineProps({
@@ -90,10 +117,14 @@ const form = ref({
   create_time:'',
   doctor_name:'',
   basic:'',
-  laboratory:'',
+  lab_name:'',
+  lab_result:'',
+  lab_cost:'',
+  lab_image:[],
   medicine:'',
   results:'',
-  plan:''
+  plan:'',
+  video:[],
 })
 
 //输入信息校验
@@ -172,8 +203,30 @@ const handleConfirm = () => {
   })
 }
 
+const storeItem = () => {
+};
+
+const handlePreview = (file: any) => {
+  // 处理图片预览
+};
+
+const handleRemove = (file: any) => {
+  // 处理删除图片
+};
+
+
 </script>
 
 <style>
+.form-item-inline {
+  margin-left:-40px;
+  width:380px;
+  flex: 0 0 auto;
+}
+
+.inline-input{
+  flex: 1; /* 让两个输入框平分父容器的宽度 */
+  margin-right: 20px; /* 可以添加一些间距 */
+}
 
 </style>
