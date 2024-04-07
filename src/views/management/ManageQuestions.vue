@@ -2,6 +2,11 @@
 import {ArrowRight, Edit, Delete} from "@element-plus/icons-vue";
 import {computed, ref} from 'vue';
 import axios from "axios";
+import { message } from 'ant-design-vue';
+
+const token = sessionStorage.getItem("token")
+const authority = sessionStorage.getItem("authority")
+const uid = sessionStorage.getItem("uid")
 
 const totalAccount = computed(() =>{
   return tableData.value.length;
@@ -24,56 +29,74 @@ const editData = ref(undefined)
 const isEdit = ref(false)
 const isCreate = ref(false)
 const showDetail = ref(false)
-const tableData = ref([
-{
-  id:0,
-  content:"题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容",
-  type:1,
-  typeName:"第一个病种",
-  disease:2,
-  diseaseName:"疾病123321",
-  optionA:"选项A的内容",
-  optionB:"选项B的内容",
-  optionC:"选项C的内容",
-  optionD:"选项D的内容",
-  answer:1,
-  point:2,
-  spread:1
-},
-{
-    id:1,
-    content:"题目内容1234题目内容",
-    type:2,
-    typeName:"第二个病种",
-    disease:1,
-    diseaseName:"疾病222",
+const tableData = ref([/*{
+    id:0,
+    content:"题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容",
+    cateId:1,
+    cateName:"第一个病种",
+    illId:2,
+    illName:"疾病123321",
     optionA:"选项A的内容",
     optionB:"选项B的内容",
     optionC:"选项C的内容",
     optionD:"选项D的内容",
-    answer:2,
-    point:3,
-    spread:1
-},{
-    id:3,
-    content:"题目内容1234题目内容",
-    type:3,
-    typeName:"第三个病种",
-    disease:3,
-    diseaseName:"疾病333",
-    optionA:"选项A的内容",
-    optionB:"选项B的内容",
-    optionC:"选项C的内容",
-    optionD:"选项D的内容",
-    answer:4,
+    answer:1,
     point:2,
     spread:1
-  }
-])
+  },
+  {
+      id:1,
+      content:"题目内容1234题目内容",
+      cateId:2,
+      cateName:"第二个病种",
+      illId:1,
+      illName:"疾病222",
+      optionA:"选项A的内容",
+      optionB:"选项B的内容",
+      optionC:"选项C的内容",
+      optionD:"选项D的内容",
+      answer:2,
+      point:3,
+      spread:1
+  },{
+      id:3,
+      content:"题目内容1234题目内容",
+      cateId:3,
+      cateName:"第三个病种",
+      illId:3,
+      illName:"疾病333",
+      optionA:"选项A的内容",
+      optionB:"选项B的内容",
+      optionC:"选项C的内容",
+      optionD:"选项D的内容",
+      answer:4,
+      point:2,
+      spread:1
+    }*/])
 
 const queryForm = ref({
-  type:undefined,
-  name:undefined
+  cateName:undefined,
+  /*cateId:computed(()=>{
+    if(typeof queryForm.value.cateName !== "undefined"){
+      cateList.value.map((item)=> {
+        if (queryForm.value.cateName === item.cateName)
+          return item.cateId
+      })
+    }
+    else
+      return undefined
+  }),*/
+  illName:undefined,
+  /*illId:computed(()=>{
+    if(typeof queryForm.value.illName !== "undefined"){
+      searchDiseaseList.value.map((item)=>{
+        if(queryForm.value.illName === item.illName)
+          return item.illId
+      })
+    }
+    else
+      return undefined
+  })*/
 })
 
 const orders = ref([{ //搜索结果排序
@@ -93,85 +116,96 @@ const types = ref([{ //搜索类型
   value:"病名"
 }]);
 
-const typeList = ref([{ //病种列表
-  id:0,
-  name:"第一个病种"
-},{
-  id:1,
-  name:"第二个病种"
-},{
-  id:2,
-  name:"第三个病种"
-}])
-
-const isSearchTypeSelected = computed(()=>{
-  console.log(queryForm.value.type)
-  return typeof queryForm.value.type !== "undefined";
+const cateList = ref([])
+axios.get("/api/cate/get_all",{
+  headers:{
+    'Authorization':`Bearer ${token}`
+  }
+}).then((response)=>{
+  console.log(response)
+  if(response.data.error_message === "success"){
+    cateList.value = response.data.cate_list
+    console.log("成功获取病种列表")
+  }
+  else{
+    message.error("获取病种列表失败")
+    console.log("获取病种列表失败")
+  }
+})
+const getDisease = (cateId:Number) =>{
+  axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
+    headers:{
+      'Authorization':`Bearer ${token}`
+    }
+  }).then((response)=>{
+    console.log(response.data)
+    if(response.data.error_message === "success"){
+      console.log(`成功获取病种${cateId}的疾病列表`)
+      return response.data.ill_list
+    }
+    else{
+      console.log(`获取病种${cateId}的疾病列表失败`)
+      return []
+    }
+  })
+  /*let tmpData = [{
+    illId:0,
+    illName:"JKKAN",
+    cateId:0
+  },{
+    illId:1,
+    illName:"HDBIWAH",
+    cateId:0
+  }]
+  return tmpData*/
+}
+const isSearchCateSelected = computed(()=>{
+  console.log(queryForm.value.cateName)
+  return typeof queryForm.value.cateName !== "undefined";
 })
 
 const isTypeSelected = computed(()=>{
-  console.log(editData.value.typeName)
-  return typeof editData.value.typeName !== "undefined";
+  if(typeof editData.value !== "undefined"){
+    console.log(editData.value.cateName)
+    return typeof editData.value.cateName !== "undefined";
+  }
+  else{
+    return false
+  }
 })
 const diseaseList = computed(()=>{
   if(!isTypeSelected.value){
-    editData.value.diseaseName = undefined
-    editData.value.disease = undefined
+    if(typeof editData.value !== "undefined"){
+      editData.value.diseaseName = undefined
+      editData.value.disease = undefined
+    }
     return []
   }
   else{
-    let tmpData = [
-      {
-        id:0,
-        name:"第一个疾病"
-      },{
-        id:1,
-        name:"第二个疾病"
-      },{
-        id:2,
-        name:"第三个疾病"
-      }]
-    /*根据editData.value.type获取disease的列表
-
-    })*/
-    return tmpData.values()
+    /*根据editData.value.type获取disease的列表*/
+    if(typeof editData.value !== "undefined")
+      return getDisease(editData.value.cateId)
   }
 })
 const searchDiseaseList = computed(()=>{
-  if(!isSearchTypeSelected.value){
-    queryForm.value.name = undefined
+  if(!isSearchCateSelected.value){
+    queryForm.value.illName = undefined
+    console.log("not select cate")
     return []
   }
   else{
-    let tmpData = [
-      {
-        id:0,
-        name:"第一个疾病"
-      },{
-        id:1,
-        name:"第二个疾病"
-      },{
-        id:2,
-        name:"第三个疾病"
-      }]
-    /*let data = []
-    let typeId = 0;
-    console.log("值为"+queryForm.value.type)
-    typeList.value.map((item) => {
-      if(queryForm.value.type === item.name){
-        typeId = item.id;
-      }
-    })
-    axios.get("").then((response)=>{
-      console.log(response.data);
-      if(response.data.code === 200){
-        data = response.data.data
-      }
-      else{
-        this.$message.error("获取病名列表失败！")
-      }
-    })*/
-    return tmpData.values()
+    if(typeof queryForm.value.cateName!== "undefined"){
+      cateList.value.map((item)=> {
+        if (queryForm.value.cateName === item.cateName){
+          console.log(item.cateId)
+          return(getDisease(item.cateId))
+        }
+      })
+    }
+    else{
+      console.log("123")
+      return []
+    }
   }
 })
 
@@ -179,23 +213,46 @@ const search = () => {
   console.log("关键词为：" + searchKey.value + "，搜索类型" + searchType.value +
               "，搜索排序为" + searchOrder.value)
   console.log(queryForm.value)
-  /*
-  axios.get("").then((response) =>{
-    console.log(response.data.data)
-    if(response.data.code === 200){
-      dataList.value = response.data.data
+  if(searchType.value === "题目"){
+    let myParam = ref({
+      page:currentPage.value.toString(),
+      pageSize:pageSize.value.toString(),
+      key:searchKey.value,
+      sort:computed(() =>{
+        if(searchOrder.value === "按编号排序")
+          return "0";
+        else
+          return "1";
+      })
+    })
+    if(typeof queryForm.value.cateId !== "undefined"){
+      Reflect.set(myParam.value,'cate_id',queryForm.value.cateId)
     }
-    else{
-      this.$message.error("搜索失败！")
+    if(isSearchCateSelected && typeof queryForm.value.illId !== "undefined"){
+      Reflect.set(myParam.value,'ill_id', queryForm.value.illId)
     }
+    let params = new URLSearchParams(myParam.value).toString();
+    axios.get(`/api/getAllQuestionByDescription?${params}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }}).then((response)=>{
+      console.log(response.data)
+      if(response.data.error_message === "success"){
+        console.log("成功搜索")
+        tableData.value = response.data.question_list
+        tableData.value.map((item)=>{
+          Reflect.set(item, "spread", 1)
+        })
+      }
+    })
   }
-  */
 }
+search()
 const spreadText = (data) =>{
   tableData.value.map((item)=>{
-    if(item.id === data.id){
+    if(item.qid === data.qid){
       item.spread = 1 - item.spread
-      console.log("id为" + item.id + "的数据折叠/展开，spread变为" + item.spread)
+      console.log("id为" + item.qid + "的数据折叠/展开，spread变为" + item.spread)
     }
   })
 }
@@ -220,7 +277,7 @@ const confirm = () =>{
       if(response.data.code === 200){
         console.log("成功编辑")
         tableData.value.map((item) =>{
-          if(item.id === editData.value.id){
+          if(item.qid === editData.value.qid){
             item = editData.value
             editData.value = undefined
             isEdit.value = false
@@ -261,13 +318,13 @@ const cancel = () =>{
   console.log(showDetail.value)
 }
 const deleteFunc = (row) =>{
-  console.log("删除id为" + row.id + "的题目")
+  console.log("删除id为" + row.qid + "的题目")
   axios.post("").then((response)=>{
     console.log(response.data)
     if(response.data.code === 200){
       console.log("成功删除")
       let deleteIndex = tableData.value.map((item,index) =>{
-        if(item.id === row.id)
+        if(item.qid === row.qid)
           return index
       })
       tableData.value.splice(deleteIndex, 1)
@@ -366,26 +423,27 @@ const newFunc = () =>{
                  label-width="3vw"
                  style="display:flex;position: relative">
           <el-form-item label="病种" prop="diseaseType">
-            <el-select v-model="queryForm.type"
+            <el-select v-model="queryForm.cateName"
                        clearable
                        filterable
                        placeholder="选择病种"
+                       :disabled="searchType === '病名'"
                        style="width: 8vw">
-              <el-option v-for="item in typeList"
-                         :key="item.id"
-                         :value="item.name"></el-option>
+              <el-option v-for="item in cateList"
+                         :key="item.cateId"
+                         :value="item.cateName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="病名" prop="disease" style="padding-left: 5vw">
-            <el-select v-model="queryForm.name"
+            <el-select v-model="queryForm.illName"
                        clearable
                        filterable
                        placeholder="选择病名"
                        style="width: 8vw"
-                       :disabled="!isSearchTypeSelected">
+                       :disabled="searchType === '病名' || !isSearchCateSelected">
               <el-option v-for="item in searchDiseaseList"
-                         :key="item.id"
-                         :value="item.name"></el-option>
+                         :key="item.illId"
+                         :value="item.illName"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -393,12 +451,12 @@ const newFunc = () =>{
       </el-container>
       <el-container>
         <el-table :data="tableData" stripe height="61vh">
-          <el-table-column prop="id" label="编号" align="center" min-width="5%"></el-table-column>
-          <el-table-column prop="content" label="题目内容" align="left" min-width="40%">
+          <el-table-column prop="qid" label="编号" align="center" min-width="5%"></el-table-column>
+          <el-table-column prop="description" label="题目内容" align="left" min-width="40%">
             <template #default="scope">
               <div class="spread-box" :style="{'-webkit-line-clamp':scope.row.spread == 1 ? 1 : ''}">
-               <span style="white-space: pre-line;">{{scope.row.content}}<br>A: {{scope.row.optionA}}<br>B: {{scope.row.optionB}}
-                <br>C: {{scope.row.optionC}}<br>D: {{scope.row.optionD}}</span>
+               <span style="white-space: pre-line;">{{scope.row.description}}<br>A: {{scope.row.contentA}}<br>B: {{scope.row.contentB}}
+                <br>C: {{scope.row.contentC}}<br>D: {{scope.row.contentD}}</span>
               </div>
               <div v-show="scope.row.spread === 1"  @click="spreadText(scope.row)" class="spread-btn">
                 <el-button type="text">展开<el-icon class="el-icon-arrow-down"></el-icon></el-button>
@@ -408,8 +466,8 @@ const newFunc = () =>{
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="typeName" label="病种" align="center" min-width="10%"></el-table-column>
-          <el-table-column prop="diseaseName" label="病名" align="center" min-width="10%"></el-table-column>
+          <el-table-column prop="cateName" label="病种" align="center" min-width="10%"></el-table-column>
+          <el-table-column prop="illName" label="病名" align="center" min-width="10%"></el-table-column>
           <el-table-column prop="answer" label="答案" align="center" min-width="5%">
             <template #default="scope">
               <span v-if="scope.row.answer === 1">A</span>
@@ -419,7 +477,7 @@ const newFunc = () =>{
               <span v-else>error</span>
             </template>
           </el-table-column>
-          <el-table-column prop="point" label="分数" align="center" min-width="5%"></el-table-column>
+          <el-table-column prop="mark" label="分数" align="center" min-width="5%"></el-table-column>
           <el-table-column label="操作" align="center" min-width="20%">
             <template #default="scope">
               <el-button type="success" size="small" :icon="Edit" @click="showDetailFunc(scope.row)">编辑</el-button>
@@ -475,8 +533,8 @@ const newFunc = () =>{
                        filterabl
                        :disabled="!isCreate && !isEdit">
               <el-option v-for="item in diseaseList"
-                         :key="item.id"
-                         :value="item.name"></el-option>
+                         :key="item.ill_id"
+                         :value="item.ill_name"></el-option>
             </el-select>
           </el-form-item>
 
