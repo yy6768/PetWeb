@@ -4,7 +4,9 @@
     <div class="profile">
       <a-dropdown>
         <a @click="e => e.preventDefault()" style="display: flex; align-items: center;">
-            <div style="color: aliceblue;">admin</div>
+            <div style="color: aliceblue;">
+              {{ username }}
+            </div>
             <a-avatar shape="square" :size="32" style="margin-right: 10px; margin-left: 10px;">
               <template #icon>
                 <UserOutlined />
@@ -13,6 +15,9 @@
         </a>
         <template #overlay>
           <a-menu style="margin-top: 10px;">
+            <a-menu-item>
+              <a-button @click="showChangeUsername">改用户名</a-button>
+            </a-menu-item>
             <a-menu-item>
               <a-button @click="showChangePwd">修改密码</a-button>
             </a-menu-item>
@@ -36,13 +41,11 @@
       </a-form>
     </a-modal>
 
-    <a-modal v-model:open="openUsernameChange" title="修改用户名" @ok="handleOk">
-      <a-form :model="formState"  autocomplete="off"
-              @finish="onUsernameFinish" @finishFailed="onFinishFailed">
+    <a-modal v-model:open="openUsernameChange" title="修改用户名" @ok="onUsernameFinish">
+      <a-form :model="formState"  autocomplete="off" @finishFailed="onFinishFailed">
         <a-form-item label="新用户名" name="newUsername" >
           <a-input v-model:value="newUsername" />
         </a-form-item>
-]
 
       </a-form>
     </a-modal>
@@ -60,6 +63,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const username = ref<string>(sessionStorage.getItem('username') || 'Null');
 const openPwdChange = ref<boolean>(false);
 const openUsernameChange = ref<boolean>(false);
 const newUsername = ref<string>('');
@@ -81,7 +85,7 @@ const onPwdFinish = async (values: any) => {
     const token = sessionStorage.getItem('token');
     const uid = sessionStorage.getItem('uid');
     const params = new URLSearchParams({
-      uid: '14',
+      uid: uid,
       old_password: formState.oldPassword,
       new_password: formState.newPassword
     }).toString();
@@ -94,22 +98,45 @@ const onPwdFinish = async (values: any) => {
 
     if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
-      message.success('修改成功');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('uid');
-      sessionStorage.removeItem('authority');
-      router.push('/login');
+      message.success('修改密码成功');
+      logout();
     } else {
       // Handle login failure
-      message.error(`修改失败: ${response.data.error_message}`);
+      message.error(`修改密码失败: ${response.data.error_message}`);
       console.error('change failed:', response.data.msg);
     }
   } catch (error) {
-    message.error(`修改错误`);
+    message.error(`修改密码错误`);
   }
   console.log('Success:', values);
 };
-const onUsernameFinish = (values: any) => {
+const onUsernameFinish = async (values: any) => {
+  try {
+    const token = sessionStorage.getItem('token');
+    const uid = sessionStorage.getItem('uid');
+    const params = new URLSearchParams({
+      uid: uid,
+      username: newUsername.value
+    }).toString();
+
+    const response = await axios.post(`/api/user/update_username?${params}`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.data && response.data.error_message === 'success') {
+      // Optionally store the user's authority level in sessionStorage
+      message.success('修改用户名成功');
+      logout();
+    } else {
+      // Handle login failure
+      message.error(`修改用户名失败: ${response.data.error_message}`);
+      console.error('change failed:', response.data.msg);
+    }
+  } catch (error) {
+    message.error(`修改用户名错误`);
+  }
   console.log('Success:', values);
 };
 
@@ -122,12 +149,16 @@ const logout = () => {
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('uid');
   sessionStorage.removeItem('authority');
+  sessionStorage.setItem('username', newUsername.value);
   router.push('/login');
 };
 
 const showChangePwd = () => {
   openPwdChange.value = true;
 
+};
+const showChangeUsername = () => {
+  openUsernameChange.value = true;
 };
 
 const handleOk = (e: MouseEvent) => {
