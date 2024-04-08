@@ -12,7 +12,7 @@ export const options =[
         prop:'ill_name'
     },
     {
-        label:'创建时间',
+        label:'修改时间',
         prop:'create_time'
     },
     {
