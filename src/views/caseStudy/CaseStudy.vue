@@ -5,7 +5,7 @@
         <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item>病例学习</el-breadcrumb-item>
       </el-breadcrumb>
-    </div>
+      </div>
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
         <el-row gutter="20">
@@ -17,89 +17,92 @@
             >
             </el-input>
           </el-col>
-          <el-button type="primary" :icon="Search" @click="initGetCasesListTest">搜索</el-button>
-<!--          @click="initGetCasesList"-->
+          <el-button type="primary" :icon="Search" @click="initGetCasesList">搜索</el-button>
+<!--          @click="initGetCasesListTest"-->
         </el-row>
-        <div class="input_box-1">
-          <el-input
+
+        <div class="flex flex-wrap gap-4 items-center">
+          <el-select
+              v-model="sortValue"
               placeholder="按编号排序"
-              class="input-with-select"
+              size="default"
+              style="width: 180px"
+              clearable
           >
-            <template #append>
-              <el-select style="width: 40px">
-                <el-option label="按编号排序" value="1" />
-                <el-option label="按姓名排序" value="2" />
-                <el-option label="按时间排序" value="3" />
-              </el-select>
-            </template>
-          </el-input>
+            <el-option
+                v-for="item in sortOptions "
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
         </div>
       </div>
+
       <div class="margin"></div><!--    间距-->
       <div class="input_box">
-          <div class="input_box-2">
-            <el-input
-                placeholder="病种"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="病种1" value="1" />
-                  <el-option label="病种2" value="2" />
-                  <el-option label="病种3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="病名"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="病名1" value="1" />
-                  <el-option label="病名2" value="2" />
-                  <el-option label="病名3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="年份"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="2022" value="1" />
-                  <el-option label="2023" value="2" />
-                  <el-option label="2024" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-          <div class="input_box-2">
-            <el-input
-                placeholder="月份"
-                class="input-with-select"
-            >
-              <template #append>
-                <el-select style="width: 40px">
-                  <el-option label="1" value="1" />
-                  <el-option label="2" value="2" />
-                  <el-option label="3" value="3" />
-                </el-select>
-              </template>
-            </el-input>
-          </div>
-        </div>
-      <div class="margin"></div><!--    间距-->
+        <el-select
+            v-model="cateValue"
+            placeholder="病种"
+            size="default"
+            style="width: 180px"
+            clearable
+        >
+          <el-option
+              v-for="item in cateOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="illValue"
+            placeholder="病名"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+            clearable
+        >
+          <el-option
+              v-for="item in illOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="yearValue"
+            placeholder="年份"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+            clearable
+        >
+          <el-option
+              v-for="item in yearOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <el-select
+            v-model="monthValue"
+            placeholder="月份"
+            size="default"
+            style="width: 180px ; margin-left: 40px"
+            clearable
+        >
+          <el-option
+              v-for="item in monthOptions "
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+      </div>
       <div style="margin-left:1000px">
-        <el-button size="small"  type="primary" round @click="handleDialogValueAdd">新增+</el-button>
+        <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>
       </div>
       <div class="margin"></div><!--    间距-->
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="displayedTableData" stripe style="width: 100%">
         <el-table-column
             :width="item.width"
             :prop="item.prop"
@@ -111,39 +114,60 @@
 <!--            {{$filters.filterTimes(row.create_time)}}-->
 <!--          </template>-->
 <!--          到时候要改成v-else-if-->
-        <template #default v-if="item.prop === 'operation'">
-          <el-button type="primary" @click="handleDialogValueDetail" size="small" :icon="Edit"></el-button>
-          <el-button type="danger" @click="delCase(row)" size="small" :icon="Delete"></el-button>
+        <template #default="{ row }" v-if="item.prop === 'operation'">
+<!--         编辑原来是 @click="handleDialogValueDetail-->
+          <el-button
+              type="primary"
+              size="small"
+              :icon="Edit"
+              @click="handleDialogValueAdd(row)"
+          ></el-button>
+          <el-button
+              type="danger"
+              size="small"
+              :icon="Delete"
+              @click="delCase(row)"
+          ></el-button>
         </template></el-table-column
         >
       </el-table>
       <div class="margin"></div><!--    间距-->
-      <el-pagination
-          v-model:current-page="currentPage4"
-          v-model:page-size="pageSize4"
-          :page-sizes="[5, 10, 15, 20]"
-          :small="small"
-          :disabled="disabled"
-          :background="background"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="100"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-      />
+      <div class="page">
+        <el-pagination
+            v-model:currentPage="queryForm.pagenum"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="queryForm.pagesize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+        />
+      </div>
     </el-card>
-  <DialogDetail v-model = "dialogVisibleDetail" :dialogTitleDetail="dialogTitleDetail"/>
-  <DialogAdd v-model="dialogVisibleAdd" :dialogTitleAdd="dialogTitleAdd"/>
+<!--  <DialogDetail-->
+<!--      v-model = "dialogVisibleDetail"-->
+<!--      :dialogTitleDetail="dialogTitleDetail"-->
+<!--      v-if="dialogVisibleDetail"-->
+<!--  />-->
+  <DialogAdd
+      v-model="dialogVisibleAdd"
+      :dialogTitleAdd="dialogTitleAdd"
+      v-if="dialogVisibleAdd"
+      @initCaseList = "initGetCasesList"
+      :dialogTableValueAdd="dialogTableValueAdd"
+  />
 </template>
 
 <script setup lang="ts">
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
-import DialogDetail from './components/dialog_detail.vue'
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase} from "@/api/case";
+import {getCase,deleteCase} from "@/api/case";
+import {isNull} from '@/views/caseStudy/filters';
+
 
 //查询表
 const queryForm = ref({
@@ -151,7 +175,11 @@ const queryForm = ref({
   pagenum: 1,
   pagesize: 2
 })
-//表格内容
+
+//分页器
+const total = ref(0)
+
+//表格内容(连上数据后清空表格)
 const tableData = ref([
   {
     cid: '1',
@@ -169,27 +197,117 @@ const tableData = ref([
   },
 ])
 
-//测试搜索
-const initGetCasesListTest = () =>{
-  const searchTerm = queryForm.value.query.toLowerCase();
-  const filteredData = tableData.value.filter(item => {
-    return Object.values(item).some(val =>
-        String(val).toLowerCase().includes(searchTerm)
-    );
-  });
-  // 更新表格显示的内容
-  tableData.value = filteredData;
+//排序方式下拉框
+const sortValue = ref('')
+
+const sortOptions = [
+  { value: 'Sort1', label: '按编号排序'},
+  { value: 'Sort2', label: '按病名排序'},
+  { value: 'Sort3', label: '按修改时间排序'},
+]
+// 监听sortValue的变化
+watch(sortValue, (newValue) => {
+  if (newValue === 'Sort1') {
+    // 按编号排序
+    tableData.value.sort((a, b) => a.cid.localeCompare(b.cid));
+  } else if (newValue === 'Sort2') {
+    // 按病名排序
+    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+  } else if (newValue === 'Sort3') {
+    // 按修改时间排序
+    tableData.value.sort((a, b) => {
+      const timeA = new Date(a.create_time).getTime();
+      const timeB = new Date(b.create_time).getTime();
+      return timeA - timeB;
+    });
+  }
+});
+
+//病种选择
+const cateValue = ref('')
+const cateOptions = [
+  { value: '病种一', label: '病种一'},
+  { value: '病种二', label: '病种二'},
+  { value: '病种三', label: '病种三'},
+]
+
+//病名选择
+const illValue = ref('')
+const illOptions = [
+  { value: '病名一', label: '病名一'},
+  { value: '病名二', label: '病名二'},
+  { value: '病名三', label: '病名三'},
+]
+
+//年份选择
+const yearValue = ref('')
+const yearOptions = [
+  { value: '2022', label: '2022'},
+  { value: '2023', label: '2023'},
+  { value: '2024', label: '2024'},
+]
+
+//月份选择
+const monthValue = ref('')
+const monthOptions = [
+  { value: '01', label: '1月'},
+  { value: '02', label: '2月'},
+  { value: '03', label: '3月'},
+  { value: '04', label: '4月'},
+  { value: '05', label: '5月'},
+  { value: '06', label: '6月'},
+  { value: '07', label: '7月'},
+  { value: '08', label: '8月'},
+  { value: '09', label: '9月'},
+  { value: '10', label: '10月'},
+  { value: '11', label: '11月'},
+  { value: '12', label: '12月'},
+]
+
+// 计算属性，根据cateValue和illValue的值动态过滤数据
+const displayedTableData = computed(() => {
+  let filteredData = tableData.value;
+  if (cateValue.value) {
+    filteredData = filteredData.filter(item => item.cate_name === cateValue.value);
+  }
+  if (illValue.value) {
+    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+  }
+  if (yearValue.value) {
+    filteredData = filteredData.filter(item => item.create_time.startsWith(yearValue.value));
+  }
+  if (monthValue.value) {
+    const month = monthValue.value.slice(-2); // Extract the month number from the value
+    filteredData = filteredData.filter(item => {
+      const itemMonth = item.create_time.split('-')[1]; // Extract the month from the create_time
+      return itemMonth === month;
+    });
+  }
+  return filteredData;
+});
+
+// GET
+const initGetCasesList = async () =>{
+  const res = await getCase(queryForm.value)
+  // 打印返回内容
+  console.log(res)
+  //拿total页数信息 还未使用
+  //total.value= res.total
+  //拿页表信息 还未使用
+  //tableData.value = res.case
 }
+initGetCasesList()
 
-//GET
-// const initGetCasesList = async () =>{
-//   const res = await getCase(queryForm.value)
-//   // 打印返回内容
-//   console.log(res)
-//   tableData.value = res.case
-// }
-// initGetCasesList()
-
+//页码改变方法
+const handleSizeChange = (pageSize:any) => {
+  queryForm.value.pagenum=1
+  queryForm.value.pagesize=pageSize
+  initGetCasesList()
+}
+const handleCurrentChange = (pageNum:any) =>{
+  queryForm.value.pagenum=pageNum
+  initGetCasesList()
+}
 
 //详情框
 const dialogVisibleDetail = ref(false)
@@ -198,6 +316,7 @@ const dialogTitleDetail = ref('')
 //新增框
 const dialogVisibleAdd = ref(false)
 const dialogTitleAdd = ref('')
+const dialogTableValueAdd= ref({})
 
 //POST
 const testData = ref<string>('');
@@ -213,19 +332,28 @@ onMounted(async () => {
     }
 })
 
-const handleDialogValueDetail = () => {
-  dialogTitleDetail.value= '病例详情'
-  dialogVisibleDetail.value = true
-}
-const handleDialogValueAdd = () =>{
-  dialogTitleAdd.value = '添加病例'
+//详情
+// const handleDialogValueDetail = () => {
+//   dialogTitleDetail.value= '病例详情'
+//   dialogVisibleDetail.value = true
+// }
+
+//新增标题
+const handleDialogValueAdd = (row:any) =>{
+  if(isNull(row)){
+    dialogTitleAdd.value = '添加病例'
+    dialogTableValueAdd.value={}
+  }else{
+    dialogTitleAdd.value = '病例详情'
+    dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
+  }
   dialogVisibleAdd.value = true
 }
 
 //删除弹窗
-const delCase = (row) => {
+const delCase = (row:any) => {
   ElMessageBox.confirm(
-      'proxy will permanently delete the file. Continue?',
+      '确定删除病例?',
       'Warning',
       {
         confirmButtonText: 'OK',
@@ -233,22 +361,25 @@ const delCase = (row) => {
         type: 'warning',
       }
   )
-      .then(() => {
+      .then(async () => {
+        await deleteCase(row.id)
         ElMessage({
           type: 'success',
-          message: 'Delete completed',
+          message: '删除成功',
         })
+        //删除成功后还要重新获取数据
+        initGetCasesList()
       })
       .catch(() => {
         ElMessage({
           type: 'info',
-          message: 'Delete canceled',
+          message: '删除失败',
         })
       })
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .margin{
       margin-bottom: 20px;
     }
@@ -260,19 +391,8 @@ const delCase = (row) => {
       margin-left:240px;
     }
     .input_box-2 {
-      width:180px;
-      margin-right:80px;
+      width: 180px;
+      margin-right: 80px;
     }
-
-    ::v-deep .el-input_suffix{
-      align-items : center;
-    }
-
-    ::v-deep .el-pagination{
-      padding-top: 16px;
-      box-sizing: border-box;
-      text-alian: right
-    }
-
 </style>
   
