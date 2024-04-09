@@ -59,9 +59,24 @@ export const medicineFormatForLLM = (queryResponse) => {
 export const getMedicineLLMQuery = (data) => {
     // 将数据转换为文本形式，用于作为查询上下文
     const context = data.map(item => `ID: ${item.id}, 药品名称: ${item.name}, 药品花费（单位rmb）: ${item.cost}`).join('\n');
-    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput.value}`;
+    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput.value}。如果没有相似的就回答没有找到，并列出相关的信息`;
 };
 
+export const labFormatForLLM = (queryResponse) => {
+    return queryResponse.matches.map(match => ({
+        id: match.id,
+        name: match.metadata.medicine_name,
+        cost: match.metadata.medicine_cost,
+        type: match.metadata.type,
+        score: match.score
+    }));
+};
+
+export const getLabLLMQuery = (data) => {
+    // 将数据转换为文本形式，用于作为查询上下文
+    const context = data.map(item => `ID: ${item.id}, 化验名称: ${item.name}, 化验花费（单位rmb）: ${item.cost}`).join('\n');
+    return `根据下列搜索到的化验信息:\n${context}\n用中文回答用户提问：\n${userInput.value}`;
+};
 export const pineconeDelete = async (id, namespace) => {
     const ns = index.namespace('medicine');
     await ns.deleteOne(`${namespace}${id}`);
