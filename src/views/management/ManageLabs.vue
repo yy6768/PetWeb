@@ -32,9 +32,9 @@
     </el-container>
     <el-dialog v-model="changeVisible" title="修改化验信息" width="500">
       <el-form :model="form">
-        <el-form-item label="labId" >
-          <el-input v-model="form.labId" autocomplete="off" />
-        </el-form-item>
+<!--        <el-form-item label="labId" >-->
+<!--          <el-input v-model="form.labId" autocomplete="off" />-->
+<!--        </el-form-item>-->
         <el-form-item label="价格" >
           <el-input v-model="form.labCost" autocomplete="off" />
         </el-form-item>
@@ -56,6 +56,16 @@
         </el-form-item>
         <el-form-item label="化验价格" >
           <el-input v-model="newLab.lab_cost" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="存入Pinecone">
+          <!-- 切换开关 -->
+          <el-switch
+              v-model="newLab.saveToPinecone"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否">
+          </el-switch>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -85,6 +95,7 @@ import { ElMessage } from 'element-plus'
 import { ref, onMounted } from 'vue';
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { useRouter } from 'vue-router';
+import { embedText, pineconeAdd, pineconeDelete } from '@/components/usePinecone';
 
 const router = useRouter();
 
@@ -107,6 +118,7 @@ const addVisible = ref(false)
 const form = ref({
 })
 const newLab = ref({
+  saveToPinecone: false,
   lab_name: '',
   lab_cost: ''
 })
@@ -121,14 +133,13 @@ const labChangeSubmit = async () => {
     // 创建 URLSearchParams 对象，先不包括 password
     const params = new URLSearchParams({
       lab_id: form.value.labId.toString(),
-      lab_cost: form.value.labName.toString(),
+      lab_cost: form.value.labCost.toString(),
     });
-
 
     const paramString = params.toString();
 
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/lab/edit?${paramString}`, {}, {
+    const response = await axios.post(`/api/lab/update?${paramString}`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -163,30 +174,30 @@ const editLab = (lab) => {
 
 const deleteLab = async (lab) => {
   // 禁用化验的逻辑
-  console.log('禁用化验', labs);
+  console.log('删除化验', labs);
   try {
     const params = new URLSearchParams({
-      lab_Id: lab.labId.toString(),
-      authority: '1',
+      lab_id: lab.labId.toString(),
     }).toString();
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/lab/ban?${params}`,{}, {
+    const response = await axios.delete(`/api/lab/delete?${params}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     console.log('禁用res:', response.data);
     if (response.data && response.data.error_message === 'success') {
+      pineconeDelete(lab.labId, 'lab')
       labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
       console.log('化验组:', labs.value);
       ElMessage({
-        message: '禁用成功',
+        message: '删除成功',
         type: 'success',
       });
       fetchLabs();
 
     } else {
-      ElMessage.error(`禁用失败: ${response.data.error_message}`);
+      ElMessage.error(`删除失败: ${response.data.error_message}`);
     }
   } catch (error) {
     console.error('禁用错误:', error);
@@ -210,6 +221,27 @@ const addLab = async () => {
     console.log('获取化验组:', response.data);
     if (response.data && response.data.error_message === 'success') {
       console.log('化验组:', labs.value);
+      const lab_id = response.data.lab_id
+      if (newLab.value.saveToPinecone) {
+        const input_text = "化验名称：" + newLab.value.lab_name + "，化验价格："+ newLab.value.lab_cost.toString()
+
+        const insert_pinecone = await pineconeAdd(
+            lab_id,
+            `lab`, input_text,
+            {lab_name: newLab.value.lab_name, lab_cost: newLab.value.lab_cost}
+        )
+
+        if (insert_pinecone?.success){
+          console.log('Pinecone 插入成功:', insert_pinecone);
+          ElMessage({
+            message: 'Pinecone 添加成功',
+            type: 'success',
+          });
+        }else{
+          ElMessage.error(`Pinecone 插入失败: ${insert_pinecone}`);
+
+        }
+      }
       ElMessage({
         message: '添加成功',
         type: 'success',

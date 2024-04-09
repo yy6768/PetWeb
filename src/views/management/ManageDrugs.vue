@@ -233,7 +233,7 @@ const addMedicine = async () => {
         if (insert_pinecone?.success){
           console.log('Pinecone 插入成功:', insert_pinecone);
           ElMessage({
-            message: '添加成功',
+            message: 'Pinecone 添加成功',
             type: 'success',
           });
         }else{
