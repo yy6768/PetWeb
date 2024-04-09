@@ -22,19 +22,22 @@
 
       <el-table-column label="操作">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="editMedication(row)">编辑</el-button>
+          <el-button type="primary" size="small" @click="editMedicine(row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="deleteMedicine(row)">删除</el-button>
+
         </template>
 
       </el-table-column>
     </el-table>
     <el-dialog v-model="changeVisible" title="修改药品信息" width="500">
       <el-form :model="form">
-        <el-form-item label="medicineId" >
-          <el-input v-model="form.medication_id" autocomplete="off" />
+        <el-form-item label="药品名称" >
+          <el-input v-model="form.medicine_name" autocomplete="off" />
         </el-form-item>
         <el-form-item label="价格" >
-          <el-input v-model="form.medication_cost" autocomplete="off" />
+          <el-input v-model="form.medicine_cost" autocomplete="off" />
         </el-form-item>
+
 
       </el-form>
       <template #footer>
@@ -55,6 +58,16 @@
         </el-form-item>
         <el-form-item label="药品价格" >
           <el-input v-model="newMedicine.medicine_cost" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="存入Pinecone">
+          <!-- 切换开关 -->
+          <el-switch
+              v-model="newMedicine.saveToPinecone"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否">
+          </el-switch>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -86,10 +99,12 @@ import { ElMessage } from 'element-plus'
 import { ref, onMounted } from 'vue';
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { useRouter } from 'vue-router';
+import OpenAI from "openai";
+import { embedText, pineconeAdd,pineconeDelete } from '@/components/usePinecone';
+
 
 const router = useRouter();
-
-onMounted(() => {
+onMounted( () => {
   fetchMedications();
 });
 // 定义变量和方法
@@ -103,7 +118,8 @@ const form = ref({
 })
 const newMedicine = ref({
   medicine_name: '',
-  medicine_cost: ''
+  medicine_cost: '',
+  saveToPinecone: true
 })
 const newFunc = () => {
   addVisible.value = true;
@@ -120,7 +136,7 @@ const medicationChangeSubmit = async () => {
     const paramString = params.toString();
 
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/medication/edit?${paramString}`, {}, {
+    const response = await axios.post(`/api/medications/edit?${paramString}`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -145,68 +161,86 @@ const medicationChangeSubmit = async () => {
   }
   changeVisible.value = false;
 };
-const editMedication = (medication) => {
+const editMedicine = (medication) => {
   // 编辑药品的逻辑
   changeVisible.value = true;
-  form.value = { ...medication, password: '' }; // Use spread operator to copy medication properties
+  form.value = {   medicine_name: medication.medicineName,
+    medicine_cost: medication.medicineCost}; // Use spread operator to copy medication properties
 
   console.log('编辑药品', medication);
 };
 
 const deleteMedicine = async (medication) => {
   // 禁用药品的逻辑
-  console.log('禁用药品', medications);
+  console.log('删除药品', medications);
   try {
     const params = new URLSearchParams({
-      medication_Id: medication.medicineId.toString(),
-      authority: '1',
+      medicine_id: medication.medicineId.toString(),
     }).toString();
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/medication/ban?${params}`,{}, {
+    const response = await axios.delete(`/api/medications/delete?${params}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    console.log('禁用res:', response.data);
+    console.log('删除res:', response.data);
     if (response.data && response.data.error_message === 'success') {
+      pineconeDelete(medication.medicineId, 'medicine')
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
       ElMessage({
-        message: '禁用成功',
+        message: '删除成功',
         type: 'success',
       });
       fetchMedications();
 
     } else {
-      ElMessage.error(`禁用失败: ${response.data.error_message}`);
+      ElMessage.error(`删除失败: ${response.data.error_message}`);
     }
   } catch (error) {
-    console.error('禁用错误:', error);
-    ElMessage.error('禁用错误');
+    console.error('删除错误:', error);
+    ElMessage.error('删除错误');
   }
 };
 const addMedicine = async () => {
-  // 启用药品的逻辑
-  console.log('启用药品', medications);
+  console.log('添加药品', medications);
   try {
     const params = new URLSearchParams({
       medicine_name: newMedicine.value.medicine_name.toString(),
       medicine_cost: newMedicine.value.medicine_cost.toString(),
     }).toString();
     const token = sessionStorage.getItem('token');
-    const response = await axios.post(`/api/medications/add?${params}`,{}, {
+    const response = await axios.post(`/api/medications/add?${params}`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    console.log('获取药品组:', response.data);
+    console.log('添加药品组:', response.data);
+
     if (response.data && response.data.error_message === 'success') {
-      medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
-      console.log('药品组:', medications.value);
-      ElMessage({
-        message: '添加成功',
-        type: 'success',
-      });
+      const medicine_id = response.data.medicine_id;
+
+      // 插入数据到 Pinecone
+      if (newMedicine.value.saveToPinecone) {
+        const input_text = "药品名称：" + newMedicine.value.medicine_name + "，药品价格："+ newMedicine.value.medicine_cost.toString()
+
+        const insert_pinecone = await pineconeAdd(
+            medicine_id,
+            `medicine`, input_text,
+            {medicine_name: newMedicine.value.medicine_name, medicine_cost: newMedicine.value.medicine_cost}
+        )
+
+        if (insert_pinecone?.success){
+          console.log('Pinecone 插入成功:', insert_pinecone);
+          ElMessage({
+            message: '添加成功',
+            type: 'success',
+          });
+        }else{
+          ElMessage.error(`Pinecone 插入失败: ${insert_pinecone}`);
+
+        }
+      }
       addVisible.value = false;
     } else {
       ElMessage.error(`添加失败: ${response.data.error_message}`);
