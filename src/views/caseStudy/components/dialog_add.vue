@@ -8,8 +8,8 @@
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" >
       <el-col :span="22">
-      <el-form-item label="编号" prop="id" v-if="dialogTitleAdd === '添加病例'" >
-        <el-input v-model="form.id"/>
+      <el-form-item label="编号" prop="cid" v-if="dialogTitleAdd === '添加病例'" >
+        <el-input v-model="form.cid"/>
       </el-form-item>
       <el-form-item label="病种" prop="category" v-if="dialogTitleAdd === '添加病例'">
         <el-input v-model="form.category" />
@@ -19,7 +19,7 @@
       </el-form-item>
       <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >
           <el-date-picker
-              v-model="form.create_time"
+              v-model="form.date"
               type="date"
               placeholder="Pick a date"
               style="width: 100%"
@@ -31,13 +31,13 @@
 
       <el-form-item v-if="dialogTitleAdd === '病例详情'" class="form-item-inline">
         <el-text style="margin-right:13px">编号</el-text>
-        <el-input v-model="form.id" readonly class="inline-input"/>
+        <el-input v-model="form.cid" readonly class="inline-input"/>
         <el-text style="margin-right:13px">病名</el-text>
         <el-input v-model="form.name" readonly class="inline-input"/>
       </el-form-item>
 
-        <el-form-item label="基本情况" prop="basic" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.basic" type="textarea" style="width: 425px;" />
+        <el-form-item label="基本情况" prop="basicSituation" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.basicSituation" type="textarea" style="width: 425px;" />
       </el-form-item>
 
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
@@ -68,10 +68,10 @@
         </el-select>
       </el-form-item>
       <el-form-item label="诊断结果" prop="result" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.results" type="textarea" style="width: 425px;" />
+        <el-input v-model="form.result" type="textarea" style="width: 425px;" />
       </el-form-item>
-      <el-form-item label="治疗方案" prop="plan" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.plan" type="textarea" style="width: 425px;" />
+      <el-form-item label="治疗方案" prop="therapy" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.therapy" type="textarea" style="width: 425px;" />
       </el-form-item>
       <el-form-item label="治疗视频" prop="video" v-if="dialogTitleAdd === '病例详情'">
         <el-upload
@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import  {defineEmits,ref,defineProps,watch} from 'vue'
-import  {addCase,editCase} from '@/api/case.js'
+import {addCase, editCase, getCase} from '@/api/case.js'
 import { ElMessage, ElUpload, ElButton, ElInput } from "element-plus";
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile } from 'element-plus'
@@ -138,19 +138,19 @@ const props = defineProps({
 //新增病例信息
 const formRef = ref(null)
 const form = ref({
-  id:'',
+  cid:'',
   category:'',
   name:'',
-  create_time:'',
+  date:'',
   doctor_name:'',
-  basic:'',
+  basicSituation:'',
   lab_name:'',
   lab_result:'',
   lab_cost:'',
   lab_image:[],
   medicine:'',
-  results:'',
-  plan:'',
+  result:'',
+  therapy:'',
   video:[],
 })
 
@@ -165,19 +165,19 @@ const rules = ref({
   ],
   category:[
     {
-      required:true,
+      // required:true,
       message:'Please enter the category of case',
       trigger:'blur'
     }
   ],
   name:[
     {
-      required:true,
+      // required:true,
       message:'Please enter the name of case',
       trigger:'blur'
     }
   ],
-  create_time:[
+  date:[
     {
       required:true,
       message:'Please enter the time you create',
@@ -186,7 +186,7 @@ const rules = ref({
   ],
   doctor_name:[
     {
-      required:true,
+      // required:true,
       message:'Please input the name of doctor',
       trigger:'blur'
     }
@@ -211,10 +211,10 @@ const handleClose = () => {
 }
 //点击确认 表单验证/把表单值传过去
 const handleConfirm = () => {
-  formRef.value.validate(async (valid) => {
+  formRef.value.validate(async (valid:any) => {
     if(valid){
       props.dialogTitleAdd === '添加病例'
-          ? await addCase(form.value)
+          ? await addCase(form.value,sessionStorage.getItem('token'))
           : await editCase(form.value)
       //消息提示
       ElMessage({
