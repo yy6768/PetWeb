@@ -1,10 +1,12 @@
 import * as THREE from 'three';
+import axios from 'axios';
 import * as dat from 'dat.gui';
 
 
 interface SelectorParams {
     name:String;
-    info:String;
+    room_number:String;
+    desc:String;
 }
 
 class Selector {
@@ -18,8 +20,9 @@ class Selector {
     private gui:dat.GUI;
 
     private guiData = {
-        name: '未选中',
-        info: '无'
+        name: '',
+        room_number:"",
+        desc: ''
     }
 
     constructor(container: HTMLDivElement, scene: THREE.Scene, camera: THREE.Camera, gui:dat.GUI) {
@@ -29,7 +32,8 @@ class Selector {
         this.gui = gui;
         const subgui = this.gui.addFolder("当前科室");
         subgui.add(this.guiData, "name").listen().name("选中科室");
-        subgui.add(this.guiData, "info").listen().name("科室信息");
+        subgui.add(this.guiData, "room_number").listen().name("科室门牌号");
+        subgui.add(this.guiData, "desc").listen().name("科室信息");
         subgui.open();
         // 绑定事件
         window.addEventListener('click', this.onMouseClick);
@@ -74,41 +78,57 @@ class Selector {
 
     private onSelect(objects: THREE.Object3D): void {
         console.log('Selected object:', objects);
-
+    
         // 如果之前有高亮的对象，先清除之前的高亮效果
-        if (this.highlightedEdges.length != 0) {
-            for (let edges of this.highlightedEdges) {
-                this.scene.remove(edges);
-            }
-            this.highlightedEdges.splice(0, this.highlightedEdges.length);
-        }
-        if (this.selectObject.uuid == objects.uuid) {
-            this.guiData.name = "未选中";
-            this.guiData.info = "无";
+        this.highlightedEdges.forEach(edges => this.scene.remove(edges));
+        this.highlightedEdges = [];
+    
+        // 如果选中的是同一个对象，重置GUI并返回
+        if (this.selectObject && this.selectObject.uuid === objects.uuid) {
+            this.resetGUI();
             return;
         }
+    
         this.selectObject = objects;
         
-        for (let object of objects.children) {
-            // 仅当选中的对象是Mesh时处理
+        objects.children.forEach(object => {
             if (object instanceof THREE.Mesh) {
-                // 创建表示选中对象轮廓的EdgesGeometry
                 const edges = new THREE.EdgesGeometry(object.geometry);
-                // 创建LineBasicMaterial，将颜色设置为黄色
                 const material = new THREE.LineBasicMaterial({ color: 0xffff00 });
-                // 创建线框以表示边缘
                 const edgeLines = new THREE.LineSegments(edges, material);
-
-                // 保存这个线框以便之后可以移除
+    
                 this.highlightedEdges.push(edgeLines);
-
-                // 将线框添加到场景中
                 this.scene.add(edgeLines);
             }
-       }
-       this.guiData.name = objects.name;
-       this.guiData.info = "这是" + objects.name;
+        });
+        this.guiData.name = objects.name;
+        const params = new URLSearchParams({ room_name: this.guiData.name }).toString();
+        const token = sessionStorage.getItem('token');
+        
+        console.log(params);
+        console.log(token);
+        axios.get(`/api/room/get?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(response => {
+            if (response.data && response.data.error_message === 'success') {
+                this.guiData.desc = response.data.description;
+                this.guiData.room_number = response.data.room_num;
+            } else {
+                console.error('Select failed:', response.data.error_message);
+            }
+        }).catch(error => {
+            console.error('Error fetching room data:', error);
+        });
     }
+    
+    private resetGUI(): void {
+        this.guiData.name = "";
+        this.guiData.room_number = "";
+        this.guiData.desc = "";
+    }
+    
 
     // 在需要的时候，可以调用此方法移除事件监听器
     public dispose(): void {
