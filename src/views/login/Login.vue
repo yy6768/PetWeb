@@ -21,8 +21,8 @@
 
         <a-form-item :wrapper-col="{ span: 24 }" style="text-align: center;">
           <div style="display: flex; justify-content: center;">
-            <a-button type="primary" html-type="submit" @click="onRegister" style="margin-right: 30px;">注册</a-button>
-            <a-button type="default" html-type="button" @click="onLogin">登录</a-button>
+            <a-button type="default" html-type="button" @click="onLogin" style="margin-right: 30px;">登录</a-button>
+            <a-button type="primary" html-type="submit" @click="onRegister" >注册</a-button>
           </div>
         </a-form-item>
 
@@ -34,8 +34,10 @@
 <script lang="ts" setup>
 import backgroundSvg from '../../assets/background.svg';
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
+import { useRouter } from 'vue-router';
+
 const router = useRouter();
 
 const onRegister = () => {
@@ -43,22 +45,33 @@ const onRegister = () => {
 };
 
 const onLogin = async () => {
-  
+
   try {
-    const response = await axios.post('/api/login', {
-      username: formState.username,
-      password: formState.password,
-    });
-    
-    if (response.data && response.data.msg === '登陆成功') {
+    const params = new URLSearchParams({
+            username: formState.username,
+            password: formState.password,
+        }).toString();
+
+    const response = await axios.post(`/api/user/login?${params}`);
+
+    if (response.data && response.data.error_message === 'success') {
       // Optionally store the user's authority level in sessionStorage
+      message.success('登录成功');
       sessionStorage.setItem('authority', response.data.authority);
-      router.push('/home');
+      sessionStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('uid', response.data.uid);
+      sessionStorage.setItem('username', response.data.username);
+
+      router.push('/role-preview');
     } else {
       // Handle login failure
+      message.error(`登录失败: ${response.data.error_message}`);
+
       console.error('Login failed:', response.data.msg);
     }
   } catch (error) {
+    message.error(`登录错误`);
+
     console.error('Login error:', error);
   }
 };

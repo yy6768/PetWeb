@@ -80,11 +80,9 @@ const router = createRouter({
           name: 'manage-drugs',
           component: () => import('../views/management/ManageDrugs.vue')
         }
-        
-        
       ]
     },
-    
+
   ]
 })
 
