@@ -1,89 +1,124 @@
 <template>
-    <div ref="parent"></div>
+    <div ref="threeJsContainer" style="width: 100%; height: 100vh;"></div>
 </template>
 
-<script lang="ts">
-import * as THREE from "three";
-import { ref,onMounted } from 'vue';
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as dat from 'dat.gui';
+import { createGUI } from '@/assets/scripts/gui';
+import { Selector } from '@/assets/scripts/selector';
 
-let scene: THREE.Scene;
-let mesh: THREE.Mesh;
-export default {
-    name:'PanoramaMap',
-    data() {
-        return {
-            camera: null as THREE.PerspectiveCamera | null,
-            renderer: null as THREE.WebGLRenderer | null,
-            ambientLight: null as THREE.AmbientLight | null,
-            // mesh: null as THREE.Mesh | null,   
-            parent: HTMLElement | null, 
+const threeJsContainer = ref<HTMLDivElement | null>(null);
+let gui:dat.GUI;
+let selector:Selector;
+
+onMounted(() => {
+
+    const container = threeJsContainer.value;
+    if (!container) return;
+
+    // 创建场景
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xa0c69d);
+    var initCameraPos = [20, -5, 20];
+
+    // 创建相机
+    const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    camera.position.set(initCameraPos[0], initCameraPos[1], initCameraPos[2]);
+    
+    const guiParams = {
+        modelTransX: 0,
+        modelTransY: 0,
+        modelTransZ: 0,
+        modelScaleX: 1,
+        modelScaleY: 1,
+        modelScaleZ: 1,
+
+         // 相机属性
+        cameraPosX: camera.position.x,
+        cameraPosY: camera.position.y,
+        cameraPosZ: camera.position.z,
+        cameraRotX: camera.rotation.x,
+        cameraRotY: camera.rotation.y,
+        cameraRotZ: camera.rotation.z,
+    };
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1); // 光的颜色，强度
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 1, 1); // 设置光源的位置
+    scene.add(directionalLight);
+
+    // 创建渲染器
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(container.offsetWidth, container.offsetHeight);
+
+    const cameraControls = new OrbitControls(camera, renderer.domElement);
+
+    // 配置OrbitControls的参数
+    cameraControls.enableZoom = true; // 允许用户缩放
+    cameraControls.enableRotate = true; // 允许用户旋转
+    cameraControls.enablePan = true; // 允许用户平移
+    cameraControls.rotateSpeed = 0.3; // 设置旋转速度
+    cameraControls.zoomSpeed = 1.0; // 设置缩放速度
+    cameraControls.panSpeed = 2.0; // 设置平移速度
+    container.appendChild(renderer.domElement);
+
+    let model:THREE.Object3D = new THREE.Object3D;
+
+    // 加载GLTF模型
+    const loader = new GLTFLoader();
+    loader.load(
+        '/models/petweb_group.gltf',
+        (gltf) => {
+            model = gltf.scene;
+            console.log(model);
+            scene.add(model);
+            model.scale.set(guiParams.modelScaleX, guiParams.modelScaleY, guiParams.modelScaleZ);
+            model.position.set(guiParams.modelTransX, guiParams.modelTransY, guiParams.modelTransZ);
+            // 创建GUI
+            gui = createGUI(guiParams, model, camera);
+            // 初始化选择器
+            selector = new Selector(container, scene, camera, gui);
+        },
+        undefined,  
+        (error) => {
+            console.error(error);
         }
-    },
-    mounted() {
-        this.scene = new THREE.Scene();
-        this.setCamera();
-        this.setRenderer();
-        this.setCube();
-        this.animate();
-    },
-    methods :{
-        setCamera(): void {
-            // 第二参数就是 长度和宽度比 默认采用浏览器  返回以像素为单位的窗口的内部宽度和高度
-            this.camera = new THREE.PerspectiveCamera(
-                75,
-                window.innerWidth / window.innerHeight,
-                0.1,
-                1000
-            );
-            this.camera.position.z = 5;
-            this.camera.lookAt(0,0,0);
-        },
+    );
 
-        // 设置渲染器
-        setRenderer(): void {
-            this.renderer = new THREE.WebGLRenderer();
-            // 设置画布的大小
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            //这里 其实就是canvas 画布  renderer.domElement
-            this.$refs.parent.appendChild(this.renderer.domElement);
-        },
 
-        // 设置环境光
-        setLight(): void {
-            if (this.scene) {
-                this.ambientLight = new THREE.AmbientLight(0xffffff); // 环境光
-                this.scene.add(this.ambientLight);
-            }
-        },
+    window.addEventListener('resize', onWindowResize, false);
 
-        // 创建网格模型
-        setCube(): void {
-            if (this.scene) {
-                const geometry = new THREE.BoxGeometry(); //创建一个立方体几何对象Geometry
-                const material = new THREE.MeshBasicMaterial({ color: 0xff3200 }); //材质对象Material
-                this.mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
-                this.scene.add(this.mesh); //网格模型添加到场景中
-            }
-        },
+    function onWindowResize() {
+        if (!container) return;
+        const clientWidth = container.clientWidth;
+        const clientHeight = container.clientHeight;
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix(); // 更新相机的投影矩阵
 
-        // 渲染
-        render(): void {
-            if (this.renderer && this.scene && this.camera) {
-                this.renderer.render(this.scene, this.camera);
-            }
-        },
-
-        // 动画
-        animate(): void {
-            if (this.mesh) {
-                requestAnimationFrame(this.animate.bind(this));
-                this.mesh.rotation.x += 0.01;
-                this.mesh.rotation.y += 0.01;
-                this.render();
-            }
-        }
+        renderer.setSize(clientWidth, clientHeight);
     }
-}
+
+
+    // 渲染循环
+    const animate = () => {
+        requestAnimationFrame(animate);
+          // 更新控制器
+        cameraControls.update(); 
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+});
+
+onUnmounted(()=>{
+    gui.destroy();
+});
 </script>
 
 <style scoped>
