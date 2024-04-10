@@ -47,13 +47,17 @@
           <el-input v-model="form.lab_cost" placeholder="项目费用"></el-input>
           <!-- 项目图片 -->
           <el-upload
-              action="#"
+              v-model:file-list="fileList"
+              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
               list-type="picture-card"
-              :file-list="form.lab_image"
-              :on-preview="handlePreview"
+              :on-preview="handlePictureCardPreview"
               :on-remove="handleRemove"
           >
+            <el-icon><Plus /></el-icon>
           </el-upload>
+          <el-dialog v-model="dialogVisible">
+            <img w-full :src="dialogImageUrl" alt="Preview Image" />
+          </el-dialog>
         </el-card>
 <!--        <el-button class="add-item-btn" size="small"  type="primary" round @click="storeItem">保存</el-button>-->
       </el-form-item>
@@ -92,8 +96,31 @@
 
 <script setup lang="ts">
 import  {defineEmits,ref,defineProps,watch} from 'vue'
-import  {addCase,editCase} from '@/api/case'
+import  {addCase,editCase} from '@/api/case.js'
 import { ElMessage, ElUpload, ElButton, ElInput } from "element-plus";
+import { Plus } from '@element-plus/icons-vue'
+import type { UploadProps, UploadUserFile } from 'element-plus'
+
+//图片
+const fileList = ref<UploadUserFile[]>([
+  // {
+  //   name: 'food.jpeg',
+  //   url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+  // },
+])
+
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+
+const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles)
+}
+
+const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url!
+  dialogVisible.value = true
+}
+
 
 //顶部文字内容
 const props = defineProps({
@@ -202,17 +229,6 @@ const handleConfirm = () => {
     }
   })
 }
-
-const storeItem = () => {
-};
-
-const handlePreview = (file: any) => {
-  // 处理图片预览
-};
-
-const handleRemove = (file: any) => {
-  // 处理删除图片
-};
 
 
 </script>
