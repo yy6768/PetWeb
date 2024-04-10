@@ -79,6 +79,7 @@ class Selector {
     private onSelect(objects: THREE.Object3D): void {
         console.log('Selected object:', objects);
     
+        this.resetGUI();
         // 如果之前有高亮的对象，先清除之前的高亮效果
         this.highlightedEdges.forEach(edges => this.scene.remove(edges));
         this.highlightedEdges = [];
