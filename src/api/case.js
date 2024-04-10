@@ -6,7 +6,7 @@ import request from './request.ts'
 export const getCase =(params) =>{
     return request({
         // 病例的url
-        url:'/api/case/add',
+        url:'/api/case/getall',
         params
     })
 }

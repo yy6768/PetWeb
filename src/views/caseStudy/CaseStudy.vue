@@ -160,12 +160,13 @@
 
 <script setup lang="ts">
 import axios from 'axios';
+import { message } from 'antd';
 import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from './options';
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase,deleteCase} from "@/api/case";
+import {getCase,deleteCase} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters';
 
 
@@ -288,13 +289,33 @@ const displayedTableData = computed(() => {
 
 // GET
 const initGetCasesList = async () =>{
-  const res = await getCase(queryForm.value)
-  // 打印返回内容
-  console.log(res)
+  // const res = await getCase(queryForm.value);
+  // console.log(res);
   //拿total页数信息 还未使用
   //total.value= res.total
   //拿页表信息 还未使用
   //tableData.value = res.case
+  try {
+    const token = sessionStorage.getItem('token');
+    const authority = sessionStorage.getItem('authority');
+    const params = {
+      authority: authority,
+      ...queryForm.value
+    };
+
+    const res = await getCase(params); // 假设getCase是一个封装好的请求方法
+    console.log(res);
+
+    // 假设res的结构就是上面示例的JSON格式
+    if (res && res.cases) {
+      tableData.value = res.cases; // 更新表格数据
+      total.value = res.total; // 更新分页的总数目
+    }
+  } catch (error) {
+    console.error("获取病例列表失败：", error);
+    ElMessage.error("获取病例列表失败");
+  }
+
 }
 initGetCasesList()
 
