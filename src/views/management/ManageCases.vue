@@ -19,7 +19,6 @@
           </el-input>
         </el-col>
         <el-button type="primary" :icon="Search" @click="initGetCasesList">搜索</el-button>
-        <!--          @click="initGetCasesListTest"-->
       </el-row>
 
       <div class="flex flex-wrap gap-4 items-center">
@@ -111,10 +110,9 @@
           v-for="(item,index) in options "
           :key="index"
       >
-        <!--          <template v-slot="{row}" v-if="item.prop ==='date'">-->
-        <!--            {{$filters.filterTimes(row.create_time)}}-->
-        <!--          </template>-->
-        <!--          到时候要改成v-else-if-->
+<!--        <template v-slot="{ row }" v-if="item.prop === 'date'">-->
+<!--          {{ $filters.filterTimes(row.date) }}-->
+<!--        </template>-->
         <template #default="{ row }" v-if="item.prop === 'operation'">
           <el-button
               type="primary"
@@ -167,14 +165,15 @@ import {options} from '@/views/caseStudy/options';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase,deleteCase} from "@/api/case.js";
-import {isNull} from '@/views/caseStudy/filters';
+import {isNull} from '@/views/caseStudy/filters.js';
 
 
 //查询表
 const queryForm = ref({
   query:'',
-  // pagenum: 1,
-  // pagesize: 2
+  key:'',
+  pagenum: 1,
+  pagesize: 10
 })
 
 //分页器
@@ -191,19 +190,44 @@ interface Case {
 
 const tableData = ref<Case[]>([]);
 
+// GET
+const initGetCasesList = async () =>{
+  const res = await getCase(queryForm.value,
+      sessionStorage.getItem('token'),
+      queryForm.value.pagenum,
+      queryForm.value.pagesize
+  );
+  console.log(res);
+  //拿页表信息 还没拿
+  tableData.value = res.data.case_list
+  //拿total页数信息 还未使用
+  //total.value= res.data.total
+}
+initGetCasesList()
+
+//页码改变方法
+const handleSizeChange = (pageSize) => {
+  queryForm.value.pagenum=1
+  queryForm.value.pagesize=pageSize
+  initGetCasesList()
+}
+const handleCurrentChange = (pageNum) =>{
+  queryForm.value.pagenum=pageNum
+  initGetCasesList()
+}
+
 //排序方式下拉框
 const sortValue = ref('')
-
 const sortOptions = [
   { value: 'Sort1', label: '按编号排序'},
   { value: 'Sort2', label: '按病名排序'},
   { value: 'Sort3', label: '按修改时间排序'},
 ]
-// 监听sortValue的变化
+// 监听sortValue的变化??
 watch(sortValue, (newValue) => {
   if (newValue === 'Sort1') {
     // 按编号排序
-    tableData.value.sort((a, b) => a.cid.localeCompare(b.cid));
+    tableData.value.sort((a, b) => a.cid.toString().localeCompare(b.cid.toString()));
   } else if (newValue === 'Sort2') {
     // 按病名排序
     tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
@@ -220,17 +244,17 @@ watch(sortValue, (newValue) => {
 //病种选择
 const cateValue = ref('')
 const cateOptions = [
-  { value: '病种一', label: '病种一'},
-  { value: '病种二', label: '病种二'},
-  { value: '病种三', label: '病种三'},
+  { value: 'cate1', label: 'cate1'},
+  { value: 'cate2', label: 'cate2'},
+  { value: 'cate3', label: 'cate3'},
 ]
 
 //病名选择
 const illValue = ref('')
 const illOptions = [
-  { value: '病名一', label: '病名一'},
-  { value: '病名二', label: '病名二'},
-  { value: '病名三', label: '病名三'},
+  { value: 'ill1', label: 'ill1'},
+  { value: 'ill2', label: 'ill2'},
+  { value: 'ill3', label: 'ill3'},
 ]
 
 //年份选择
@@ -287,32 +311,6 @@ const displayedTableData = computed(() => {
   }
   return filteredData;
 });
-
-// GET
-const initGetCasesList = async () =>{
-  const res = await getCase(queryForm.value,sessionStorage.getItem('token'));
-  console.log(res);
-  //拿页表信息 还没拿
-  // tableData.value = res.data.case_list
-  //拿total页数信息 还未使用
-  //total.value= res....
-}
-initGetCasesList()
-
-//页码改变方法
-const handleSizeChange = (pageSize:any) => {
-  queryForm.value.pagenum=1
-  queryForm.value.pagesize=pageSize
-  initGetCasesList()
-}
-const handleCurrentChange = (pageNum:any) =>{
-  queryForm.value.pagenum=pageNum
-  initGetCasesList()
-}
-
-//详情框
-const dialogVisibleDetail = ref(false)
-const dialogTitleDetail = ref('')
 
 //新增框
 const dialogVisibleAdd = ref(false)

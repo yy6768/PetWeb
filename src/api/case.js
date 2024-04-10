@@ -8,7 +8,8 @@ export const getCase = (params, token, page, pageSize) => {
         url: '/api/case/getall',
         method: 'get',
         params: {
-            ...params,
+            // ...params, 这里我注释掉了，你可以看情况再改下（
+            search:'',
             page: page,
             pageSize: pageSize
         },
@@ -17,7 +18,6 @@ export const getCase = (params, token, page, pageSize) => {
         }
     });
 };
-
 
 //添加病例???
 export const addCase = (data, token) => {
