@@ -3,18 +3,21 @@ import axios from "axios";
 //url 方法 参数
 
 //获取病例信息
-export const getCase = (params, token) => {
+export const getCase = (params, token, page, pageSize) => {
     return axios({
-        // 病例的url
         url: '/api/case/getall',
-        method: 'get', // or 'post', 'put', etc. depending on your API
-        params,
+        method: 'get',
+        params: {
+            ...params,
+            page: page,
+            pageSize: pageSize
+        },
         headers: {
             'Authorization': `Bearer ${token}`
-            // 如果你的 API 使用的是其他授权方式，比如 Basic Authentication，你需要相应修改这里的 Authorization 头
         }
     });
 };
+
 
 //添加病例???
 export const addCase = (data, token) => {
@@ -24,28 +27,29 @@ export const addCase = (data, token) => {
         data,
         headers: {
             'Authorization': `Bearer ${token}`
-            // 如果你的 API 使用的是其他授权方式，比如 Basic Authentication，你需要相应修改这里的 Authorization 头
         }
     });
 };
 
 //修改病例???
-export const editCase = (data) =>{
-    return request({
-        url:`case/${data.id}`,
-        method:'put',
-        data
-    })
-}
+export const editCase = (data, token) => {
+    return axios({
+        // url: `/api/case/getall?`,
+        method: 'put',
+        data,
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
 
 //删除病例???
 export const deleteCase = (cid, token) => {
     return axios({
-        url: `/api/case/delete?${cid}`,
+        url: `/api/case/delete?cid=${cid}`,
         method: 'delete',
         headers: {
             'Authorization': `Bearer ${token}`
-            // 如果你的 API 使用的是其他授权方式，比如 Basic Authentication，你需要相应修改这里的 Authorization 头
         }
     });
 };

@@ -215,7 +215,7 @@ const handleConfirm = () => {
     if(valid){
       props.dialogTitleAdd === '添加病例'
           ? await addCase(form.value,sessionStorage.getItem('token'))
-          : await editCase(form.value)
+          : await editCase(form.value,sessionStorage.getItem('token'))
       //消息提示
       ElMessage({
         message:'Add successfully',

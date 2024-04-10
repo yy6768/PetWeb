@@ -172,8 +172,8 @@ import {isNull} from '@/views/caseStudy/filters';
 //查询表
 const queryForm = ref({
   query:'',
-  // pagenum: 1,
-  // pagesize: 2
+  pagenum: 1,
+  pagesize:10
 })
 
 //分页器
@@ -288,30 +288,31 @@ const displayedTableData = computed(() => {
 });
 
 // GET
-const initGetCasesList = async () =>{
-  const res = await getCase(queryForm.value,sessionStorage.getItem('token'));
+const initGetCasesList = async (page, pageSize) =>{
+  const res = await getCase({
+    query: queryForm.value.query,
+    pagenum: page,
+    pagesize: pageSize
+  }, sessionStorage.getItem('token'), page, pageSize);
   console.log(res);
   //拿页表信息
-  tableData.value = res.data.case_list
+  // tableData.value = res.data.case_list
   //拿total页数信息 还未使用
   //total.value= res....
 }
-initGetCasesList()
+initGetCasesList(1,10)
 
 //页码改变方法
-const handleSizeChange = (pageSize:any) => {
+const handleSizeChange = (pageSize) => {
   queryForm.value.pagenum=1
   queryForm.value.pagesize=pageSize
-  initGetCasesList()
+  initGetCasesList(1,pageSize)
 }
-const handleCurrentChange = (pageNum:any) =>{
+const handleCurrentChange = (pageNum) =>{
   queryForm.value.pagenum=pageNum
-  initGetCasesList()
+  initGetCasesList(pageNum, queryForm.value.pagesize);
 }
 
-//详情框
-const dialogVisibleDetail = ref(false)
-const dialogTitleDetail = ref('')
 
 //新增框
 const dialogVisibleAdd = ref(false)
