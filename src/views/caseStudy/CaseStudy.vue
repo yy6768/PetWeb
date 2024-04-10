@@ -98,13 +98,12 @@
           />
         </el-select>
       </div>
-      <div style="margin-left:1000px">
-        <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>
-      </div>
+<!--      <div style="margin-left:1000px">-->
+<!--        <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>-->
+<!--      </div>-->
       <div class="margin"></div><!--    间距-->
       <el-table :data="displayedTableData" stripe style="width: 100%">
         <el-table-column
-            :width="item.width"
             :prop="item.prop"
             :label="item.label"
             v-for="(item,index) in options "
@@ -114,21 +113,21 @@
 <!--            {{$filters.filterTimes(row.create_time)}}-->
 <!--          </template>-->
 <!--          到时候要改成v-else-if-->
-        <template #default="{ row }" v-if="item.prop === 'operation'">
-          <el-button
-              type="primary"
-              size="small"
-              :icon="Edit"
-              @click="handleDialogValueAdd(row)"
-          ></el-button>
-          <el-button
-              type="danger"
-              size="small"
-              :icon="Delete"
-              @click="delCase(row)"
-          ></el-button>
-        </template></el-table-column
-        >
+<!--        <template #default="{ row }" v-if="item.prop === 'operation'">-->
+<!--          <el-button-->
+<!--              type="primary"-->
+<!--              size="small"-->
+<!--              :icon="Edit"-->
+<!--              @click="handleDialogValueAdd(row)"-->
+<!--          ></el-button>-->
+<!--          <el-button-->
+<!--              type="danger"-->
+<!--              size="small"-->
+<!--              :icon="Delete"-->
+<!--              @click="delCase(row)"-->
+<!--          ></el-button>-->
+<!--        </template>-->
+        </el-table-column>
       </el-table>
       <div class="margin"></div><!--    间距-->
       <div class="page">
@@ -162,19 +161,20 @@ import axios from 'axios';
 import { message } from 'antd';
 import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
-import {options} from './options';
 import DialogAdd from './components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase,deleteCase} from "@/api/case.js";
-import {isNull} from '@/views/caseStudy/filters';
+import {isNull} from '@/views/caseStudy/filters.js';
 
 
 //查询表
 const queryForm = ref({
   query:'',
+  key:'',
   pagenum: 1,
-  pagesize:10
+  pagesize: 10
 })
+
 
 //分页器
 const total = ref(0)
@@ -189,6 +189,29 @@ interface Case {
 }
 
 const tableData = ref<Case[]>([]);
+
+const options =[
+  {
+    label:'编号',
+    prop:'cid'
+  },
+  {
+    label:'病种',
+    prop:'cate_name'
+  },
+  {
+    label:'病名',
+    prop:'ill_name'
+  },
+  {
+    label:'时间',
+    prop:'date'
+  },
+  {
+    label:'就诊医师',
+    prop:'username'
+  },
+]
 
 //排序方式下拉框
 const sortValue = ref('')
@@ -219,17 +242,17 @@ watch(sortValue, (newValue) => {
 //病种选择
 const cateValue = ref('')
 const cateOptions = [
-  { value: '病种一', label: '病种一'},
-  { value: '病种二', label: '病种二'},
-  { value: '病种三', label: '病种三'},
+  { value: 'cate1', label: 'cate1'},
+  { value: 'cate2', label: 'cate2'},
+  { value: 'cate3', label: 'cate3'},
 ]
 
 //病名选择
 const illValue = ref('')
 const illOptions = [
-  { value: '病名一', label: '病名一'},
-  { value: '病名二', label: '病名二'},
-  { value: '病名三', label: '病名三'},
+  { value: 'ill1', label: 'ill1'},
+  { value: 'ill2', label: 'ill2'},
+  { value: 'ill3', label: 'ill3'},
 ]
 
 //年份选择
@@ -288,29 +311,29 @@ const displayedTableData = computed(() => {
 });
 
 // GET
-const initGetCasesList = async (page, pageSize) =>{
-  const res = await getCase({
-    query: queryForm.value.query,
-    pagenum: page,
-    pagesize: pageSize
-  }, sessionStorage.getItem('token'), page, pageSize);
+const initGetCasesList = async () =>{
+  const res = await getCase(queryForm.value,
+      sessionStorage.getItem('token'),
+      queryForm.value.pagenum,
+      queryForm.value.pagesize
+  );
   console.log(res);
-  //拿页表信息
-  // tableData.value = res.data.case_list
+  //拿页表信息 还没拿
+  tableData.value = res.data.case_list
   //拿total页数信息 还未使用
-  //total.value= res....
+  //total.value= res.data.total
 }
-initGetCasesList(1,10)
+initGetCasesList()
 
 //页码改变方法
 const handleSizeChange = (pageSize) => {
   queryForm.value.pagenum=1
   queryForm.value.pagesize=pageSize
-  initGetCasesList(1,pageSize)
+  initGetCasesList()
 }
 const handleCurrentChange = (pageNum) =>{
   queryForm.value.pagenum=pageNum
-  initGetCasesList(pageNum, queryForm.value.pagesize);
+  initGetCasesList()
 }
 
 
@@ -340,16 +363,16 @@ onMounted(async () => {
 // }
 
 //新增标题
-const handleDialogValueAdd = (row:any) =>{
-  if(isNull(row)){
-    dialogTitleAdd.value = '添加病例'
-    dialogTableValueAdd.value={}
-  }else{
-    dialogTitleAdd.value = '病例详情'
-    dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
-  }
-  dialogVisibleAdd.value = true
-}
+// const handleDialogValueAdd = (row:any) =>{
+//   if(isNull(row)){
+//     dialogTitleAdd.value = '添加病例'
+//     dialogTableValueAdd.value={}
+//   }else{
+//     dialogTitleAdd.value = '病例详情'
+//     dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
+//   }
+//   dialogVisibleAdd.value = true
+// }
 
 //删除弹窗
 const delCase = (row:any) => {
