@@ -110,12 +110,11 @@
             v-for="(item,index) in options "
             :key="index"
         >
-<!--          <template v-slot="{row}" v-if="item.prop ==='create_time'">-->
+<!--          <template v-slot="{row}" v-if="item.prop ==='date'">-->
 <!--            {{$filters.filterTimes(row.create_time)}}-->
 <!--          </template>-->
 <!--          到时候要改成v-else-if-->
         <template #default="{ row }" v-if="item.prop === 'operation'">
-<!--         编辑原来是 @click="handleDialogValueDetail-->
           <el-button
               type="primary"
               size="small"
@@ -173,30 +172,23 @@ import {isNull} from '@/views/caseStudy/filters';
 //查询表
 const queryForm = ref({
   query:'',
-  pagenum: 1,
-  pagesize: 2
+  // pagenum: 1,
+  // pagesize: 2
 })
 
 //分页器
 const total = ref(0)
 
-//表格内容(连上数据后清空表格)
-const tableData = ref([
-  {
-    cid: '1',
-    cate_name:'病种一',
-    ill_name:'病名一',
-    create_time:'2023-01-11',
-    username:'医师一',
-  },
-  {
-    cid: '2',
-    cate_name:'病种二',
-    ill_name:'病名二',
-    create_time:'2024-02-23',
-    username:'医师二',
-  },
-])
+//描述病例对象
+interface Case {
+  cid: string;
+  cate_name: string;
+  ill_name: string;
+  date: string;
+  username: string;
+}
+
+const tableData = ref<Case[]>([]);
 
 //排序方式下拉框
 const sortValue = ref('')
@@ -217,8 +209,8 @@ watch(sortValue, (newValue) => {
   } else if (newValue === 'Sort3') {
     // 按修改时间排序
     tableData.value.sort((a, b) => {
-      const timeA = new Date(a.create_time).getTime();
-      const timeB = new Date(b.create_time).getTime();
+      const timeA = new Date(a.date).getTime();
+      const timeB = new Date(b.date).getTime();
       return timeA - timeB;
     });
   }
@@ -243,6 +235,14 @@ const illOptions = [
 //年份选择
 const yearValue = ref('')
 const yearOptions = [
+  { value: '2014', label: '2014'},
+  { value: '2015', label: '2015'},
+  { value: '2016', label: '2016'},
+  { value: '2017', label: '2017'},
+  { value: '2018', label: '2018'},
+  { value: '2019', label: '2019'},
+  { value: '2020', label: '2020'},
+  { value: '2021', label: '2021'},
   { value: '2022', label: '2022'},
   { value: '2023', label: '2023'},
   { value: '2024', label: '2024'},
@@ -275,12 +275,12 @@ const displayedTableData = computed(() => {
     filteredData = filteredData.filter(item => item.ill_name === illValue.value);
   }
   if (yearValue.value) {
-    filteredData = filteredData.filter(item => item.create_time.startsWith(yearValue.value));
+    filteredData = filteredData.filter(item => item.date.startsWith(yearValue.value));
   }
   if (monthValue.value) {
     const month = monthValue.value.slice(-2); // Extract the month number from the value
     filteredData = filteredData.filter(item => {
-      const itemMonth = item.create_time.split('-')[1]; // Extract the month from the create_time
+      const itemMonth = item.date.split('-')[1]; // Extract the month from the create_time
       return itemMonth === month;
     });
   }
@@ -289,33 +289,12 @@ const displayedTableData = computed(() => {
 
 // GET
 const initGetCasesList = async () =>{
-  // const res = await getCase(queryForm.value);
-  // console.log(res);
+  const res = await getCase(queryForm.value,sessionStorage.getItem('token'));
+  console.log(res);
+  //拿页表信息
+  tableData.value = res.data.case_list
   //拿total页数信息 还未使用
-  //total.value= res.total
-  //拿页表信息 还未使用
-  //tableData.value = res.case
-  try {
-    const token = sessionStorage.getItem('token');
-    const authority = sessionStorage.getItem('authority');
-    const params = {
-      authority: authority,
-      ...queryForm.value
-    };
-
-    const res = await getCase(params); // 假设getCase是一个封装好的请求方法
-    console.log(res);
-
-    // 假设res的结构就是上面示例的JSON格式
-    if (res && res.cases) {
-      tableData.value = res.cases; // 更新表格数据
-      total.value = res.total; // 更新分页的总数目
-    }
-  } catch (error) {
-    console.error("获取病例列表失败：", error);
-    ElMessage.error("获取病例列表失败");
-  }
-
+  //total.value= res....
 }
 initGetCasesList()
 
@@ -342,15 +321,15 @@ const dialogTableValueAdd= ref({})
 //POST
 const testData = ref<string>('');
 onMounted(async () => {
-  try {
-      const response = await axios.post('/api/test2', {
-        key: 'value' // 你要POST的数据
-      });
-      console.log(response.data); // 假设后端返回的是 { message: 'Test2 response' }
-      testData.value = response.data.message;
-    } catch (error) {
-      console.error(error);
-    }
+  // try {
+  //     const response = await axios.post('/api/test2', {
+  //       key: 'value' // 你要POST的数据
+  //     });
+  //     console.log(response.data); // 假设后端返回的是 { message: 'Test2 response' }
+  //     testData.value = response.data.message;
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
 })
 
 //详情
@@ -383,7 +362,7 @@ const delCase = (row:any) => {
       }
   )
       .then(async () => {
-        await deleteCase(row.id)
+        await deleteCase(row.cid,sessionStorage.getItem('token'))
         ElMessage({
           type: 'success',
           message: '删除成功',
