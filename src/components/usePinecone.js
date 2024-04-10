@@ -40,42 +40,57 @@ export const pineconeAdd = async (id, namespace, input_text, metadata) => {
                 metadata: metadata
             }
         ]);
-        return { success: true, message: '添加成功', detail: insertResponse };
+        return { success: true, message: 'Pinecone 添加成功', detail: insertResponse };
+    } catch (error) {
+        return { success: false, message: 'Pinecone 插入错误', error };
+    }
+};
+
+export const pineconeUpdate = async (id, namespace, input_text, metadata) => {
+    const embedding = await embedText(input_text);
+    try {
+        const insertResponse = await index.namespace(namespace).update(
+            {
+                id: `${namespace}${id}`,
+                values: embedding,
+                metadata: metadata
+            }
+        );
+        return { success: true, message: 'Pinecone 更新成功', detail: insertResponse };
     } catch (error) {
         return { success: false, message: 'Pinecone 插入错误', error };
     }
 };
 
 export const medicineFormatForLLM = (queryResponse) => {
+
     return queryResponse.matches.map(match => ({
         id: match.id,
         name: match.metadata.medicine_name,
         cost: match.metadata.medicine_cost,
-        type: match.metadata.type,
         score: match.score
     }));
 };
 
-export const getMedicineLLMQuery = (data) => {
+export const getMedicineLLMQuery = (data, userInput) => {
     // 将数据转换为文本形式，用于作为查询上下文
     const context = data.map(item => `ID: ${item.id}, 药品名称: ${item.name}, 药品花费（单位rmb）: ${item.cost}`).join('\n');
-    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput.value}。如果没有相似的就回答没有找到，并列出相关的信息`;
+    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput}。如果没有相似的就回答没有找到，并列出相关的信息`;
 };
 
 export const labFormatForLLM = (queryResponse) => {
     return queryResponse.matches.map(match => ({
         id: match.id,
-        name: match.metadata.medicine_name,
-        cost: match.metadata.medicine_cost,
-        type: match.metadata.type,
+        name: match.metadata.lab_name,
+        cost: match.metadata.lab_cost,
         score: match.score
     }));
 };
 
-export const getLabLLMQuery = (data) => {
+export const getLabLLMQuery = (data, userInput) => {
     // 将数据转换为文本形式，用于作为查询上下文
     const context = data.map(item => `ID: ${item.id}, 化验名称: ${item.name}, 化验花费（单位rmb）: ${item.cost}`).join('\n');
-    return `根据下列搜索到的化验信息:\n${context}\n用中文回答用户提问：\n${userInput.value}`;
+    return `根据下列搜索到的化验信息:\n${context}\n用中文回答用户提问：\n${userInput}`;
 };
 export const pineconeDelete = async (id, namespace) => {
     const ns = index.namespace('medicine');

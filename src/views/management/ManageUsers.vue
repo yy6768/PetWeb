@@ -217,7 +217,7 @@
         }
       });
       console.log('获取用户组:', response.data);
-      totalUsers.value = response.data.user_list.length;
+      totalUsers.value = response.data.total;
       if (response.data && response.data.error_message === 'success') {
         users.value = response.data.user_list;  // Assuming that user list is returned under the 'user_list' key
         console.log('用户组:', users.value);

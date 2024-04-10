@@ -278,7 +278,7 @@ const fetchMedications = async () => {
       }
     });
     console.log('获取药品组:', response.data);
-    totalMedications.value = response.data.medicine_list.length;
+    totalMedications.value = response.data.total;
     if (response.data && response.data.error_message === 'success') {
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
