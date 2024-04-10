@@ -132,82 +132,69 @@ axios.get("/api/cate/get_all",{
     console.log("获取病种列表失败")
   }
 })
-const getDisease = (cateId:Number) =>{
-  axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
-    headers:{
-      'Authorization':`Bearer ${token}`
-    }
-  }).then((response)=>{
-    console.log(response.data)
-    if(response.data.error_message === "success"){
-      console.log(`成功获取病种${cateId}的疾病列表`)
-      return response.data.ill_list
-    }
-    else{
-      console.log(`获取病种${cateId}的疾病列表失败`)
-      return []
-    }
-  })
-  /*let tmpData = [{
-    illId:0,
-    illName:"JKKAN",
-    cateId:0
-  },{
-    illId:1,
-    illName:"HDBIWAH",
-    cateId:0
-  }]
-  return tmpData*/
+const getDisease = (cateId:Number)=>{
+
 }
 const isSearchCateSelected = computed(()=>{
-  console.log(queryForm.value.cateName)
-  return typeof queryForm.value.cateName !== "undefined";
-})
-
-const isTypeSelected = computed(()=>{
-  if(typeof editData.value !== "undefined"){
-    console.log(editData.value.cateName)
-    return typeof editData.value.cateName !== "undefined";
-  }
-  else{
+  if(typeof queryForm.value.cateName === "undefined"){
+    console.log("搜索类型选择为空")
     return false
+  }else{
+    console.log("选择cate: "+ queryForm.value.cateName)
+    let cateId = cateList.value.map((item) =>{
+      if(item.cateName === queryForm.value.cateName)
+        return item.cateId
+    })
+    axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }
+    }).then((response)=>{
+      console.log(response.data)
+      if(response.data.error_message === "success"){
+        console.log(`成功获取病种${cateId}的疾病列表`)
+        searchDiseaseList.value = response.data.ill_list
+        searchDiseaseList.value.push([])
+        searchDiseaseList.value.pop()
+      }
+      else{
+        console.log(`获取病种${cateId}的疾病列表失败`)
+      }
+    })
+      return true
+    }
+})
+const isCateSelected = computed(()=>{
+  if(typeof editData.value.cateName === "undefined"){
+    console.log("类型选择为空")
+    return false
+  }else{
+    console.log("选择cate: "+ editData.value.cateName)
+    let cateId = cateList.value.map((item) =>{
+      if(item.cateName === editData.value.cateName)
+        return item.cateId
+    })
+    axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }
+    }).then((response)=>{
+      console.log(response.data)
+      if(response.data.error_message === "success"){
+        console.log(`成功获取病种${cateId}的疾病列表`)
+        diseaseList.value = response.data.ill_list
+        diseaseList.value.push([])
+        diseaseList.value.pop()
+      }
+      else{
+        console.log(`获取病种${cateId}的疾病列表失败`)
+      }
+    })
+    return true
   }
 })
-const diseaseList = computed(()=>{
-  if(!isTypeSelected.value){
-    if(typeof editData.value !== "undefined"){
-      editData.value.diseaseName = undefined
-      editData.value.disease = undefined
-    }
-    return []
-  }
-  else{
-    /*根据editData.value.type获取disease的列表*/
-    if(typeof editData.value !== "undefined")
-      return getDisease(editData.value.cateId)
-  }
-})
-const searchDiseaseList = computed(()=>{
-  if(!isSearchCateSelected.value){
-    queryForm.value.illName = undefined
-    console.log("not select cate")
-    return []
-  }
-  else{
-    if(typeof queryForm.value.cateName!== "undefined"){
-      cateList.value.map((item)=> {
-        if (queryForm.value.cateName === item.cateName){
-          console.log(item.cateId)
-          return(getDisease(item.cateId))
-        }
-      })
-    }
-    else{
-      console.log("123")
-      return []
-    }
-  }
-})
+const diseaseList = ref([])
+const searchDiseaseList = ref([])
 
 const search = () => {
   console.log("关键词为：" + searchKey.value + "，搜索类型" + searchType.value +
@@ -225,14 +212,53 @@ const search = () => {
           return "1";
       })
     })
-    if(typeof queryForm.value.cateId !== "undefined"){
-      Reflect.set(myParam.value,'cate_id',queryForm.value.cateId)
+    if(typeof queryForm.value.cateName !== "undefined"){
+      cateList.value.map((item) =>{
+        if(item.cateName === queryForm.value.cateName)
+          Reflect.set(myParam.value,'cate_id',item.cateId)
+          return
+      })
     }
-    if(isSearchCateSelected && typeof queryForm.value.illId !== "undefined"){
-      Reflect.set(myParam.value,'ill_id', queryForm.value.illId)
+    if(isSearchCateSelected.value && typeof queryForm.value.illName !== "undefined"){
+      searchDiseaseList.value.map((item) =>{
+        if(item.illName === queryForm.value.illName){
+          Reflect.set(myParam.value,'ill_id',item.illId)
+          return
+        }
+      })
     }
     let params = new URLSearchParams(myParam.value).toString();
     axios.get(`/api/getAllQuestionByDescription?${params}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }}).then((response)=>{
+      console.log(response.data)
+      if(response.data.error_message === "success"){
+        console.log("成功搜索")
+        tableData.value = response.data.question_list
+        tableData.value.map((item)=>{
+          Reflect.set(item, "spread", 1)
+        })
+      }
+      else if(response.data.error_message === "未找到对应题目"){
+        tableData.value = []
+      }
+    })
+  }
+  else if(searchType.value === "病名"){
+    let myParam = ref({
+      page:currentPage.value.toString(),
+      pageSize:pageSize.value.toString(),
+      key:searchKey.value,
+      sort:computed(() =>{
+        if(searchOrder.value === "按编号排序")
+          return "0";
+        else
+          return "1";
+      })
+    })
+    let params = new URLSearchParams(myParam.value).toString();
+    axios.get(`/api/getAllQuestionByIll?${params}`,{
       headers:{
         'Authorization':`Bearer ${token}`
       }}).then((response)=>{
@@ -266,23 +292,68 @@ const showDetailFunc = (row) =>{
   console.log("showDetail的值变为" + showDetail.value)
 }
 const editFunc = () =>{
-  console.log("编辑id为" + editData.value.id + "的题目")
+  console.log("编辑id为" + editData.value.qid + "的题目")
   isEdit.value = true;
   isCreate.value = false;
 }
 const confirm = () =>{
+  let myParam = ref({
+    cate_id:computed(() =>{
+      let id = 0
+      cateList.value.map((item)=>{
+        if(item.cateName === editData.value.cateName)
+          id = item.cateId
+      })
+      return id
+    }),
+    ill_id:computed(() =>{
+      let id = 0
+      diseaseList.value.map((item)=>{
+        if(item.illName === editData.value.illName)
+          id = item.illId
+      })
+      console.log(id)
+      return id
+    }),
+    description:editData.value.description,
+    answer:computed(() =>{
+      console.log(editData.value.filterAnswer)
+      if(editData.value.filterAnswer === 'A')
+        return 1
+      else if(editData.value.filterAnswer === 'B')
+        return 2
+      else if(editData.value.filterAnswer === 'C')
+        return 3
+      else if(editData.value.filterAnswer === 'D')
+        return 4
+      else
+        return editData.value.filterAnswer
+    }),
+    mark:editData.value.mark,
+    content_a:editData.value.contentA,
+    content_b:editData.value.contentB,
+    content_c:editData.value.contentC,
+    content_d:editData.value.contentD
+  })
   if(isEdit.value){//编辑
-    axios.get("").then((response)=>{
+    Reflect.set(myParam.value, 'qid', editData.value.qid)
+    let params = new URLSearchParams(myParam.value).toString()
+    console.log(editData.value)
+    axios.post(`/api/updateQuestion?${params}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }
+    }).then((response)=>{
       console.log(response.data)
-      if(response.data.code === 200){
+      if(response.data.error_message === "success"){
         console.log("成功编辑")
         tableData.value.map((item) =>{
           if(item.qid === editData.value.qid){
-            item = editData.value
+            item.value = editData.value
             editData.value = undefined
             isEdit.value = false
             showDetail.value = false
-            //写一个message提示编辑成功
+            message.success("编辑成功")
             showDetail.value=false
           }
         })
@@ -293,11 +364,18 @@ const confirm = () =>{
     })
   }
   else if(isCreate.value){//新建
-    axios.get("").then((response)=>{
+    let params = new URLSearchParams(myParam.value).toString()
+    axios.post( `/api/createQuestion?${params}`,{
+      headers:{
+        'Authorization':`Bearer ${token}`
+      }
+    }).then((response)=>{
       console.log(response.data)
-      if(response.data.code === 200){
+      if(response.data.error_message === "success"){
         console.log("成功新建")
-        tableData.value.push(response.data.data)
+        let newData = response.data.question
+        Reflect.set(newData, "spread", 1)
+        tableData.value.push(newData)
         showDetail.value=false
       }
       else{
@@ -319,11 +397,16 @@ const cancel = () =>{
 }
 const deleteFunc = (row) =>{
   console.log("删除id为" + row.qid + "的题目")
-  axios.post("").then((response)=>{
+  axios.delete(`/api/deleteQuestion?${row.qid}`,{
+    headers:{
+      'Authorization':`Bearer ${token}`
+    }
+  }).then((response)=>{
     console.log(response.data)
-    if(response.data.code === 200){
+    if(response.data.error_message === "success"){
       console.log("成功删除")
-      let deleteIndex = tableData.value.map((item,index) =>{
+      let deleteIndex = 0
+      tableData.value.map((item,index) =>{
         if(item.qid === row.qid)
           return index
       })
@@ -341,19 +424,19 @@ const filterAnswer = computed(() =>{
     return "no answer"
   else if(editData.value.answer === 1){
     console.log("此时filterAnswer=A")
-    return "A"
+    return 'A'
   }
   else if(editData.value.answer === 2){
     console.log("此时filterAnswer=B")
-    return "B"
+    return 'B'
   }
   else if(editData.value.answer === 3){
     console.log("此时filterAnswer=C")
-    return "C"
+    return 'C'
   }
   else if(editData.value.answer === 4){
     console.log("此时filterAnswer=D1")
-    return "D"
+    return 'D'
   }
   else
     return "answer is wrong"
@@ -442,7 +525,7 @@ const newFunc = () =>{
                        style="width: 8vw"
                        :disabled="searchType === '病名' || !isSearchCateSelected">
               <el-option v-for="item in searchDiseaseList"
-                         :key="item.illId"
+                         :key="item.illName"
                          :value="item.illName"></el-option>
             </el-select>
           </el-form-item>
@@ -489,52 +572,52 @@ const newFunc = () =>{
       <el-dialog v-model="showDetail" :title="isEdit ? '编辑题目' : isCreate ? '新建题目' : '题目详情'">
         <el-form :ref="form" :model="editData" label-width="12vh">
           <el-form-item v-if="!isCreate" label="题目id" prop="id">
-            <el-input readonly v-model="editData.id"></el-input>
+            <el-input readonly v-model="editData.qid"></el-input>
           </el-form-item>
           <el-form-item label="题干内容" prop="content">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.content"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.description"></el-input>
           </el-form-item>
           <el-form-item label="选项A" prop="optionA">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.optionA"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentA"></el-input>
           </el-form-item>
           <el-form-item label="选项B" prop="optionB">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.optionB"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentB"></el-input>
           </el-form-item>
           <el-form-item label="选项C" prop="optionC">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.optionC"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentC"></el-input>
           </el-form-item>
           <el-form-item label="选项D" prop="optionD">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.optionD"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentD"></el-input>
           </el-form-item>
           <el-form-item label="分数" prop="point">
-            <el-input :readonly="!isEdit && !isCreate" v-model="editData.point"></el-input>
+            <el-input :readonly="!isEdit && !isCreate" v-model="editData.mark"></el-input>
           </el-form-item>
           <el-form-item label="答案" prop="answer" placeholder="选择答案">
             <el-select v-model="editData.filterAnswer" :disabled="!isCreate && !isEdit">
-              <el-option value="1" label="A"></el-option>
-              <el-option value="2" label="B"></el-option>
-              <el-option value="3" label="C"></el-option>
-              <el-option value="4" label="D"></el-option>
+              <el-option value="A" label="A"></el-option>
+              <el-option value="B" label="B"></el-option>
+              <el-option value="C" label="C"></el-option>
+              <el-option value="D" label="D"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="病种" prop="type">
-            <el-select v-model="editData.typeName"
+          <el-form-item label="病种" prop="cate">
+            <el-select v-model="editData.cateName"
                        clearable
                        filterabl
                        :disabled="!isCreate && !isEdit">
-              <el-option v-for="item in typeList"
-                         :key="item.id"
-                         :value="item.name"></el-option>
+              <el-option v-for="item in cateList"
+                         :key="item.cateName"
+                         :value="item.cateName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="病名" prop="disease">
-            <el-select v-model="editData.diseaseName"
+            <el-select v-model="editData.illName"
                        clearable
                        filterabl
-                       :disabled="!isCreate && !isEdit">
+                       :disabled="!isCreate && !isEdit || !isCateSelected">
               <el-option v-for="item in diseaseList"
-                         :key="item.ill_id"
-                         :value="item.ill_name"></el-option>
+                         :key="item.illName"
+                         :value="item.illName"></el-option>
             </el-select>
           </el-form-item>
 
