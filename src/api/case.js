@@ -3,15 +3,47 @@ import axios from "axios";
 //url 方法 参数
 
 //获取病例信息
-export const getCase = (params, token, page, pageSize) => {
+export const getCase = (params, token, page, pageSize,search) => {
     return axios({
         url: '/api/case/getall',
         method: 'get',
         params: {
             // ...params, 这里我注释掉了，你可以看情况再改下（
-            search:'',
+            search:search,
             page: page,
             pageSize: pageSize
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+//根据病种查询病例
+export const getCasesByCate = (params, token,cate_name,page,pageSize) => {
+    return axios({
+        url: `/api/case/get_by_cate`,
+        method: 'get',
+        params: {
+            cate_name:cate_name,
+            page:page,
+            pageSize:pageSize,
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+//根据病名查询病例
+export const getCasesByIll = (params, token,ill_name,page,pageSize) => {
+    return axios({
+        url: `/api/case/get_by_ill`,
+        method: 'get',
+        params: {
+            ill_name:ill_name,
+            page:page,
+            pageSize:pageSize,
         },
         headers: {
             'Authorization': `Bearer ${token}`
