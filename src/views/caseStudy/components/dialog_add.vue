@@ -32,16 +32,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >
-          <el-date-picker
-              v-model="form.date"
-              type="date"
-              placeholder="Pick a date"
-              style="width: 100%"
-              format="YYYY/MM/DD"
-              value-format="YYYY-MM-DD"
-          />
-      </el-form-item>
+<!--      <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >-->
+<!--          <el-date-picker-->
+<!--              v-model="form.date"-->
+<!--              type="date"-->
+<!--              placeholder="Pick a date"-->
+<!--              style="width: 100%"-->
+<!--              format="YYYY/MM/DD"-->
+<!--              value-format="YYYY-MM-DD"-->
+<!--          />-->
+<!--      </el-form-item>-->
 
       <el-form-item label="就诊医师" prop="doctor_name" v-if="dialogTitleAdd === '添加病例'">
         <el-select v-model="form.uid" placeholder="请选择医师"
@@ -254,7 +254,7 @@ interface Namegory {
 }
 const nameList = ref<Namegory[]>([]);
 const fetchName = async () => {
-  const response = await getName({}, sessionStorage.getItem('token'),12345,1,1,10);
+  const response = await getName({}, sessionStorage.getItem('token'),null,1,1,10);
   console.log(response)
   nameList.value = response.data.user_list;
 };
