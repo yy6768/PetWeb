@@ -248,11 +248,11 @@ const sortOptions = [
   { value: 'Sort2', label: '按病名排序'},
   { value: 'Sort3', label: '按修改时间排序'},
 ]
-// 监听sortValue的变化??
+
 watch(sortValue, (newValue) => {
   if (newValue === 'Sort1') {
     // 按编号排序
-    tableData.value.sort((a, b) => a.cid.toString().localeCompare(b.cid.toString()));
+    tableData.value.sort((a, b) => a.cid - b.cid);
   } else if (newValue === 'Sort2') {
     // 按病名排序
     tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
@@ -337,9 +337,6 @@ const handleIllChange = async (selectedIllId) => {
     await initGetCasesList();
   }
 };
-
-
-
 
 //年份选择
 const yearValue = ref('')

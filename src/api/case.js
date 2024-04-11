@@ -54,7 +54,7 @@ export const getCasesByIll = (params, token,ill_name,page,pageSize) => {
 //根据id获取病例详情???
 export const getCaseById = (params,token,cid) => {
     return axios({
-        url: '/api/case/get_by_id',
+        url: `/api/case/get_by_id`,
         method: 'get',
         params: {
             cid:cid
