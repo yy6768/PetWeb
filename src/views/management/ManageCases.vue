@@ -371,7 +371,7 @@ const handleDialogValueAdd = async (row:any) =>{
     dialogTitleAdd.value = '病例详情'
     dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
     const response = await getCaseById({},sessionStorage.getItem('token' ),row.cid);
-    console.log(response);
+    console.log("illcase:",response);
     Object.assign(form, response.data.illcase)
   }
   dialogVisibleAdd.value = true

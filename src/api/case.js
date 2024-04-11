@@ -88,20 +88,27 @@ export const getMed = (params,token) => {
     });
 };
 
+//获取化验项目
+export const getLab = (params,token) => {
+    return axios({
+        url: '/api/case/get_all_lab',
+        method: 'get',
+        params,
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
 //添加病例???
-export const addCase = (data, token) => {
+export const addCase = (data,token,username,ill_name,date) => {
     return axios({
         url: '/api/case/add',
         method: 'post',
         data:{
-            uid:'',
-            ill_id:'',
-            date:'',
-            basic_situation:'',
-            photo:'',
-            result:'',
-            therapy:'',
-            surgery_video:''
+            username:username,
+            ill_name:ill_name,
+            date:date
         },
         headers: {
             'Authorization': `Bearer ${token}`

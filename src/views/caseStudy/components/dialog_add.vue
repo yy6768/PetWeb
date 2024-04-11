@@ -19,7 +19,6 @@
           ></el-option>
         </el-select>
       </el-form-item>
-
       <el-form-item label="病名" prop="ill_name" v-if="dialogTitleAdd === '添加病例'">
         <el-select v-model="form.illId" placeholder="请选择病名"
                    @click="fetchIll">
@@ -31,8 +30,6 @@
           ></el-option>
         </el-select>
       </el-form-item>
-
-
       <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >
           <el-date-picker
               v-model="form.date"
@@ -67,9 +64,27 @@
 
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
         <el-card class="lab-card">
-          <el-input v-model="form.lab_name" placeholder="项目名称"></el-input>
+
+          <el-select v-model="form.lab_name" placeholder="项目名称"
+                     @click="fetchLab">
+            <el-option
+                v-for="category in labList"
+                :key="category.labId"
+                :label="category.labName"
+                :value="category.labId"
+            ></el-option>
+          </el-select>
+          <el-select v-model="form.lab_cost" placeholder="项目费用"
+                     @click="fetchLab">
+            <el-option
+                v-for="category in labList"
+                :key="category.labId"
+                :label="category.labCost"
+                :value="category.labId"
+            ></el-option>
+          </el-select>
+
           <el-input v-model="form.lab_result" placeholder="项目结果"></el-input>
-          <el-input v-model="form.lab_cost" placeholder="项目费用"></el-input>
           <!-- 项目图片 -->
           <el-upload
               v-model="form.lab_photo"
@@ -135,7 +150,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import  {defineEmits,ref,defineProps,watch,onMounted} from 'vue'
-import {addCase, editCase, getCase, getCate, getIll, getMed, getName} from '@/api/case.js'
+import {addCase, editCase, getCase, getCate, getIll, getMed, getName,getLab} from '@/api/case.js'
 import { ElMessage, ElUpload, ElButton, ElInput,ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile } from 'element-plus'
@@ -181,6 +196,7 @@ const form = ref({
   userame:'',
   basic_situation:'',
   photo:[],
+  lab_id:1,
   lab_name:'',
   lab_cost:1,
   lab_result:'',
@@ -254,6 +270,20 @@ const fetchMed = async () => {
 };
 onMounted(fetchMed);
 
+//获取化验项目
+interface Labgory {
+  labId:number;
+  labName:string;
+  labCost:number;
+}
+const labList = ref<Labgory[]>([]);
+const fetchLab = async () => {
+  const response = await getLab({}, sessionStorage.getItem('token'));
+  console.log(response)
+  labList.value = response.data.lab_list;
+};
+onMounted(fetchLab);
+
 
 //输入信息校验
 const rules = ref({
@@ -315,7 +345,7 @@ const handleConfirm = () => {
   formRef.value.validate(async (valid:any) => {
     if(valid){
       props.dialogTitleAdd === '添加病例'
-          ? await addCase(form.value,sessionStorage.getItem('token'))
+          ? await addCase(form.value,sessionStorage.getItem('token'),form.value.userame,form.value.ill_name,form.value.date)
           : await editCase(form.value,sessionStorage.getItem('token'))
       //消息提示
       ElMessage({
