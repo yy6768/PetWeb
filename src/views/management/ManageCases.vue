@@ -438,7 +438,7 @@ const handleDialogValueAdd = async (row:any) =>{
     dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
     const response = await getCaseById({},sessionStorage.getItem('token' ),row.cid);
     console.log("illcase:",response);
-    Object.assign(form, response.data.illcase)
+    form.value = response.data.illcase;
   }
   dialogVisibleAdd.value = true
 }
