@@ -8,6 +8,7 @@
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" >
       <el-col :span="22">
+
       <el-form-item label="病种" prop="category" v-if="dialogTitleAdd === '添加病例'">
         <el-select v-model="form.cateId" placeholder="请选择病种"
                    @click="fetchCategories">
@@ -19,6 +20,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
+
       <el-form-item label="病名" prop="ill_name" v-if="dialogTitleAdd === '添加病例'">
         <el-select v-model="form.illId" placeholder="请选择病名"
                    @click="fetchIll">
@@ -36,6 +38,8 @@
               type="date"
               placeholder="Pick a date"
               style="width: 100%"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
           />
       </el-form-item>
 

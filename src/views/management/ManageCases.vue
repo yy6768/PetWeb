@@ -18,7 +18,7 @@
           >
           </el-input>
         </el-col>
-        <el-button type="primary" :icon="Search" @click="initGetCasesList">搜索</el-button>
+        <el-button type="primary" :icon="Search" @click="initGetCasesList()">搜索</el-button>
       </el-row>
 
       <div class="flex flex-wrap gap-4 items-center">
@@ -47,12 +47,14 @@
           size="default"
           style="width: 180px"
           clearable
+          @click="fetchCategories"
+          @change="handleCateChange"
       >
         <el-option
             v-for="item in cateOptions "
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            :key="item.cateId"
+            :label="item.cateName"
+            :value="item.cateId"
         />
       </el-select>
       <el-select
@@ -61,12 +63,14 @@
           size="default"
           style="width: 180px ; margin-left: 40px"
           clearable
+          @click="fetchIll"
+          @change="handleIllChange"
       >
         <el-option
             v-for="item in illOptions "
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            :key="item.illId"
+            :label="item.illName"
+            :value="item.illId"
         />
       </el-select>
       <el-select
@@ -164,7 +168,7 @@ import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from '@/views/caseStudy/options';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase,deleteCase,getCaseById} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
 
 
@@ -173,7 +177,8 @@ const queryForm = ref({
   query:'',
   key:'',
   pagenum: 1,
-  pagesize: 10
+  pagesize: 10,
+  // cate_name:''
 })
 
 //分页器
@@ -195,7 +200,8 @@ const initGetCasesList = async () =>{
   const res = await getCase(queryForm.value,
       sessionStorage.getItem('token'),
       queryForm.value.pagenum,
-      queryForm.value.pagesize
+      queryForm.value.pagesize,
+      queryForm.value.query
   );
   console.log(res);
   //拿页表信息 还没拿
@@ -243,19 +249,78 @@ watch(sortValue, (newValue) => {
 
 //病种选择
 const cateValue = ref('')
-const cateOptions = [
-  { value: 'cate1', label: 'cate1'},
-  { value: 'cate2', label: 'cate2'},
-  { value: 'cate3', label: 'cate3'},
-]
+const selectedCateId = ref(null); // 存储当前选中的病种id
+
+interface Category {
+  cateId:number;
+  cateName: string;
+}
+const cateOptions = ref<Category[]>([]); // 存储病种列表
+const fetchCategories = async () => {
+  const response = await getCate({}, sessionStorage.getItem('token'));
+  console.log("oooooo",response)
+  cateOptions.value = response.data.cate_list;
+};
+// 获取病种列表
+onMounted(fetchCategories);
+
+// 处理病种选择变化
+const handleCateChange = async (id) => {
+  selectedCateId.value = id; // 存储当前选中的病种id
+  // 根据选中的病种id获取病种名称
+  const selectedCate = cateOptions.value.find((item) => item.cateId === id);
+  if (selectedCate) {
+    cateValue.value = selectedCate.cateName; // 将选中的病种名称存储到cateValue中
+    try {
+      const response = await getCasesByCate(id, sessionStorage.getItem('token'), cateValue.value, queryForm.value.pagenum, queryForm.value.pagesize);
+      console.log("iiiiii", response);
+      // tableData.value = response.data.case_list;
+    } catch (error) {
+      console.error('Error fetching cases by category:', error);
+    }
+  } else {
+    // 如果没有选中病种，则重新获取全部病例列表
+    await initGetCasesList();
+  }
+};
 
 //病名选择
 const illValue = ref('')
-const illOptions = [
-  { value: 'ill1', label: 'ill1'},
-  { value: 'ill2', label: 'ill2'},
-  { value: 'ill3', label: 'ill3'},
-]
+
+interface Illgory {
+  illId:number;
+  illName: string;
+}
+const illOptions = ref<Illgory[]>([]); // 存储病种列表
+const fetchIll = async () => {
+  if (selectedCateId.value) { // 确保已选中病种id不为空
+    const response = await getIll({}, sessionStorage.getItem('token'), selectedCateId.value);
+    console.log('zzzzzzz', response);
+    illOptions.value = response.data.ill_list;
+  } else {
+    // 如果没有选中病种id，则不执行获取病名列表的操作
+    console.warn('No selected category to fetch illnesses');
+  }
+};
+onMounted(fetchIll);
+const handleIllChange = async (selectedIllId) => {
+  const selectedIll = illOptions.value.find((item) => item.illId === selectedIllId);
+  if (selectedIll) {
+    illValue.value = selectedIll.illName;
+    try {
+      const response = await getCasesByIll(selectedIllId, sessionStorage.getItem('token'),illValue.value,queryForm.value.pagenum, queryForm.value.pagesize);
+      console.log("xxxxxx", response);
+    } catch (error) {
+      console.error('Error fetching cases by category:', error);
+    }
+  } else {
+    // 如果没有选中病种，则重新获取全部病例列表
+    await initGetCasesList();
+  }
+};
+
+
+
 
 //年份选择
 const yearValue = ref('')
@@ -294,7 +359,7 @@ const monthOptions = [
 const displayedTableData = computed(() => {
   let filteredData = tableData.value;
   if (cateValue.value) {
-    filteredData = filteredData.filter(item => item.cate_name === cateValue.value);
+    filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
   }
   if (illValue.value) {
     filteredData = filteredData.filter(item => item.ill_name === illValue.value);
@@ -311,6 +376,7 @@ const displayedTableData = computed(() => {
   }
   return filteredData;
 });
+
 
 //新增框
 const dialogVisibleAdd = ref(false)
