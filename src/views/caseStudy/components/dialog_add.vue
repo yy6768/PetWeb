@@ -62,8 +62,8 @@
         <el-input v-model="form.ill_name" readonly class="inline-input"/>
       </el-form-item>
 
-        <el-form-item label="基本情况" prop="basic_situation" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.basic_situation" type="textarea" style="width: 425px;" />
+        <el-form-item label="基本情况" prop="basicSituation" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.basicSituation" type="textarea" style="width: 425px;" />
       </el-form-item>
 
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
@@ -129,7 +129,7 @@
         <el-input v-model="form.therapy" type="textarea" style="width: 425px;" />
       </el-form-item>
         <!-- 项目视频 -->
-      <el-form-item label="治疗视频" prop="video" v-if="dialogTitleAdd === '病例详情'">
+      <el-form-item label="治疗视频" prop="surgeryVideo" v-if="dialogTitleAdd === '病例详情'">
         <el-upload
             class="upload-demo"
             drag
@@ -154,11 +154,14 @@
 <script setup lang="ts">
 import axios from 'axios';
 import  {defineEmits,ref,defineProps,watch,onMounted} from 'vue'
-import {addCase, editCase, getCase, getCate, getIll, getMed, getName,getLab} from '@/api/case.js'
+import {addCase, editCase, getCase, getCate, getIll, getMed, getName,getLab,getCaseById} from '@/api/case.js'
 import { ElMessage, ElUpload, ElButton, ElInput,ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 // import queryForm from "@/views/management/ManageCases.vue"
+
+//
+const dialogVisibleAdd = ref(false);
 
 //图片
 const dialogImageUrl = ref('')
@@ -190,15 +193,15 @@ const props = defineProps({
 //新增病例信息
 const formRef = ref(null)
 const form = ref({
-  cid:'',
-  cateId:'',//
+  cid:1,
+  cateId:'',
   cate_name:'',
-  illId:'',//
+  illId:1,
   ill_name:'',
   date:'',
-  uid:'',//
+  uid:1,
   userame:'',
-  basic_situation:'',
+  basicSituation:'',
   photo:[],
   lab_id:1,
   lab_name:'',
@@ -211,8 +214,23 @@ const form = ref({
   result:'',
   therapy:'',
   cost:1,
-  surgery_video:[],
+  surgeryVideo:[],
 })
+// const form = ref({})
+//
+// // 假设 dialogData 是从父组件传递过来的数据
+// const dialogData = ref({})
+//
+// // 监听 dialogData 的变化，更新 form
+// watch(dialogData, (newVal) => {
+//   form.value = newVal
+// }, { deep: true })
+
+// // 在组件销毁时移除监听
+// onUnmounted(() => {
+//   dialogData.value = {}
+// })
+
 
 //病种
 interface Category {
