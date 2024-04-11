@@ -164,7 +164,7 @@ import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import {options} from '@/views/caseStudy/options';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase,deleteCase} from "@/api/case.js";
+import {getCase,deleteCase,getCaseById} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
 
 
@@ -181,7 +181,7 @@ const total = ref(0)
 
 //描述病例对象
 interface Case {
-  cid: string;
+  cid: number;
   cate_name: string;
   ill_name: string;
   date: string;
@@ -337,14 +337,42 @@ onMounted(async () => {
 //   dialogVisibleDetail.value = true
 // }
 
+//传参数
+const form = ref({
+  cid:'',
+  cateId:'',//
+  cate_name:'',
+  illId:'',//
+  ill_name:'',
+  date:'',
+  uid:'',//
+  userame:'',
+  basic_situation:'',
+  photo:[],
+  lab_name:'',
+  lab_cost:1,
+  lab_result:'',
+  lab_photo:[],
+  medicine:'',
+  medicine_name:'',
+  medicine_cost:'',
+  result:'',
+  therapy:'',
+  cost:1,
+  surgery_video:[],
+})
+
 //新增标题
-const handleDialogValueAdd = (row:any) =>{
+const handleDialogValueAdd = async (row:any) =>{
   if(isNull(row)){
     dialogTitleAdd.value = '添加病例'
     dialogTableValueAdd.value={}
   }else{
     dialogTitleAdd.value = '病例详情'
     dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
+    const response = await getCaseById({},sessionStorage.getItem('token' ),row.cid);
+    console.log(response);
+    Object.assign(form, response.data.illcase)
   }
   dialogVisibleAdd.value = true
 }
