@@ -8,15 +8,31 @@
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" >
       <el-col :span="22">
-      <el-form-item label="编号" prop="cid" v-if="dialogTitleAdd === '添加病例'" >
-        <el-input v-model="form.cid"/>
-      </el-form-item>
       <el-form-item label="病种" prop="category" v-if="dialogTitleAdd === '添加病例'">
-        <el-input v-model="form.category" />
+        <el-select v-model="form.cateId" placeholder="请选择病种"
+                   @click="fetchCategories">
+          <el-option
+              v-for="category in categoriesList"
+              :key="category.cateId"
+              :label="category.cateName"
+              :value="category.cateId"
+          ></el-option>
+        </el-select>
       </el-form-item>
-      <el-form-item label="病名" prop="name" v-if="dialogTitleAdd === '添加病例'">
-        <el-input v-model="form.name" />
+
+      <el-form-item label="病名" prop="ill_name" v-if="dialogTitleAdd === '添加病例'">
+        <el-select v-model="form.illId" placeholder="请选择病名"
+                   @click="fetchIll">
+          <el-option
+              v-for="category in illList"
+              :key="category.illId"
+              :label="category.illName"
+              :value="category.illId"
+          ></el-option>
+        </el-select>
       </el-form-item>
+
+
       <el-form-item label="创建时间" prop="create_time" v-if="dialogTitleAdd === '添加病例'" >
           <el-date-picker
               v-model="form.date"
@@ -25,19 +41,28 @@
               style="width: 100%"
           />
       </el-form-item>
-      <el-form-item label="就诊医师" prop="doctor_name" v-if="dialogTitleAdd === '添加病例'" >
-        <el-input v-model="form.doctor_name" />
+
+      <el-form-item label="就诊医师" prop="doctor_name" v-if="dialogTitleAdd === '添加病例'">
+        <el-select v-model="form.uid" placeholder="请选择医师"
+                   @click="fetchName">
+          <el-option
+              v-for="category in nameList"
+              :key="category.uid"
+              :label="category.username"
+              :value="category.uid"
+          ></el-option>
+        </el-select>
       </el-form-item>
 
       <el-form-item v-if="dialogTitleAdd === '病例详情'" class="form-item-inline">
         <el-text style="margin-right:13px">编号</el-text>
         <el-input v-model="form.cid" readonly class="inline-input"/>
         <el-text style="margin-right:13px">病名</el-text>
-        <el-input v-model="form.name" readonly class="inline-input"/>
+        <el-input v-model="form.ill_name" readonly class="inline-input"/>
       </el-form-item>
 
-        <el-form-item label="基本情况" prop="basicSituation" v-if="dialogTitleAdd === '病例详情'">
-        <el-input v-model="form.basicSituation" type="textarea" style="width: 425px;" />
+        <el-form-item label="基本情况" prop="basic_situation" v-if="dialogTitleAdd === '病例详情'">
+        <el-input v-model="form.basic_situation" type="textarea" style="width: 425px;" />
       </el-form-item>
 
       <el-form-item label="化验项目" prop="laboratory" v-if="dialogTitleAdd === '病例详情'">
@@ -47,8 +72,8 @@
           <el-input v-model="form.lab_cost" placeholder="项目费用"></el-input>
           <!-- 项目图片 -->
           <el-upload
-              v-model:file-list="fileList"
-              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              v-model="form.lab_photo"
+              action="http://localhost:3001/vid/case/upload"
               list-type="picture-card"
               :on-preview="handlePictureCardPreview"
               :on-remove="handleRemove"
@@ -59,28 +84,41 @@
             <img w-full :src="dialogImageUrl" alt="Preview Image" />
           </el-dialog>
         </el-card>
-<!--        <el-button class="add-item-btn" size="small"  type="primary" round @click="storeItem">保存</el-button>-->
       </el-form-item>
-      <el-form-item label="治疗药品" prop="medicine" v-if="dialogTitleAdd === '病例详情'">
-        <el-select v-model="form.medicine" placeholder="请选择药品" style="width: 425px;">
-          <el-option label="药品一" value="one" />
-          <el-option label="药品二" value="two" />
-        </el-select>
-      </el-form-item>
+        <el-form-item label="治疗药品" prop="medicine" v-if="dialogTitleAdd === '病例详情'" style="display: flex;">
+          <el-select v-model="form.medicine_name" placeholder="请选择药品" style="width: 50%;" @click="fetchMed">
+            <el-option
+                v-for="category in medList"
+                :key="category.medicineId"
+                :label="category.medicineName"
+                :value="category.medicineId"
+            ></el-option>
+          </el-select>
+          <el-select v-model="form.medicine_cost" placeholder="药品价格" style="width: 50%;" @click="fetchMed">
+            <el-option
+                v-for="category in medList"
+                :key="category.medicineId"
+                :label="category.medicineCost"
+                :value="category.medicineId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       <el-form-item label="诊断结果" prop="result" v-if="dialogTitleAdd === '病例详情'">
         <el-input v-model="form.result" type="textarea" style="width: 425px;" />
       </el-form-item>
       <el-form-item label="治疗方案" prop="therapy" v-if="dialogTitleAdd === '病例详情'">
         <el-input v-model="form.therapy" type="textarea" style="width: 425px;" />
       </el-form-item>
+        <!-- 项目视频 -->
       <el-form-item label="治疗视频" prop="video" v-if="dialogTitleAdd === '病例详情'">
         <el-upload
-            action="#"
-            :file-list="form.video"
-            class="video-upload"
-            :show-file-list="false"
+            class="upload-demo"
+            drag
+            action="http://localhost:3001/vid/case/upload"
+            multiple
+            :file-size-limit="100 * 1024 * 1024"
         >
-          <el-button size="small" type="primary">添加视频</el-button>
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         </el-upload>
       </el-form-item>
       </el-col>
@@ -95,20 +133,15 @@
 </template>
 
 <script setup lang="ts">
-import  {defineEmits,ref,defineProps,watch} from 'vue'
-import {addCase, editCase, getCase} from '@/api/case.js'
-import { ElMessage, ElUpload, ElButton, ElInput } from "element-plus";
+import axios from 'axios';
+import  {defineEmits,ref,defineProps,watch,onMounted} from 'vue'
+import {addCase, editCase, getCase, getCate, getIll, getMed, getName} from '@/api/case.js'
+import { ElMessage, ElUpload, ElButton, ElInput,ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile } from 'element-plus'
+// import queryForm from "@/views/management/ManageCases.vue"
 
 //图片
-const fileList = ref<UploadUserFile[]>([
-  // {
-  //   name: 'food.jpeg',
-  //   url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-  // },
-])
-
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 
@@ -139,44 +172,112 @@ const props = defineProps({
 const formRef = ref(null)
 const form = ref({
   cid:'',
-  category:'',
-  name:'',
+  cateId:'',//
+  cate_name:'',
+  illId:'',//
+  ill_name:'',
   date:'',
-  doctor_name:'',
-  basicSituation:'',
+  uid:'',//
+  userame:'',
+  basic_situation:'',
+  photo:[],
   lab_name:'',
+  lab_cost:1,
   lab_result:'',
-  lab_cost:'',
-  lab_image:[],
+  lab_photo:[],
   medicine:'',
+  medicine_name:'',
+  medicine_cost:'',
   result:'',
   therapy:'',
-  video:[],
+  cost:1,
+  surgery_video:[],
 })
+
+//病种
+interface Category {
+  cateId: number;
+  cateName: string;
+}
+
+const categoriesList = ref<Category[]>([]); // 存储病种列表
+// 获取病种列表
+const fetchCategories = async () => {
+    const response = await getCate({}, sessionStorage.getItem('token'));
+    console.log(response)
+    categoriesList.value = response.data.cate_list; // 将获取到的病种列表存储到 categoriesList 中
+};
+// 获取病种列表
+onMounted(fetchCategories);
+
+//病名
+interface Illgory {
+  illId:number;
+  illName: string;
+}
+const illList = ref<Illgory[]>([]);
+const fetchIll = async () => {
+  const response = await getIll({}, sessionStorage.getItem('token'),form.value.cateId);
+  console.log(response)
+  illList.value = response.data.ill_list;
+
+};
+
+onMounted(fetchIll);
+
+//获取医师
+interface Namegory {
+  uid:number;
+  username: string;
+  authority:number;
+  access:number;
+}
+const nameList = ref<Namegory[]>([]);
+const fetchName = async () => {
+  const response = await getName({}, sessionStorage.getItem('token'),12345,1,1,10);
+  console.log(response)
+  nameList.value = response.data.user_list;
+};
+onMounted(fetchName);
+
+//获取药品
+interface Medgory {
+  medicineId:number;
+  medicineName:string;
+  medicineCost:number;
+}
+const medList = ref<Medgory[]>([]);
+const fetchMed = async () => {
+  const response = await getMed({}, sessionStorage.getItem('token'));
+  console.log(response)
+  medList.value = response.data.medicine_list;
+};
+onMounted(fetchMed);
+
 
 //输入信息校验
 const rules = ref({
-  id:[
-    {
-      required:true,
-      message:'Please enter id',
-      trigger:'blur'
-    }
-  ],
-  category:[
-    {
-      // required:true,
-      message:'Please enter the category of case',
-      trigger:'blur'
-    }
-  ],
-  name:[
-    {
-      // required:true,
-      message:'Please enter the name of case',
-      trigger:'blur'
-    }
-  ],
+  // id:[
+  //   {
+  //     required:true,
+  //     message:'Please enter id',
+  //     trigger:'blur'
+  //   }
+  // ],
+  // category:[
+  //   {
+  //     // required:true,
+  //     message:'Please enter the category of case',
+  //     trigger:'blur'
+  //   }
+  // ],
+  // name:[
+  //   {
+  //     // required:true,
+  //     message:'Please enter the name of case',
+  //     trigger:'blur'
+  //   }
+  // ],
   date:[
     {
       required:true,
@@ -184,13 +285,13 @@ const rules = ref({
       trigger:'blur'
     }
   ],
-  doctor_name:[
-    {
-      // required:true,
-      message:'Please input the name of doctor',
-      trigger:'blur'
-    }
-  ],
+  // doctor_name:[
+  //   {
+  //     // required:true,
+  //     message:'Please input the name of doctor',
+  //     trigger:'blur'
+  //   }
+  // ],
 })
 
 //监听
