@@ -12,8 +12,8 @@ export const options =[
         prop:'ill_name'
     },
     {
-        label:'修改时间',
-        prop:'create_time'
+        label:'时间',
+        prop:'date'
     },
     {
         label:'就诊医师',
