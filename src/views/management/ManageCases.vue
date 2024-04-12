@@ -209,7 +209,6 @@ const initGetCasesList = async () =>{
   tableData.value = res.data.case_list
 
   //拿total页数信息 还未使用
-  //total.value= res.data.total
 }
 initGetCasesList()
 
