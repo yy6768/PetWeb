@@ -309,13 +309,13 @@ const rules = ref({
   //     trigger:'blur'
   //   }
   // ],
-  date:[
-    {
-      required:true,
-      message:'Please enter the time you create',
-      trigger:'blur'
-    }
-  ],
+  // date:[
+  //   {
+  //     required:true,
+  //     message:'Please enter the time you create',
+  //     trigger:'blur'
+  //   }
+  // ],
   // doctor_name:[
   //   {
   //     // required:true,
