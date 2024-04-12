@@ -81,7 +81,7 @@ export const getMedicineLLMQuery = (data, userInput) => {
 export const labFormatForLLM = (queryResponse) => {
     return queryResponse.matches.map(match => ({
         id: match.id,
-        name: match.metadata.lab_name,add
+        name: match.metadata.lab_name,
         cost: match.metadata.lab_cost,
         score: match.score
     }));
