@@ -3,11 +3,6 @@ import axios from 'axios';
 import * as dat from 'dat.gui';
 
 
-interface SelectorParams {
-    name:String;
-    room_number:String;
-    desc:String;
-}
 
 class Selector {
     private container: HTMLDivElement;
@@ -37,7 +32,17 @@ class Selector {
         subgui.open();
         // 绑定事件
         window.addEventListener('click', this.onMouseClick);
+        window.addEventListener('dblclick', this.onMouseDoubleClick);  // 添加双击事件监听
     }
+
+    private onMouseDoubleClick = (event: MouseEvent): void => {
+        if (this.selectObject && this.selectObject.name) {
+            // 构造跳转URL
+            const roomName = encodeURIComponent(this.selectObject.name);
+            // 跳转到全景图页面
+            window.location.href = `http://localhost:5173/roomtour/${roomName}`;
+        }
+    };
 
 
     private onMouseClick = (event: MouseEvent): void => {
@@ -134,6 +139,7 @@ class Selector {
     // 在需要的时候，可以调用此方法移除事件监听器
     public dispose(): void {
         window.removeEventListener('click', this.onMouseClick);
+        window.removeEventListener('dblclick', this.onMouseDoubleClick);
     }
 }
 

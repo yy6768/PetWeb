@@ -43,8 +43,12 @@ const router = createRouter({
           path:'/panorama-tour',
           name: 'panorama-tour',
           component: () => import('../views/panoramaTour/PanoramaTour.vue')
-        }
-        ,
+        },
+        {
+          path: '/roomtour/:roomName',
+          name: 'PanoramaViewer',
+          component: ()=> import('../views/panoramaTour/RoomPanorama.vue')
+        },
         {
           path:'/ai-chat',
           name: 'ai-chat',
