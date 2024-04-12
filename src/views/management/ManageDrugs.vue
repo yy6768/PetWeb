@@ -19,7 +19,7 @@
       <el-table-column prop="medicineId" label="药品ID"></el-table-column>
       <el-table-column prop="medicineName" label="药品名"></el-table-column>
       <el-table-column prop="medicineCost" label="价格(rmb)"></el-table-column>
-
+      <el-table-column prop="description" label="药品描述"></el-table-column>
       <el-table-column label="操作">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="editMedicine(row)">编辑</el-button>
@@ -37,7 +37,9 @@
         <el-form-item label="价格" >
           <el-input v-model="form.medicine_cost" autocomplete="off" />
         </el-form-item>
-
+        <el-form-item label="描述" >
+          <el-input v-model="form.description" autocomplete="off" />
+        </el-form-item>
 
       </el-form>
       <template #footer>
@@ -58,6 +60,9 @@
         </el-form-item>
         <el-form-item label="药品价格" >
           <el-input v-model="newMedicine.medicine_cost" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="药品描述" >
+          <el-input v-model="newMedicine.description" autocomplete="off" />
         </el-form-item>
         <el-form-item label="存入Pinecone">
           <!-- 切换开关 -->
@@ -119,6 +124,7 @@ const form = ref({
 const newMedicine = ref({
   medicine_name: '',
   medicine_cost: '',
+  description:'',
   saveToPinecone: true
 })
 const newFunc = () => {
@@ -130,7 +136,8 @@ const medicationChangeSubmit = async () => {
   try {
     const params = new URLSearchParams({
       medicineId: form.value.medicineId.toString(),
-      medicineName: form.value.medicineName.toString(),
+      medicineName: form.value.medicineName,
+      description: form.value.description
     });
 
     const paramString = params.toString();
@@ -206,8 +213,10 @@ const addMedicine = async () => {
   console.log('添加药品', medications);
   try {
     const params = new URLSearchParams({
-      medicine_name: newMedicine.value.medicine_name.toString(),
+      medicine_name: newMedicine.value.medicine_name,
       medicine_cost: newMedicine.value.medicine_cost.toString(),
+      description: newMedicine.value.description.toString(),
+
     }).toString();
     const token = sessionStorage.getItem('token');
     const response = await axios.post(`/api/medications/add?${params}`, {}, {
@@ -222,12 +231,16 @@ const addMedicine = async () => {
 
       // 插入数据到 Pinecone
       if (newMedicine.value.saveToPinecone) {
-        const input_text = "药品名称：" + newMedicine.value.medicine_name + "，药品价格："+ newMedicine.value.medicine_cost.toString()
+        const input_text = "药品名称：" + newMedicine.value.medicine_name + "，药品价格："+ newMedicine.value.medicine_cost.toString() + ",疗效与用途：" + newMedicine.value.description
 
         const insert_pinecone = await pineconeAdd(
             medicine_id,
             `medicine`, input_text,
-            {medicine_name: newMedicine.value.medicine_name, medicine_cost: newMedicine.value.medicine_cost}
+            {
+              medicine_name: newMedicine.value.medicine_name,
+              medicine_cost: newMedicine.value.medicine_cost,
+              description: newMedicine.value.description
+            }
         )
 
         if (insert_pinecone?.success){

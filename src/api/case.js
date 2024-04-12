@@ -161,12 +161,27 @@ export const editCase = (data, token) => {
 };
 
 //删除病例
-export const deleteCase = (cid, token) => {
-    return axios({
-        url: `/api/case/delete?cid=${cid}`,
-        method: 'delete',
-        headers: {
-            'Authorization': `Bearer ${token}`
+export const deleteCase = async (cid, token) => {
+    console.log("Deleting case with CID:", cid);
+    console.log("Token:", token)
+    try {
+        const params = new URLSearchParams({ cid: cid.toString() }).toString();
+        const response = await axios.delete(`/api/case/delete?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        console.log('Delete response:', response.data);
+
+        if (response.data && response.data.error_message === 'success') {
+            console.log('Case successfully deleted.');
+            return { success: true, message: 'Case deleted successfully' };
+        } else {
+            console.error('Failed to delete case:', response.data.error_message);
+            return { success: false, message: response.data.error_message };
         }
-    });
+    } catch (error) {
+        console.error('Error deleting case:', error);
+        return { success: false, message: 'Error deleting case' };
+    }
 };

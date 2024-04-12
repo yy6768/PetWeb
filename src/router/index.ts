@@ -35,6 +35,18 @@ const router = createRouter({
           component: () => import('../views/caseStudy/CaseStudy.vue')
         },
         {
+          path: '/case-detail/:cid',
+          name: 'case-details',
+          component: () => import('../views/caseStudy/CaseDetails.vue'),
+          props: true  // Enable route params to be passed as props
+        },
+        {
+          path: '/case-new',
+          name: 'case-new',
+          component: () => import('../views/caseStudy/CaseNew.vue'),
+          props: true  // Enable route params to be passed as props
+        },
+        {
           path:'/analysis-evaluation',
           name: 'analysis-evaluation',
           component: () => import('../views/analysisEvaluation/AnalysisEvaluation.vue')

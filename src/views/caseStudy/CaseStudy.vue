@@ -66,6 +66,7 @@
 
       </el-table-column>
     </el-table>
+
     <div class="margin"></div><!--    间距-->
     <div class="page">
       <el-pagination
@@ -79,8 +80,8 @@
       />
     </div>
 
-
   </el-card>
+
 </template>
 
 <script setup lang="ts">
@@ -91,6 +92,9 @@ import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 //查询表
 const queryForm = ref({
@@ -139,14 +143,20 @@ interface Case {
 
 const tableData = ref<Case[]>([]);
 const studyCase = (row) => {
-  sessionStorage.setItem('cid', row.cid);
-  getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
-    console.log("getCaseById", res);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
+  // Ensure you are passing the `cid` as part of the route parameters correctly
+  console.log("row:",row)
+  const caseDetails = {
+    cate_name: row.cate_name,
+    ill_name: row.ill_name,
+    date: row.date,
+    username: row.username
+  };
+  sessionStorage.setItem('caseDetails', JSON.stringify(caseDetails));
+  router.push({
+    name: 'case-details',
+    params: { cid: row.cid },
   });
-}
-// GET
+};
 const initGetCasesList = async () => {
   const res = await getCase(
       queryForm.value,
@@ -216,7 +226,7 @@ interface Category {
 const cateOptions = ref<Category[]>([]); // 存储病种列表
 const fetchCategories = async () => {
   const response = await getCate({}, sessionStorage.getItem('token'));
-  console.log("oooooo",response)
+  console.log("fetchCategories",response)
   cateOptions.value = response.data.cate_list;
 };
 // 获取病种列表
@@ -235,7 +245,7 @@ const handleCateChange = async (id) => {
     cateValue.value = selectedCate.cateName; // 将选中的病种名称存储到cateValue中
     try {
       const response = await getCasesByCate(id, sessionStorage.getItem('token'), cateValue.value, queryForm.value.pagenum, queryForm.value.pagesize);
-      console.log("iiiiii", response);
+      console.log("handleCateChange", response);
       // tableData.value = response.data.case_list;
     } catch (error) {
       console.error('Error fetching cases by category:', error);
