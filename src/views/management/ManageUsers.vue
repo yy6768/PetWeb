@@ -122,8 +122,8 @@
   const editUser = (user) => {
     // 编辑用户的逻辑
     dialogFormVisible.value = true;
-    form.value = user;
-    form.value.password = '';
+    form.value = { ...user, password: '' }; // Use spread operator to copy user properties
+
     console.log('编辑用户', user);
   };
 
@@ -217,7 +217,7 @@
         }
       });
       console.log('获取用户组:', response.data);
-      totalUsers.value = response.data.user_list.length;
+      totalUsers.value = response.data.total;
       if (response.data && response.data.error_message === 'success') {
         users.value = response.data.user_list;  // Assuming that user list is returned under the 'user_list' key
         console.log('用户组:', users.value);

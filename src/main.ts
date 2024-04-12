@@ -7,6 +7,13 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+import filters from "@/views/caseStudy/filters"
+
+if (typeof global === "undefined") {
+    window.global = window;
+}
+
+
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
