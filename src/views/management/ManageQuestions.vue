@@ -8,71 +8,44 @@ const token = sessionStorage.getItem("token")
 const authority = sessionStorage.getItem("authority")
 const uid = sessionStorage.getItem("uid")
 
-const totalAccount = computed(() =>{
-  return tableData.value.length;
-});
+const totalAccount = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 
 const handleSizeChange = (newSize) =>{
   pageSize.value = newSize;
   currentPage.value = 1;  // 重置为第一页
+  search()
 }
 const handlePageChange = (newPage) =>{
   currentPage.value = newPage;
+  search()
 }
 
 const searchKey = ref("")
 const searchOrder = ref("按编号排序")
 const searchType = ref("题目")
-const editData = ref(undefined)
+const editData = ref({
+  qid:0,
+  cateId:0,
+  illId:0,
+  cateName:"",
+  illName:"",
+  description:"",
+  contentA:"",
+  contentB:"",
+  contentC:"",
+  contentD:"",
+  mark:0,
+  answer:0,
+  filterAnswer:"error",
+  spread:1
+}
+)
 const isEdit = ref(false)
 const isCreate = ref(false)
 const showDetail = ref(false)
-const tableData = ref([/*{
-    id:0,
-    content:"题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容题目内容1234题目内容",
-    cateId:1,
-    cateName:"第一个病种",
-    illId:2,
-    illName:"疾病123321",
-    optionA:"选项A的内容",
-    optionB:"选项B的内容",
-    optionC:"选项C的内容",
-    optionD:"选项D的内容",
-    answer:1,
-    point:2,
-    spread:1
-  },
-  {
-      id:1,
-      content:"题目内容1234题目内容",
-      cateId:2,
-      cateName:"第二个病种",
-      illId:1,
-      illName:"疾病222",
-      optionA:"选项A的内容",
-      optionB:"选项B的内容",
-      optionC:"选项C的内容",
-      optionD:"选项D的内容",
-      answer:2,
-      point:3,
-      spread:1
-  },{
-      id:3,
-      content:"题目内容1234题目内容",
-      cateId:3,
-      cateName:"第三个病种",
-      illId:3,
-      illName:"疾病333",
-      optionA:"选项A的内容",
-      optionB:"选项B的内容",
-      optionC:"选项C的内容",
-      optionD:"选项D的内容",
-      answer:4,
-      point:2,
-      spread:1
-    }*/])
+const tableData = ref([])
 
 const queryForm = ref({
   cateName:undefined,
@@ -141,9 +114,10 @@ const isSearchCateSelected = computed(()=>{
     return false
   }else{
     console.log("选择cate: "+ queryForm.value.cateName)
-    let cateId = cateList.value.map((item) =>{
+    let cateId = 0
+    cateList.value.map((item) =>{
       if(item.cateName === queryForm.value.cateName)
-        return item.cateId
+        cateId = item.cateId
     })
     axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
       headers:{
@@ -170,9 +144,10 @@ const isCateSelected = computed(()=>{
     return false
   }else{
     console.log("选择cate: "+ editData.value.cateName)
-    let cateId = cateList.value.map((item) =>{
+    let cateId = 0
+    cateList.value.map((item) =>{
       if(item.cateName === editData.value.cateName)
-        return item.cateId
+        cateId = item.cateId
     })
     axios.get(`/api/ill/get_all_in_cate?cate_id=${cateId}`,{
       headers:{
@@ -235,6 +210,7 @@ const search = () => {
       console.log(response.data)
       if(response.data.error_message === "success"){
         console.log("成功搜索")
+        totalAccount.value = response.data.total
         tableData.value = response.data.question_list
         tableData.value.map((item)=>{
           Reflect.set(item, "spread", 1)
@@ -265,6 +241,7 @@ const search = () => {
       console.log(response.data)
       if(response.data.error_message === "success"){
         console.log("成功搜索")
+        totalAccount.value = response.data.total
         tableData.value = response.data.question_list
         tableData.value.map((item)=>{
           Reflect.set(item, "spread", 1)
@@ -282,21 +259,50 @@ const spreadText = (data) =>{
     }
   })
 }
-const showDetailFunc = (row) =>{
-  console.log("查看id为" + row.id + "的题目详情")
-  isEdit.value = false
-  isCreate.value = false
-  showDetail.value = true
-  editData.value = row
-  editData.value.filterAnswer = filterAnswer.value
-  console.log("showDetail的值变为" + showDetail.value)
+const showDetailFunc = (id) =>{
+  console.log("查看id为" + id + "的题目详情")
+  axios.get(`/api/getQuestionByQid?qid=${id}`,{
+    headers:{
+        'Authorization':`Bearer ${token}`
+    }}).then((response) =>{
+    console.log(response.data)
+    if(response.data.error_message === "success"){
+      editData.value = response.data.question
+      var cateName = ref("")
+      cateList.value.map((item) =>{
+        if(item.cateId === editData.value.cateId) {
+          cateName.value = item.cateName
+        }
+      })
+      var illName = ref("")
+      diseaseList.value.map((item) =>{
+        if(item.illId === editData.value.illId) {
+          illName.value = item.illName
+        }
+      })
+      Reflect.set(editData.value, "illName",  illName.value)
+      Reflect.set(editData.value, "cateName",  cateName.value)
+      Reflect.set(editData.value, "spread",  1)
+      Reflect.set(editData.value,  "filterAnswer", filterAnswer.value)
+      isEdit.value = false
+      isCreate.value = false
+      showDetail.value = true
+      console.log(editData.value)
+      console.log("showDetail的值变为" + showDetail.value)
+    }
+    else{
+      message.error("获取失败")
+    }
+  })
 }
 const editFunc = () =>{
   console.log("编辑id为" + editData.value.qid + "的题目")
+  console.log(editData.value)
   isEdit.value = true;
   isCreate.value = false;
 }
 const confirm = () =>{
+  console.log(editData.value)
   let myParam = ref({
     cate_id:computed(() =>{
       let id = 0
@@ -304,7 +310,7 @@ const confirm = () =>{
         if(item.cateName === editData.value.cateName)
           id = item.cateId
       })
-      return id
+      return id.toString()
     }),
     ill_id:computed(() =>{
       let id = 0
@@ -313,50 +319,78 @@ const confirm = () =>{
           id = item.illId
       })
       console.log(id)
-      return id
+      return id.toString()
     }),
     description:editData.value.description,
     answer:computed(() =>{
       console.log(editData.value.filterAnswer)
       if(editData.value.filterAnswer === 'A')
-        return 1
+        return "1"
       else if(editData.value.filterAnswer === 'B')
-        return 2
+        return "2"
       else if(editData.value.filterAnswer === 'C')
-        return 3
+        return "3"
       else if(editData.value.filterAnswer === 'D')
-        return 4
+        return "4"
       else
         return editData.value.filterAnswer
     }),
-    mark:editData.value.mark,
+    mark:editData.value.mark.toString(),
     content_a:editData.value.contentA,
     content_b:editData.value.contentB,
     content_c:editData.value.contentC,
     content_d:editData.value.contentD
   })
+  console.log(editData.value)
   if(isEdit.value){//编辑
-    Reflect.set(myParam.value, 'qid', editData.value.qid)
-    let params = new URLSearchParams(myParam.value).toString()
     console.log(editData.value)
-    axios.post(`/api/updateQuestion?${params}`,{
+    Reflect.set(myParam.value, "qid", editData.value.qid)
+    console.log(editData.value)
+    let params = new URLSearchParams(myParam.value).toString()
+    axios.post(`/api/updateQuestion?${params}`,{},{
       headers:{
         'Authorization':`Bearer ${token}`
       }
     }).then((response)=>{
-      console.log(response.data)
+      console.log(editData.value)
+      console.log(response)
       if(response.data.error_message === "success"){
         console.log("成功编辑")
-        tableData.value.map((item) =>{
-          if(item.qid === editData.value.qid){
-            item.value = editData.value
-            editData.value = undefined
-            isEdit.value = false
-            showDetail.value = false
-            message.success("编辑成功")
-            showDetail.value=false
-          }
-        })
+        console.log(editData.value)
+        try{
+          tableData.value.forEach((item) =>{
+            console.log("item:" + item.qid)
+            console.log(editData.value)
+            console.log("edit:" + editData.value.qid)
+            if(item.qid === editData.value.qid){
+              item.value = editData.value
+              editData.value = {
+                qid:0,
+                cateId:0,
+                illId:0,
+                cateName:"",
+                illName:"",
+                description:"",
+                contentA:"",
+                contentB:"",
+                contentC:"",
+                contentD:"",
+                mark:0,
+                answer:0,
+                filterAnswer:"error",
+                spread:1
+              }
+              isEdit.value = false
+              showDetail.value = false
+              message.success("编辑成功")
+              showDetail.value=false
+              throw new Error('StopIteration');
+            }
+          })
+        } catch (e){
+          if(e.message !== "StopIteration")
+            throw e
+        }
       }
       else{
         console.log("编辑失败")
@@ -365,7 +399,7 @@ const confirm = () =>{
   }
   else if(isCreate.value){//新建
     let params = new URLSearchParams(myParam.value).toString()
-    axios.post( `/api/createQuestion?${params}`,{
+    axios.post( `/api/createQuestion?${params}`,{},{
       headers:{
         'Authorization':`Bearer ${token}`
       }
@@ -397,7 +431,7 @@ const cancel = () =>{
 }
 const deleteFunc = (row) =>{
   console.log("删除id为" + row.qid + "的题目")
-  axios.delete(`/api/deleteQuestion?${row.qid}`,{
+  axios.delete(`/api/deleteQuestion?qid=${row.qid}`,{
     headers:{
       'Authorization':`Bearer ${token}`
     }
@@ -563,7 +597,7 @@ const newFunc = () =>{
           <el-table-column prop="mark" label="分数" align="center" min-width="5%"></el-table-column>
           <el-table-column label="操作" align="center" min-width="20%">
             <template #default="scope">
-              <el-button type="success" size="small" :icon="Edit" @click="showDetailFunc(scope.row)">编辑</el-button>
+              <el-button type="success" size="small" :icon="Edit" @click="showDetailFunc(scope.row.qid)">编辑</el-button>
               <el-button type="danger" size="small" :icon="Delete" @click="deleteFunc(scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -571,7 +605,7 @@ const newFunc = () =>{
       </el-container>
       <el-dialog v-model="showDetail" :title="isEdit ? '编辑题目' : isCreate ? '新建题目' : '题目详情'">
         <el-form :ref="form" :model="editData" label-width="12vh">
-          <el-form-item v-if="!isCreate" label="题目id" prop="id">
+          <el-form-item v-if="!isCreate" label="题目id" prop="qid">
             <el-input readonly v-model="editData.qid"></el-input>
           </el-form-item>
           <el-form-item label="题干内容" prop="content">
