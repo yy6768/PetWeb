@@ -40,8 +40,7 @@ const editData = ref({
   answer:0,
   filterAnswer:"error",
   spread:1
-}
-)
+})
 const isEdit = ref(false)
 const isCreate = ref(false)
 const showDetail = ref(false)
@@ -426,7 +425,22 @@ const cancel = () =>{
   isEdit.value = false
   isCreate.value = false
   showDetail.value = false
-  editData.value = undefined
+  editData.value = {
+    qid:0,
+    cateId:0,
+    illId:0,
+    cateName:"",
+    illName:"",
+    description:"",
+    contentA:"",
+    contentB:"",
+    contentC:"",
+    contentD:"",
+    mark:0,
+    answer:0,
+    filterAnswer:"error",
+    spread:1
+  }
   console.log(showDetail.value)
 }
 const deleteFunc = (row) =>{
