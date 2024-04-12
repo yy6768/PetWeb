@@ -157,7 +157,6 @@
       v-if="dialogVisibleAdd"
       @initCaseList = "initGetCasesList"
       :dialogTableValueAdd="dialogTableValueAdd"
-
   />
 </template>
 
@@ -231,9 +230,11 @@ const initGetCasesList = async () =>{
       queryForm.value.pagesize,
       queryForm.value.query
   );
-  console.log(res);
   //拿页表信息 还没拿
+  console.log("res.data.case_list: ",  res.data.case_list);
+
   tableData.value = res.data.case_list
+
   //拿total页数信息 还未使用
   //total.value= res.data.total
 }
