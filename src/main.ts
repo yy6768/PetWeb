@@ -19,8 +19,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 
-filters(app)
-
 app.use(Antd)
 app.use(router)
 app.use(ElementPlus)
