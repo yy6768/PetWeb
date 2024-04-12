@@ -73,12 +73,17 @@ const router = createRouter({
         {
           path: '/manage-assays',
           name: 'manage-assays',
-          component: () => import('../views/management/ManageAssays.vue')
+          component: () => import('../views/management/ManageLabs.vue')
         },
         {
           path: '/manage-drugs',
           name: 'manage-drugs',
           component: () => import('../views/management/ManageDrugs.vue')
+        },
+        {
+          path: '/manage-papers',
+          name: 'manage-papers',
+          component: () => import('../views/management/ManagePapers.vue')
         }
       ]
     },
