@@ -75,7 +75,7 @@ export const medicineFormatForLLM = (queryResponse) => {
 export const getMedicineLLMQuery = (data, userInput) => {
     // 将数据转换为文本形式，用于作为查询上下文
     const context = data.map(item => `ID: ${item.id}, 药品名称: ${item.name}, 药品花费（单位rmb）: ${item.cost}`).join('\n');
-    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput}。如果没有相似的就回答没有找到，并列出相关的信息`;
+    return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput}。`;
 };
 
 export const labFormatForLLM = (queryResponse) => {

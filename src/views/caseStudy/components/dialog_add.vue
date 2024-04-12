@@ -188,34 +188,13 @@ const props = defineProps({
     type:Object,
     default:() => {}
   }
+
 })
 
 //新增病例信息
+
 const formRef = ref(null)
-const form = ref({
-  cid:1,
-  cateId:'',
-  cate_name:'',
-  illId:1,
-  ill_name:'',
-  date:'',
-  uid:1,
-  userame:'',
-  basicSituation:'',
-  photo:[],
-  lab_id:1,
-  lab_name:'',
-  lab_cost:1,
-  lab_result:'',
-  lab_photo:[],
-  medicine:'',
-  medicine_name:'',
-  medicine_cost:'',
-  result:'',
-  therapy:'',
-  cost:1,
-  surgeryVideo:[],
-})
+const form = ref()
 // const form = ref({})
 //
 // // 假设 dialogData 是从父组件传递过来的数据
@@ -330,13 +309,13 @@ const rules = ref({
   //     trigger:'blur'
   //   }
   // ],
-  date:[
-    {
-      required:true,
-      message:'Please enter the time you create',
-      trigger:'blur'
-    }
-  ],
+  // date:[
+  //   {
+  //     required:true,
+  //     message:'Please enter the time you create',
+  //     trigger:'blur'
+  //   }
+  // ],
   // doctor_name:[
   //   {
   //     // required:true,
@@ -350,10 +329,12 @@ const rules = ref({
 watch(
     ()=>props.dialogTableValueAdd,
     ()=>{
-      console.log(props.dialogTableValueAdd)
+      console.log("dialogTableValueAdd: ", props.dialogTableValueAdd)
+
       form.value = props.dialogTableValueAdd
+      console.log("form: ", form.value)
     },
-{deep:true,immediate:true}
+    {deep:true,immediate:true}
 )
 
 //弹窗关闭 更新病例列表
