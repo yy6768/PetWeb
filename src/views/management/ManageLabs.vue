@@ -19,6 +19,7 @@
       <el-table-column prop="labId" label="化验ID"></el-table-column>
       <el-table-column prop="labName" label="化验名"></el-table-column>
       <el-table-column prop="labCost" label="价格(rmb)"></el-table-column>
+      <el-table-column prop="description" label="药品描述"></el-table-column>
 
       <el-table-column label="操作">
         <template #default="{ row }">
@@ -37,6 +38,7 @@
 <!--        </el-form-item>-->
         <el-form-item label="价格" >
           <el-input v-model="form.labCost" autocomplete="off" />
+          <el-input v-model="form.description" autocomplete="off" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -56,6 +58,9 @@
         </el-form-item>
         <el-form-item label="化验价格" >
           <el-input v-model="newLab.lab_cost" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="化验描述" >
+          <el-input v-model="newLab.description" autocomplete="off" />
         </el-form-item>
         <el-form-item label="存入Pinecone">
           <!-- 切换开关 -->
@@ -120,7 +125,8 @@ const form = ref({
 const newLab = ref({
   saveToPinecone: false,
   lab_name: '',
-  lab_cost: ''
+  lab_cost: '',
+  description: ''
 })
 
 const newFunc = () => {
@@ -134,6 +140,7 @@ const labChangeSubmit = async () => {
     const params = new URLSearchParams({
       lab_id: form.value.labId.toString(),
       lab_cost: form.value.labCost.toString(),
+      description: form.value.description.toString()
     });
 
     const paramString = params.toString();
@@ -211,6 +218,7 @@ const addLab = async () => {
     const params = new URLSearchParams({
       lab_name: newLab.value.lab_name.toString(),
       lab_cost: newLab.value.lab_cost.toString(),
+      description: newLab.value.description.toString()
     }).toString();
     const token = sessionStorage.getItem('token');
     const response = await axios.post(`/api/lab/add?${params}`,{}, {
@@ -223,12 +231,12 @@ const addLab = async () => {
       console.log('化验组:', labs.value);
       const lab_id = response.data.lab_id
       if (newLab.value.saveToPinecone) {
-        const input_text = "化验名称：" + newLab.value.lab_name + "，化验价格："+ newLab.value.lab_cost.toString()
+        const input_text = "化验名称：" + newLab.value.lab_name + "，化验价格："+ newLab.value.lab_cost.toString() + "，疗效和用途：" + newLab.value.description
 
         const insert_pinecone = await pineconeAdd(
             lab_id,
             `lab`, input_text,
-            {lab_name: newLab.value.lab_name, lab_cost: newLab.value.lab_cost}
+            {lab_name: newLab.value.lab_name, lab_cost: newLab.value.lab_cost, description: newLab.value.description}
         )
 
         if (insert_pinecone?.success){
