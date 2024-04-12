@@ -157,7 +157,6 @@
       v-if="dialogVisibleAdd"
       @initCaseList = "initGetCasesList"
       :dialogTableValueAdd="dialogTableValueAdd"
-
   />
 </template>
 
@@ -185,33 +184,6 @@ const queryForm = ref({
 //分页器
 const total = ref(0)
 
-export interface CaseDetails {
-  cid: number;
-  cateId: string;
-  cate_name: string;
-  illId: number;
-  ill_name: string;
-  date: string;
-  uid: number;
-  username: string;
-  basicSituation: string;
-  photo: string[]; // 假设照片是字符串数组
-  lab_id: number;
-  lab_name: string;
-  lab_cost: number;
-  lab_result: string;
-  lab_photo: string[]; // 假设化验图片也是字符串数组
-  medicine: string;
-  medicine_name: string;
-  medicine_cost: string; // 假设药品费用是字符串类型
-  result: string;
-  therapy: string;
-  cost: number;
-  surgeryVideo: string[]; // 假设手术视频是字符串数组
-}
-
-const dialogData = ref<CaseDetails[]>([]);
-
 //描述病例对象
 interface Case {
   cid: number;
@@ -231,9 +203,11 @@ const initGetCasesList = async () =>{
       queryForm.value.pagesize,
       queryForm.value.query
   );
-  console.log(res);
   //拿页表信息 还没拿
+  console.log("res.data.case_list: ",  res.data.case_list);
+
   tableData.value = res.data.case_list
+
   //拿total页数信息 还未使用
   //total.value= res.data.total
 }
@@ -411,6 +385,7 @@ const dialogVisibleAdd = ref(false)
 const dialogTitleAdd = ref('')
 const dialogTableValueAdd= ref({})
 
+
 //POST
 const testData = ref<string>('');
 onMounted(async () => {
@@ -431,6 +406,34 @@ onMounted(async () => {
 //   dialogVisibleDetail.value = true
 // }
 
+
+const dialogData = ref<CaseDetails[]>([]);
+
+export interface CaseDetails {
+  cid: number;
+  cateId: string;
+  cate_name: string;
+  illId: number;
+  ill_name: string;
+  date: string;
+  uid: number;
+  username: string;
+  basicSituation: string;
+  photo: string[]; // 假设照片是字符串数组
+  lab_id: number;
+  lab_name: string;
+  lab_cost: number;
+  lab_result: string;
+  lab_photo: string[]; // 假设化验图片也是字符串数组
+  medicine: string;
+  medicine_name: string;
+  medicine_cost: string; // 假设药品费用是字符串类型
+  result: string;
+  therapy: string;
+  cost: number;
+  surgeryVideo: string[]; // 假设手术视频是字符串数组
+}
+
 //新增标题
 const handleDialogValueAdd = async (row:any) =>{
   if(isNull(row)){
@@ -441,9 +444,8 @@ const handleDialogValueAdd = async (row:any) =>{
     dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
     // 获取病例详情数据的方法
     const response = await getCaseById({}, sessionStorage.getItem('token'), row.cid);
-    console.log("hihihihiqqqq:",response)
-    dialogData.value = response.data.case_list;
-    console.log('Dialog data:', dialogData.value);
+    console.log("Dialog data:",response)
+    dialogData.value = response.data.case_list[0];
   }
   dialogVisibleAdd.value = true
 }
