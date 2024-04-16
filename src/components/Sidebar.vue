@@ -2,7 +2,7 @@
   <a-layout-sider :style="{ mode: 'horizontal', height: '100%', position: 'fixed', left: 0, top: 0, bottom: 0 }">
     <a-menu v-model:selectedKeys="selectedKeys" mode="inline">
       <a-menu-item v-for="item in menuItems" :key="item.key" @click="navigateTo(item.path)">
-        <laptop-outlined />
+<!--        <laptop-outlined />-->
 
         <span class="nav-text">{{ item.title }}</span>
       </a-menu-item>
@@ -10,12 +10,12 @@
       <a-sub-menu v-if="hasAuthority" key="sub1">
         <template #title>
           <span>
-            <user-outlined />
+<!--            <user-outlined />-->
             <span class="nav-text">后台管理</span>
           </span>
         </template>
         <a-menu-item v-for="manageItem in manageMenuItems" :key="manageItem.key" @click="navigateTo(manageItem.path)">
-          <user-outlined />
+<!--          <user-outlined />-->
           {{ manageItem.title }}
         </a-menu-item>
       </a-sub-menu>
@@ -41,6 +41,8 @@ const menuItems = ref([
   { key: '3', title: '分析测评', path: '/analysis-evaluation' },
   { key: '4', title: 'AI对话', path: '/ai-chat' },
   { key: '5', title: '病例学习', path: '/case-study' },
+  { key: '6', title: '药品学习', path: '/drug-study' },
+  { key: '7', title: '化验学习', path: '/lab-study' },
 
 
 ]);
