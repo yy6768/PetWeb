@@ -389,7 +389,7 @@ const form = ref({
   ill_name:'',
   date:'',
   uid:'',//
-  userame:'',
+  username:'',
   basic_situation:'',
   photo:[],
   lab_name:'',
