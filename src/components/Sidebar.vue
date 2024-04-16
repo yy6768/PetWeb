@@ -41,6 +41,8 @@ const menuItems = ref([
   { key: '3', title: '分析测评', path: '/analysis-evaluation' },
   { key: '4', title: 'AI对话', path: '/ai-chat' },
   { key: '5', title: '病例学习', path: '/case-study' },
+  { key: '6', title: '药品学习', path: '/drug-study' },
+  { key: '7', title: '化验学习', path: '/lab-study' },
 
 
 ]);

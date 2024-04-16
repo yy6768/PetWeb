@@ -2,74 +2,131 @@
   <el-card>
     <div>
       <el-breadcrumb :separator-icon="ArrowRight">
-        <el-breadcrumb-item :to="{ path: '/manage-cases' }">病例管理</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/case-study' }">病例学习</el-breadcrumb-item>
         <el-breadcrumb-item>新增</el-breadcrumb-item>
 
       </el-breadcrumb>
     </div>
+    <div style="margin-left: 100px; margin-top:20px">
+      <!-- <img :src="form.photo" alt="描述信息"> -->
+      <el-switch v-model="uploadToggle" active-text="启用上传"></el-switch>
+
+      <div v-if="uploadToggle">
+        <el-upload ref="uploadImageRef" class="upload-demo" action="http://localhost:3001/vid/case/upload" :auto-upload="false" :limit="1"
+          :on-success="handleImageSuccess" accept="image/*">
+          <template #trigger>
+            <el-button type="primary">选择图片</el-button>
+          </template>
+          <el-button style="margin-left: 20px" type="success" @click="submitImageUpload">
+            上传图片
+          </el-button>
+        </el-upload>
+        <el-upload ref="uploadVideoRef" class="upload-demo" action="http://localhost:3001/vid/case/upload" :auto-upload="false" :limit="1"
+          :on-success="handleVideoSuccess" accept="video/*">
+          <template #trigger>
+            <el-button type="primary">选择视频</el-button>
+          </template>
+          <el-button style="margin-left: 20px" type="success" @click="submitVideoUpload">
+            上传视频
+          </el-button>
+        </el-upload>
+      </div>
+
+    </div>
+
+
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" style="margin-top: 10px">
-      <el-form-item label="病种" prop="cateId">
-        <el-select v-model="form.cateId" placeholder="请选择病种" @change="fetchIll">
-          <el-option
-              v-for="category in categoriesList"
-              :key="category.cateId"
-              :label="category.cateName"
-              :value="category.cateId"
-          ></el-option>
+      <el-form-item label="病种" prop="cate_id">
+        <el-select v-model="form.cate_id" placeholder="请选择病种" @change="fetchIll">
+          <el-option v-for="category in categoriesList" :key="category.cateId" :label="category.cateName"
+            :value="category.cateId"></el-option>
         </el-select>
       </el-form-item>
 
       <el-form-item label="病名" prop="illId">
-        <el-select v-model="form.illId" placeholder="请选择病名">
-          <el-option
-              v-for="illness in illList"
-              :key="illness.illId"
-              :label="illness.illName"
-              :value="illness.illId"
-          ></el-option>
+        <el-select v-model="form.ill_name" placeholder="请选择病名">
+          <el-option v-for="illness in illList" :key="illness.illName" :label="illness.illName"
+            :value="illness.illName"></el-option>
         </el-select>
       </el-form-item>
 
       <el-form-item label="就诊医师" prop="uid">
-        <el-select v-model="form.uid" placeholder="请选择医师">
-          <el-option
-              v-for="doctor in nameList"
-              :key="doctor.uid"
-              :label="doctor.username"
-              :value="doctor.uid"
-          ></el-option>
+        <el-select v-model="form.username" placeholder="请选择医师">
+          <el-option v-for="doctor in nameList" :key="doctor.username" :label="doctor.username"
+            :value="doctor.username"></el-option>
         </el-select>
       </el-form-item>
 
       <el-form-item label="基本情况" prop="basicSituation">
-        <el-input v-model="form.basicSituation" type="textarea"></el-input>
+        <el-input v-model="form.basic_situation" type="textarea"></el-input>
       </el-form-item>
 
       <el-form-item label="治疗方案" prop="therapy">
         <el-input v-model="form.therapy" type="textarea"></el-input>
       </el-form-item>
 
-      <template #footer>
+      <el-form-item label="治疗结果" prop="result">
+        <el-input v-model="form.result" type="textarea"></el-input>
+      </el-form-item>
+      <div style="margin-left: 100px;">
         <el-button @click="handleClose">取消</el-button>
         <el-button type="primary" @click="handleConfirm">确认添加</el-button>
-      </template>
+      </div>
     </el-form>
-    </el-card>
+
+  </el-card>
 
 </template>
 
-<script setup>
-import { ref,onMounted } from 'vue';
-import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch } from 'element-plus';
 import { addCase, getCate, getIll, getName } from '@/api/case.js';
+import type { UploadInstance } from 'element-plus'
+
+const uploadImageRef = ref(null);
+const uploadVideoRef = ref(null);
+const uploadToggle = ref(false);
+const isLoading = ref(false);
+
+const handleUploadSuccess = (type) => (response, file, fileList) => {
+  console.log(`${type} upload successful:`, response);
+  if (type === 'image') {
+    form.value.photo = response.url;  // Assuming `response.url` contains the image URL
+  } else if (type === 'video') {
+    form.value.surgery_video = response.url;  // Assuming `response.url` contains the video URL
+  }
+  checkLoadingState();
+};
+
+const submitUpload = (ref) => {
+  if (!ref.value) return;
+  isLoading.value = true;
+  ref.value.submit();
+};
+
+const checkLoadingState = () => {
+  // If both photo and surgery_video have been set, stop loading
+  if (form.value.photo && form.value.surgery_video) {
+    isLoading.value = false;
+    ElMessage.success('Both uploads completed successfully!');
+  }
+};
+
+const submitImageUpload = () => submitUpload(uploadImageRef);
+const submitVideoUpload = () => submitUpload(uploadVideoRef);
 
 const dialogVisible = ref(false);
 const form = ref({
-  cateId: '',
-  illId: '',
-  uid: '',
-  basicSituation: '',
-  therapy: ''
+  cate_id:'',
+  username: '',
+  ill_name: '',
+  basic_situation: '',
+  therapy: '',
+  photo:'',
+  result:'',
+  surgery_video:'',
+
 });
 
 const categoriesList = ref([]);
@@ -78,9 +135,9 @@ const nameList = ref([]);
 
 const rules = {
   cateId: [{ required: true, message: '请选择病种', trigger: 'change' }],
-  illId: [{ required: true, message: '请选择病名', trigger: 'change' }],
-  uid: [{ required: true, message: '请选择医师', trigger: 'change' }],
-  basicSituation: [{ required: true, message: '请输入基本情况', trigger: 'blur' }],
+  ill_name: [{ required: true, message: '请选择病名', trigger: 'change' }],
+  username: [{ required: true, message: '请选择医师', trigger: 'change' }],
+  basic_situation: [{ required: true, message: '请输入基本情况', trigger: 'blur' }],
   therapy: [{ required: true, message: '请输入治疗方案', trigger: 'blur' }]
 };
 
@@ -92,29 +149,38 @@ const fetchCategories = async () => {
 };
 
 const fetchIll = async () => {
-  const response = await getIll({}, sessionStorage.getItem('token'),form.value.cateId);
-  console.log(response)
+  const response = await getIll({}, sessionStorage.getItem('token'), form.value.cate_id);
   illList.value = response.data.ill_list;
+  console.log("illList:",illList.value)
 
 };
 
 const fetchName = async () => {
-  const response = await getName({}, sessionStorage.getItem('token'),null,1,1,10);
+  const response = await getName({}, sessionStorage.getItem('token'), null, 1, 1, 10);
   console.log(response)
   nameList.value = response.data.user_list;
 };
 
 const handleConfirm = async () => {
-  const { valid } = await formRef.value.validate();
-  if (valid) {
-    const response = await addCase(form.value);
-    if (response.data.success) {
+  if(uploadToggle.value){
+    if(form.value.photo === '' && form.value.surgery_video === ''){
+      ElMessage.error('请上传图片和视频');
+      return;
+    }
+  }
+  console.log("add", form.value)
+  console.log("categoriesList", categoriesList.value)
+  console.log("illList", illList.value)
+  console.log("nameList", nameList.value)
+  
+    const response = await addCase(sessionStorage.getItem('token'),form.value);
+    console.log("addCase response", response)
+    if (response.data.error_message === "success") {
       ElMessage.success('病例添加成功');
       dialogVisible.value = false;
     } else {
       ElMessage.error(response.data.message);
     }
-  }
 };
 
 const handleClose = () => {
