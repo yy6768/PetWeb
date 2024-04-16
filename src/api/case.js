@@ -121,9 +121,30 @@ export const getMed = (params,token) => {
 };
 
 //获取化验项目
-export const getLab = (params,token) => {
+export const getLab = (token) => {
     return axios({
         url: '/api/case/get_all_lab',
+        method: 'get',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const getAllLab = (params, token) => {
+    return axios({
+        url: '/api/lab/getall',
+        method: 'get',
+        params,
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const getAllDrug = (params,token) => {
+    return axios({
+        url: '/api/medications/getall',
         method: 'get',
         params,
         headers: {
@@ -133,20 +154,23 @@ export const getLab = (params,token) => {
 };
 
 //添加病例???
-export const addCase = (data,token,username,ill_name,date) => {
+export const addCase = (token, params) => {
+    // Create a copy of params to avoid mutating the original object
+    let modifiedParams = { ...params };
+    console.log("Modified params:", modifiedParams);
+    // Remove cate_id from the copied params object
+    delete modifiedParams.cate_id;
+
     return axios({
         url: '/api/case/add',
         method: 'post',
-        data:{
-            username:username,
-            ill_name:ill_name,
-            date:date
-        },
+        params: modifiedParams,
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
 };
+
 
 //修改病例???
 export const editCase = (data, token) => {
@@ -160,6 +184,19 @@ export const editCase = (data, token) => {
     });
 };
 
+export const addLabToCase = (cid, lab_id, token) => {
+    return axios({
+        url: `/api/case/add_lab`,
+        method: 'post',
+        params:{
+            lab_id: lab_id,
+            cid: cid
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
 //删除病例
 export const deleteCase = async (cid, token) => {
     console.log("Deleting case with CID:", cid);

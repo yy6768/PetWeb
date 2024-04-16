@@ -12,11 +12,16 @@
     <el-descriptions-item label="疾病名称：">{{ ill_name }}</el-descriptions-item>
     <el-descriptions-item label="就诊医师：">{{ username }}</el-descriptions-item>
     <el-descriptions-item label="记录日期：">{{ formatDate(caseDetails.date) }}</el-descriptions-item>
-    <el-descriptions-item label="基本情况：">{{ caseDetails.basicSituation }}</el-descriptions-item>
-    <el-descriptions-item label="诊断结果：">{{ caseDetails.result }}</el-descriptions-item>
-    <el-descriptions-item label="治疗方法：">{{ caseDetails.therapy }}</el-descriptions-item>
-    <el-descriptions-item label="手术视频：">{{ caseDetails.surgeryVideo }}</el-descriptions-item>
-  </el-descriptions>
+    <el-descriptions-item label="基本情况：" v-if="caseDetails.basicSituation">{{ caseDetails.basicSituation }}</el-descriptions-item>
+    <el-descriptions-item label="诊断结果：" v-if="caseDetails.result">{{ caseDetails.result }}</el-descriptions-item>
+    <el-descriptions-item label="治疗方法：" v-if="caseDetails.therapy">{{ caseDetails.therapy }}</el-descriptions-item>
+    <el-descriptions-item label="手术视频：" v-if="caseDetails.surgeryVideo">
+        <video controls :src="caseDetails.surgeryVideo" style="max-width: 100%;"></video>
+      </el-descriptions-item>
+      <el-descriptions-item label="相关图片：" v-if="caseDetails.photo">
+        <img :src="caseDetails.photo" alt="相关图片" style="max-width: 100%;">
+      </el-descriptions-item>
+    </el-descriptions>
     </el-card>
 
 </template>
@@ -45,6 +50,7 @@ onMounted(async () => {
       console.log("res", res.data);
     caseDetails.value = res.data.case;  // Assuming response data is the case detail
     console.log("detail", caseDetails.value);
+    //caseDetails.value.surgeryVideo = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/1975291e-9f65-4972-a364-1f56483080b8_ooad%20%E5%88%98%E4%BD%B3%E9%93%AD%20proj.mp4";
     // sessionStorage.setItem('case', JSON.stringify(res.data));
     // router.push('/case-study/study');
   });

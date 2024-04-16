@@ -57,9 +57,6 @@
           v-for="(item,index) in options "
           :key="index"
       >
-        <!--        <template v-slot="{ row }" v-if="item.prop === 'date'">-->
-        <!--          {{ $filters.filterTimes(row.date) }}-->
-        <!--        </template>-->
 
       </el-table-column>
       <el-table-column label="操作">
@@ -163,7 +160,9 @@ const delCase = (row) => {
     console.log("del res", res);
     // sessionStorage.setItem('case', JSON.stringify(res.data));
     // router.push('/case-study/study');
+
   });
+
 }
 // GET
 const initGetCasesList = async () => {

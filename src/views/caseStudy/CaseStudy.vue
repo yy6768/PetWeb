@@ -6,16 +6,40 @@
         <el-breadcrumb-item>病例学习</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="margin"></div><!--    间距-->
-
+    <el-dialog
+      title="选择化验"
+      v-model="dialogVisible"
+      width="500px"
+      @close="dialogVisible = false"
+    >
+      <SelectLabDialog
+        :options="labOptions"
+        :currentCase="currentCase"
+        @confirm="handleConfirm"
+      />
+    </el-dialog>
 
     <div class="margin"></div><!--    间距-->
     <div class="input_box">
+      <div class="input_box">
+    <el-date-picker
+      v-model="startDate"
+      type="date"
+      placeholder="开始日期"
+      style="width: 180px; margin-right: 20px;">
+    </el-date-picker>
+    <el-date-picker
+      v-model="endDate"
+      type="date"
+      placeholder="结束日期"
+      style="width: 180px;">
+    </el-date-picker>
+  </div>
       <el-select
           v-model="cateValue"
           placeholder="病种"
           size="default"
-          style="width: 180px"
+          style="width: 180px; margin-left: 20px"
           clearable
           @click="fetchCategories"
           @change="handleCateChange"
@@ -31,7 +55,7 @@
           v-model="illValue"
           placeholder="病名"
           size="default"
-          style="width: 180px ; margin-left: 40px"
+          style="width: 180px ; margin-left: 20px"
           clearable
           @click="fetchIll"
           @change="handleIllChange"
@@ -43,6 +67,8 @@
             :value="item.illId"
         />
       </el-select>
+      <el-button type="primary" size="small" style="margin-left: 100px;" @click="newCase">新建+</el-button>
+
     </div>
     <div class="margin"></div><!--    间距-->
     <el-table :data="displayedTableData" stripe style="width: 100%">
@@ -53,14 +79,13 @@
           v-for="(item,index) in options "
           :key="index"
       >
-        <!--        <template v-slot="{ row }" v-if="item.prop === 'date'">-->
-        <!--          {{ $filters.filterTimes(row.date) }}-->
-        <!--        </template>-->
 
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="studyCase(row)">学习</el-button>
+          <el-button type="success" size="small" @click="openLabSelectDialog(row)">链接化验</el-button>
+          <el-button type="warning" size="small" @click="openDrugSelectDialog(row)">链接药品</el-button>
 
         </template>
 
@@ -90,12 +115,40 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getLab, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
 import { useRouter } from 'vue-router';
+import SelectLabDialog from './components/SelectLabDialog.vue';
+
+const dialogVisible = ref(false);
+const testOptions = [{ label: '病历1', value: '1' }, { label: '病历2', value: '2' }];
+
+const handleConfirm = (selectedItems) => {
+  console.log('Selected Items:', selectedItems);
+  dialogVisible.value = false;
+};
+
+const labOptions = ref({});
 
 const router = useRouter();
+const startDate = ref(null);
+const endDate = ref(null);
+const currentCase = ref(null);
+const openLabSelectDialog = async (c) => {
+  // 链接病历的逻辑
+  const response = await getLab(sessionStorage.getItem('token'));
+  console.log('链接lab', response);
+  labOptions.value = response.data.lab_list; // Set the current lab
+  currentCase.value = c;
+  console.log('c, ', c);
 
+  dialogVisible.value = true
+};
+const openDrugSelectDialog = (c) => {
+  // 链接病历的逻辑
+  currentCase.value = c; // Set the current lab
+  dialogVisible.value = true
+};
 //查询表
 const queryForm = ref({
   query:'',
@@ -109,7 +162,8 @@ const queryForm = ref({
 const options =[
   {
     label:'编号',
-    prop:'cid'
+    prop:'cid',
+    width: 100
   },
   {
     label:'病种',
@@ -140,7 +194,9 @@ interface Case {
   date: string;
   username: string;
 }
-
+const newCase = () => {
+  router.push('/case-new')
+}
 const tableData = ref<Case[]>([]);
 const studyCase = (row) => {
   // Ensure you are passing the `cid` as part of the route parameters correctly
@@ -298,20 +354,25 @@ const monthValue = ref('')
 // 计算属性，根据cateValue和illValue的值动态过滤数据
 const displayedTableData = computed(() => {
   let filteredData = tableData.value;
+  console.log("tableData.value",tableData.value)
   if (cateValue.value) {
     filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
   }
   if (illValue.value) {
     filteredData = filteredData.filter(item => item.ill_name === illValue.value);
   }
-  if (yearValue.value) {
-    filteredData = filteredData.filter(item => item.date.startsWith(yearValue.value));
-  }
-  if (monthValue.value) {
-    const month = monthValue.value.slice(-2); // Extract the month number from the value
+  if (startDate.value && endDate.value) {
+    const start = new Date(startDate.value).setHours(0, 0, 0, 0);
+    const end = new Date(endDate.value).setHours(23, 59, 59, 999);
+
     filteredData = filteredData.filter(item => {
-      const itemMonth = item.date.split('-')[1]; // Extract the month from the create_time
-      return itemMonth === month;
+      // Parsing the date assuming the format "YYYY年MM月DD日"
+      let parts = item.date.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      if (parts) {
+        let itemDate = new Date(parseInt(parts[1]), parseInt(parts[2]) - 1, parseInt(parts[3])).getTime();
+        return itemDate >= start && itemDate <= end;
+      }
+      return false; // If date doesn't match format, it won't be included
     });
   }
   return filteredData;
