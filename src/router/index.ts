@@ -112,5 +112,12 @@ const router = createRouter({
 
   ]
 })
+router.beforeEach((to, from, next) => {
+  if (!sessionStorage.getItem('token') && to.name !== 'login' && to.name !== 'register') {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
+});
 
 export default router
