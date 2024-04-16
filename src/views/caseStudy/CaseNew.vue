@@ -2,7 +2,7 @@
   <el-card>
     <div>
       <el-breadcrumb :separator-icon="ArrowRight">
-        <el-breadcrumb-item :to="{ path: '/case-study' }">病例学习</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/manage-cases' }">病例管理</el-breadcrumb-item>
         <el-breadcrumb-item>新增</el-breadcrumb-item>
 
       </el-breadcrumb>
@@ -80,41 +80,50 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch } from 'element-plus';
+import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch, ElLoading } from 'element-plus';
 import { addCase, getCate, getIll, getName } from '@/api/case.js';
 import type { UploadInstance } from 'element-plus'
 
 const uploadImageRef = ref(null);
 const uploadVideoRef = ref(null);
 const uploadToggle = ref(false);
-const isLoading = ref(false);
+const loading = ref(null);
 
-const handleUploadSuccess = (type) => (response, file, fileList) => {
-  console.log(`${type} upload successful:`, response);
-  if (type === 'image') {
-    form.value.photo = response.url;  // Assuming `response.url` contains the image URL
-  } else if (type === 'video') {
-    form.value.surgery_video = response.url;  // Assuming `response.url` contains the video URL
-  }
-  checkLoadingState();
+const handleImageSuccess = (response, file, fileList) => {
+
+  console.log("Image upload successful:", response);
+  form.value.photo = response.url; // Assuming `response.url` contains the image URL
+  loading.value.close(); // This will stop the loading indicator
+
 };
 
-const submitUpload = (ref) => {
-  if (!ref.value) return;
-  isLoading.value = true;
-  ref.value.submit();
+const handleVideoSuccess = (response, file, fileList) => {
+
+  console.log("Video upload successful:", response);
+  form.value.surgery_video = response.url; // Assuming `response.url` contains the video URL
+  loading.value.close(); // This will stop the loading indicator
+
 };
 
-const checkLoadingState = () => {
-  // If both photo and surgery_video have been set, stop loading
-  if (form.value.photo && form.value.surgery_video) {
-    isLoading.value = false;
-    ElMessage.success('Both uploads completed successfully!');
-  }
+const submitImageUpload = () => {
+  loading.value = ElLoading.service({
+    lock: true,
+    text: 'uploading...',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
+  uploadImageRef.value.submit();
 };
 
-const submitImageUpload = () => submitUpload(uploadImageRef);
-const submitVideoUpload = () => submitUpload(uploadVideoRef);
+const submitVideoUpload = () => {
+  loading.value = ElLoading.service({
+    lock: true,
+    text: 'uploading...',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
+  uploadVideoRef.value.submit();
+};
+
+
 
 const dialogVisible = ref(false);
 const form = ref({
@@ -123,9 +132,9 @@ const form = ref({
   ill_name: '',
   basic_situation: '',
   therapy: '',
-  photo:'',
+  photo:'none',
   result:'',
-  surgery_video:'',
+  surgery_video:'none',
 
 });
 
@@ -163,7 +172,7 @@ const fetchName = async () => {
 
 const handleConfirm = async () => {
   if(uploadToggle.value){
-    if(form.value.photo === '' && form.value.surgery_video === ''){
+    if(form.value.photo === 'none' && form.value.surgery_video === 'none'){
       ElMessage.error('请上传图片和视频');
       return;
     }
