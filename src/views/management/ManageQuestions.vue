@@ -267,20 +267,6 @@ const showDetailFunc = (id) =>{
     console.log(response.data)
     if(response.data.error_message === "success"){
       editData.value = response.data.question
-      var cateName = ref("")
-      cateList.value.map((item) =>{
-        if(item.cateId === editData.value.cateId) {
-          cateName.value = item.cateName
-        }
-      })
-      var illName = ref("")
-      diseaseList.value.map((item) =>{
-        if(item.illId === editData.value.illId) {
-          illName.value = item.illName
-        }
-      })
-      Reflect.set(editData.value, "illName",  illName.value)
-      Reflect.set(editData.value, "cateName",  cateName.value)
       Reflect.set(editData.value, "spread",  1)
       Reflect.set(editData.value,  "filterAnswer", filterAnswer.value)
       isEdit.value = false
@@ -409,6 +395,7 @@ const confirm = () =>{
         let newData = response.data.question
         Reflect.set(newData, "spread", 1)
         tableData.value.push(newData)
+        totalAccount.value++
         showDetail.value=false
       }
       else{
@@ -459,6 +446,8 @@ const deleteFunc = (row) =>{
           return index
       })
       tableData.value.splice(deleteIndex, 1)
+      totalAccount.value--
+      search()
     }
     else{
       console.log("删除失败")
