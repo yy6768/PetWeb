@@ -144,24 +144,31 @@ interface Case {
 
 const tableData = ref<Case[]>([]);
 const editCase = (row) => {
-  sessionStorage.setItem('cid', row.cid);
-  getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
-    const detail = res.data;
-    console.log("detail", detail);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
+  // sessionStorage.setItem('cid', row.cid);
+  // getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
+  //   const detail = res.data;
+  //   console.log("detail", detail);
+  //   // sessionStorage.setItem('case', JSON.stringify(res.data));
+  //   // router.push('/case-study/study');
+  // });
+  router.push({
+    name: 'case-modify',
+    params: { cid: row.cid },
   });
+  console.log("editCase row", row.cid)
 }
 
-const delCase = (row) => {
+const delCase = async (row) => {
   sessionStorage.setItem('cid', row.cid);
   console.log("del row", row.cid)
-  deleteCase(row.cid, sessionStorage.getItem('token')).then((res) => {
-    console.log("del res", res);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
-
-  });
+  const res = await deleteCase(row.cid, sessionStorage.getItem('token'))
+  console.log("del res", res);
+  if (res.error_message === "success") {
+    ElMessage.success('删除成功');
+    initGetCasesList();
+  } else {
+    ElMessage.error('删除失败');
+  }
 
 }
 // GET

@@ -7,13 +7,14 @@
       </el-breadcrumb>
     </div>
     <el-dialog
-      title="选择化验"
+      title="为病例添加化验和药品"
       v-model="dialogVisible"
       width="500px"
       @close="dialogVisible = false"
     >
-      <SelectLabDialog
-        :options="labOptions"
+      <SelectDialog
+        :labOptions="labOptions"
+        :drugOptions="drugOptions"
         :currentCase="currentCase"
         @confirm="handleConfirm"
       />
@@ -84,8 +85,7 @@
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="studyCase(row)">学习</el-button>
-          <el-button type="success" size="small" @click="openLabSelectDialog(row)">链接化验</el-button>
-          <el-button type="warning" size="small" @click="openDrugSelectDialog(row)">链接药品</el-button>
+          <el-button type="success" size="small" @click="openSelectDialog(row)">链接化验&药品</el-button>
 
         </template>
 
@@ -115,10 +115,10 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase, deleteCase, getCaseById, getCate, getLab, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getLab, getCasesByCate, getIll, getCasesByIll, getMed} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
 import { useRouter } from 'vue-router';
-import SelectLabDialog from './components/SelectLabDialog.vue';
+import SelectDialog from './components/SelectDialog.vue';
 
 const dialogVisible = ref(false);
 const testOptions = [{ label: '病历1', value: '1' }, { label: '病历2', value: '2' }];
@@ -129,16 +129,19 @@ const handleConfirm = (selectedItems) => {
 };
 
 const labOptions = ref({});
-
+const drugOptions = ref({})
 const router = useRouter();
 const startDate = ref(null);
 const endDate = ref(null);
 const currentCase = ref(null);
-const openLabSelectDialog = async (c) => {
+const openSelectDialog = async (c) => {
   // 链接病历的逻辑
-  const response = await getLab(sessionStorage.getItem('token'));
-  console.log('链接lab', response);
-  labOptions.value = response.data.lab_list; // Set the current lab
+  const labResponse = await getLab(sessionStorage.getItem('token'));
+  console.log('链接lab', labResponse);
+  labOptions.value = labResponse.data.lab_list; // Set the current lab
+  const drugResponse = await getMed(sessionStorage.getItem('token'));
+  console.log('链接drug', drugResponse);
+  drugOptions.value = drugResponse.data.medicine_list; // Set the current lab
   currentCase.value = c;
   console.log('c, ', c);
 
