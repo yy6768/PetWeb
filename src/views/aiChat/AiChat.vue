@@ -29,7 +29,7 @@ import {ref, onMounted} from 'vue';
 import {ElMessage, ElLoading} from 'element-plus';
 import {Button, Input, Layout, InputGroup} from 'ant-design-vue';
 import {Pinecone} from "@pinecone-database/pinecone";
-import {PineconeStore} from "@langchain/pinecone";
+import { DocxLoader } from "langchain/document_loaders/fs/docx";
 import {HumanMessage} from "@langchain/core/messages";
 import {OpenAIEmbeddings, ChatOpenAI,} from "@langchain/openai";
 import axios from 'axios';
@@ -42,7 +42,7 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string;
 const PINECONE_API_KEY = import.meta.env.VITE_PINECONE_API_KEY as string;
 const docs = ref(''); // Initialize docs as a reactive reference
 const value = ref('')
-const queryType = ref('medicine');
+const queryType = ref('system');
 const userInput = ref('');
 const responseText = ref('');
 console.log("pineconeIndex");
@@ -87,15 +87,17 @@ const submitQuery = async () => {
 
   if (queryType.value === 'system') {
     // Initialize ChatGPT with your OpenAI API key
-    const chat = new ChatOpenAI({modelName: "gpt-3.5-turbo", temperature: 0, openAIApiKey: OPENAI_API_KEY});
+    const chat = new ChatOpenAI({modelName: "gpt-3.5-turbo", temperature: 0.5, openAIApiKey: OPENAI_API_KEY});
 
     console.log(userInput.value);
     // Send the query to ChatGPT
-
+     const llmQuery = `${docs.value}\n 根据上面的虚拟宠物医院系统信息，回答下面的用户提问：${userInput.value} `;
     const response = await chat.invoke([
+
       new HumanMessage(
-          userInput.value
+          llmQuery
       ),
+
     ]);
     console.log(response);
     responseText.value = response.content as string;
