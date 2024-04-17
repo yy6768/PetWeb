@@ -3,13 +3,13 @@
     <div>
       <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item :to="{ path: '/manage-cases' }">病例管理</el-breadcrumb-item>
-        <el-breadcrumb-item>新增</el-breadcrumb-item>
+        <el-breadcrumb-item>修改</el-breadcrumb-item>
 
       </el-breadcrumb>
     </div>
     <div style="margin-left: 100px; margin-top:20px">
       <!-- <img :src="form.photo" alt="描述信息"> -->
-      <el-switch v-model="uploadToggle" active-text="启用上传"></el-switch>
+      <el-switch v-model="uploadToggle" active-text="上传更新文件"></el-switch>
 
       <div v-if="uploadToggle">
         <el-upload ref="uploadImageRef" class="upload-demo" action="http://localhost:3001/vid/case/upload" :auto-upload="false" :limit="1"
@@ -35,8 +35,8 @@
     </div>
 
 
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" style="margin-top: 10px">
-      <el-form-item label="病种" prop="cate_id">
+    <el-form ref="formRef" :model="form" label-width="100px" style="margin-top: 10px">
+      <!-- <el-form-item label="病种" prop="cate_id">
         <el-select v-model="form.cate_id" placeholder="请选择病种" @change="fetchIll">
           <el-option v-for="category in categoriesList" :key="category.cateId" :label="category.cateName"
             :value="category.cateId"></el-option>
@@ -55,10 +55,10 @@
           <el-option v-for="doctor in nameList" :key="doctor.username" :label="doctor.username"
             :value="doctor.username"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
 
       <el-form-item label="基本情况" prop="basicSituation">
-        <el-input v-model="form.basic_situation" type="textarea"></el-input>
+        <el-input v-model="form.basicSituation" type="textarea"></el-input>
       </el-form-item>
 
       <el-form-item label="治疗方案" prop="therapy">
@@ -79,16 +79,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch} from 'vue';
 import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch, ElLoading } from 'element-plus';
-import { addCase, getCate, getIll, getName } from '@/api/case.js';
+import { addCase, getCate, getIll, getName, getCaseById, updateCase } from '@/api/case.js';
 import type { UploadInstance } from 'element-plus'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const uploadImageRef = ref(null);
 const uploadVideoRef = ref(null);
 const uploadToggle = ref(false);
 const loading = ref(null);
-
+const cid = ref()
 const handleImageSuccess = (response, file, fileList) => {
 
   console.log("Image upload successful:", response);
@@ -106,7 +108,7 @@ const handleVideoSuccess = (response, file, fileList) => {
 };
 
 const submitImageUpload = () => {
-  console.log("uploadImageRef ", uploadImageRef.value)
+
   loading.value = ElLoading.service({
     lock: true,
     text: 'uploading...',
@@ -144,13 +146,6 @@ const categoriesList = ref([]);
 const illList = ref([]);
 const nameList = ref([]);
 
-const rules = {
-  cateId: [{ required: true, message: '请选择病种', trigger: 'change' }],
-  ill_name: [{ required: true, message: '请选择病名', trigger: 'change' }],
-  username: [{ required: true, message: '请选择医师', trigger: 'change' }],
-  basic_situation: [{ required: true, message: '请输入基本情况', trigger: 'blur' }],
-  therapy: [{ required: true, message: '请输入治疗方案', trigger: 'blur' }]
-};
 
 const fetchCategories = async () => {
   const response = await getCate({}, sessionStorage.getItem('token'));
@@ -183,11 +178,11 @@ const handleConfirm = async () => {
   console.log("categoriesList", categoriesList.value)
   console.log("illList", illList.value)
   console.log("nameList", nameList.value)
-  
-    const response = await addCase(sessionStorage.getItem('token'),form.value);
-    console.log("addCase response", response)
+    form.value.basic_situation = form.value.basicSituation;
+    const response = await updateCase(sessionStorage.getItem('token'),form.value);
+    console.log("updateCase response", response)
     if (response.data.error_message === "success") {
-      ElMessage.success('病例添加成功');
+      ElMessage.success('病例更新成功');
       dialogVisible.value = false;
     } else {
       ElMessage.error(response.data.message);
@@ -198,8 +193,30 @@ const handleClose = () => {
   dialogVisible.value = false;
 };
 
+const fetchCaseData = async (cid) => {
+  if (!cid) return;
+  loading.value = true;
+  try {
+    const response = await getCaseById('', sessionStorage.getItem('token'), cid);
+    form.value = response.data.case;
+
+    form.value.photo = '';
+    form.value.surgery_video = '';
+    console.log("Loaded case data:", form.value);
+  } catch (error) {
+    console.error("Failed to load case data:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+watch(() => route.params.cid, (newCid, oldCid) => {
+  fetchCaseData(newCid);
+}, { immediate: true });
+
 onMounted(() => {
-  fetchCategories();
-  fetchName();
+  fetchCaseData(route.params.cid);
+  // Other initializations if needed
 });
+
 </script>

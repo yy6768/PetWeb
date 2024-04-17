@@ -19,7 +19,7 @@
       <el-table-column prop="labId" label="化验ID"></el-table-column>
       <el-table-column prop="labName" label="化验名"></el-table-column>
       <el-table-column prop="labCost" label="价格(rmb)"></el-table-column>
-      <el-table-column prop="description" label="药品描述"></el-table-column>
+      <el-table-column prop="description" label="化验描述"></el-table-column>
 
       <el-table-column label="操作">
         <template #default="{ row }">

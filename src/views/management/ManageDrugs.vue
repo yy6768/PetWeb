@@ -100,7 +100,7 @@
 </template>
 <script setup lang="ts">
 import axios from 'axios';
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import { ref, onMounted } from 'vue';
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { useRouter } from 'vue-router';
@@ -121,6 +121,7 @@ const changeVisible = ref(false)
 const addVisible = ref(false)
 const form = ref({
 })
+const loading = ref(null)
 const newMedicine = ref({
   medicine_name: '',
   medicine_cost: '',
@@ -150,6 +151,11 @@ const medicationChangeSubmit = async () => {
     });
     console.log('修改res:', response.data);
     if (response.data && response.data.error_message === 'success') {
+      loading.value = ElLoading.service({
+            lock: true,
+            text: 'Adding...',
+            background: 'rgba(0, 0, 0, 0.7)',
+          });  
         const input_text = "药品名称：" + form.value.medicine_name + "，药品价格："+ form.value.medicine_cost.toString() + ",疗效与用途：" + form.value.description
         console.log('Vue input_text:', input_text); 
         const medicine_id = response.data.medicine_id
@@ -162,8 +168,9 @@ const medicationChangeSubmit = async () => {
               description: form.value.description
             }
         )
-
+        loading.value.close();
         if (insert_pinecone?.success){
+                  
           console.log('Pinecone 插入成功:', insert_pinecone);
           ElMessage({
             message: 'Pinecone 修改成功',
@@ -240,6 +247,11 @@ const deleteMedicine = async (medication) => {
 };
 const addMedicine = async () => {
   console.log('添加药品', medications);
+  loading.value = ElLoading.service({
+            lock: true,
+            text: 'Adding...',
+            background: 'rgba(0, 0, 0, 0.7)',
+          }); 
   try {
     const params = new URLSearchParams({
       medicine_name: newMedicine.value.medicine_name,
@@ -257,9 +269,10 @@ const addMedicine = async () => {
 
     if (response.data && response.data.error_message === 'success') {
       const medicine_id = response.data.medicine_id;
-
+       
       // 插入数据到 Pinecone
       if (newMedicine.value.saveToPinecone) {
+        
         const input_text = "药品名称：" + newMedicine.value.medicine_name + "，药品价格："+ newMedicine.value.medicine_cost.toString() + ",疗效与用途：" + newMedicine.value.description
 
         const insert_pinecone = await pineconeAdd(
@@ -271,7 +284,6 @@ const addMedicine = async () => {
               description: newMedicine.value.description
             }
         )
-
         if (insert_pinecone?.success){
           console.log('Pinecone 插入成功:', insert_pinecone);
           ElMessage({
@@ -291,6 +303,8 @@ const addMedicine = async () => {
     console.error('添加错误:', error);
     ElMessage.error('添加错误');
   }
+  loading.value.close();
+
   fetchMedications();
 };
 const handlePageChange = (newPage) => {
