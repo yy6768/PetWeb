@@ -26,16 +26,26 @@
     <div v-if="selectedRole === 'receptionist' && current === 0" class="consultation-form">
 <!--      <h3>客户接待</h3>-->
       <h3>欢迎光临！</h3>
-      <h3>我们宠物医院致力于为您的宠物提供最优质的医疗服务。请告诉我们您的需求，我们将竭诚为您服务。</h3>
-      <p>前台：欢迎光临宠物医院！您好，有什么可以帮助您的吗？</p>
-      <p>客户：你好，我的狗最近食欲不振，我想预约一个检查。</p>
-      <p>前台：好的，让我为您安排一下。请问您的狗狗叫什么名字？</p>
-      <p>客户：它叫巴克。</p>
-      <p>前台：好的，请问它有什么特别的症状吗？</p>
-      <p>客户：它最近不怎么吃东西，而且精神也不太好。</p>
-      <p>前台：好的，我会记录下来。我们的医生会进行一些检查来确保它的健康。请问您方便今天下午还是明天？</p>
-      <p>客户：今天下午可以吗？</p>
-      <p>前台：让我查一下我们的医生日程表。稍等片刻。</p>
+<!--      <h3>我们宠物医院致力于为您的宠物提供最优质的医疗服务。请告诉我们您的需求，我们将竭诚为您服务。</h3>-->
+<!--      <p>前台：欢迎光临宠物医院！您好，有什么可以帮助您的吗？</p>-->
+<!--      <p>客户：你好，我的狗最近食欲不振，我想预约一个检查。</p>-->
+<!--      <p>前台：好的，让我为您安排一下。请问您的狗狗叫什么名字？</p>-->
+<!--      <p>客户：它叫巴克。</p>-->
+<!--      <p>前台：好的，请问它有什么特别的症状吗？</p>-->
+<!--      <p>客户：它最近不怎么吃东西，而且精神也不太好。</p>-->
+<!--      <p>前台：好的，我会记录下来。我们的医生会进行一些检查来确保它的健康。请问您方便今天下午还是明天？</p>-->
+<!--      <p>客户：今天下午可以吗？</p>-->
+<!--      <p>前台：让我查一下我们的医生日程表。稍等片刻。</p>-->
+
+      <div >
+<!--        <h2>欢迎来到宠物医院前台！</h2>-->
+        <p>你是今天的前台接待员，有宠物主人需要帮助，请选择你的回答：</p>
+        <button @click="respond('您好，有什么可以帮您？')">宠主：我想预约看诊。</button><p></p>
+        <button @click="respond('当然，请问您的宠物有什么症状？')">宠主：我家宠物不舒服。</button><p></p>
+        <button @click="respond('请稍等，我马上为您查询空闲的医生')">宠主：我想带宠物看医生。</button><p></p>
+        <button @click="respond('欢迎来到我们宠物医院，我可以为您提供什么帮助？')">其他</button>
+        <p>{{ response }}</p>
+      </div>
 <!--      <el-form ref="consultationForm" :model="consultationForm" label-width="100px">-->
 <!--        <p>请问您的姓名是？</p>-->
 <!--        <el-form-item label="客户姓名">-->
@@ -58,9 +68,11 @@
     <div v-if="selectedRole === 'receptionist' && current === 1" class="appointment-form">
       <h3>请稍等，我们将会为您登记预约信息</h3>
       <p>请输入客户姓名：</p>
-      <el-input v-model="appointmentForm.customerName" placeholder="请输入客户姓名"></el-input>
+      <el-input v-model="appointmentForm.customerName" placeholder="登记客户姓名" class="small-input"></el-input>
+      <p>请输入宠物种类：</p>
+      <el-input v-model="appointmentForm.petName" placeholder="登记宠物种类" class="small-input"></el-input>
       <p>请输入预约医师姓名：</p>
-      <el-input v-model="appointmentForm.doctorName" placeholder="请输入医师姓名"></el-input>
+      <el-input v-model="appointmentForm.doctorName" placeholder="登记医师姓名" class="small-input"></el-input>
       <p>请选择预约时间：</p>
       <el-date-picker v-model="appointmentForm.appointmentTime" type="datetime"></el-date-picker>
       <div class="button-container">
@@ -358,9 +370,9 @@
         </el-form>
         <template #footer>
           <div class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">Cancel</el-button>
+            <el-button @click="dialogFormVisible = false">取消</el-button>
             <el-button type="primary" @click="dialogFormVisible = false">
-              Confirm
+              确定
             </el-button>
           </div>
         </template>
@@ -377,6 +389,13 @@ import { ElForm, ElFormItem, ElInput, ElButton,ElAvatar } from 'element-plus';
 const showInstrumentBox = ref(false)
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
+
+//
+const response = ref('');
+
+const respond = (message: string) => {
+  response.value = `你的回答：${message}`;
+};
 
 // 角色头像映射表
 import receptionistAvatar from '@/photo/receptionist.jpg';
@@ -404,7 +423,7 @@ const instruments = ref([
 
 const formData = ref({
   assistantIdentity: '医助',
-  doctorIdentity: '医生'
+  doctorIdentity: '医师'
 })
 
 const form = reactive({
@@ -428,6 +447,7 @@ const submitConsultationForm = () => {
 //预约管理
 const appointmentForm = reactive({
   customerName:'',
+  petName:'',
   appointmentTime:'',
   doctorName:''
 });
@@ -522,6 +542,16 @@ const onRoleChange = (e) => {
 </script>
 
 <style>
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.small-input {
+  width: 200px;
+}
 
 .corner-container {
   position: fixed;
@@ -540,12 +570,22 @@ const onRoleChange = (e) => {
   text-align: center;
   margin-bottom: 10px;
   margin-right: 100px;
+  background-color: #f8f8f8; /* 轻灰色背景 */
+  padding: 10px;
+  border-top-left-radius: 10px; /* 左上角圆角 */
+  border-top-right-radius: 10px; /* 右上角圆角 */
 }
 
 .corner-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: rgba(24, 143, 254, 0.84); /* 白色背景 */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  border-bottom-left-radius: 10px; /* 左下角圆角 */
+  border-bottom-right-radius: 10px; /* 右下角圆角 */
+  border: 1px solid #ccc; /* 添加边框 */
 }
 
 .corner-avatar{
