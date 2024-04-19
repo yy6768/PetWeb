@@ -91,7 +91,7 @@ const onRegister = async () => {
         
         const response = await axios.post(`/api/user/register?${params}`);
 
-        if (response.data && response.data.error_message === 'success') {
+        if (response.data && response.status === 200) {
             console.log('注册成功:', response.data);
             message.success('注册成功');
             router.push('/login');
