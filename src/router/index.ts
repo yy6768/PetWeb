@@ -57,7 +57,7 @@ const router = createRouter({
           props: true  // Enable route params to be passed as props
         },
         {
-          path: '/paper/:eu_id',
+          path: '/paper/:eu_id/:paper_id',
           name: 'paper',
           component: () => import('../views/analysisEvaluation/Paper.vue'),
           props: true  // Enable route params to be passed as props

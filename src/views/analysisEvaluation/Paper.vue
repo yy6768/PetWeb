@@ -2,7 +2,10 @@
   <el-card>
     <div class="paper-header">
       <h2>{{ paperDetails.paperName }}</h2>
-      <p>Total Marks: {{ paperDetails.totalMark }}</p>
+      <div class="countdown-timer">剩余时间: {{ countdown }}</div>
+
+      <p>总分: {{ paperDetails.totalMark }}</p>
+      
     </div>
 
     <div class="question-list">
@@ -11,7 +14,7 @@
         <el-radio-group v-model="answers[question.num]" @change="handleRadioChange">
             <el-radio 
                 v-for="(option, index) in getOptions(question)" 
-                :key="index" 
+                :key="index+1" 
                 :value = "index+1"
                 :label="option.content"
                 >
@@ -82,9 +85,33 @@ watch(() => answers.value, (newAnswers, oldAnswers) => {
     websocket.value.send("answer " + answers.value);
   }
 });
+const endTime = ref(null); // This will hold the exam end time
+const countdown = ref('');
+
+// Function to calculate and update the countdown timer
+const updateCountdown = () => {
+  const now = new Date().getTime();
+  const distance = endTime.value - now;
+
+  if (distance < 0) {
+    clearInterval(timerInterval);
+    countdown.value = 'Exam time is over';
+    // You can also trigger any additional actions here, like auto-submitting the exam
+  } else {
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    countdown.value = `${hours}h ${minutes}m ${seconds}s`;
+  }
+};
+
+let timerInterval; // This will hold the interval ID
+
 onMounted(async () => {
-  const paperId = 10;
   const token = sessionStorage.getItem('token');
+  const paperId = route.params.paper_id;
+
   const response = await getContentByPid(paperId, token);
   console.log("getContentByPid", response);
   if (response.data.error_msg === 'success') {
@@ -109,11 +136,34 @@ onMounted(async () => {
     websocket.value.send("startExam");
   };
 
+  websocket.value.onmessage = (event) => {
+  // Parse the event data to JSON if the server sends a stringified JSON
+  const data = JSON.parse(event.data);
+  console.log("Message from server:", data);
+  if(data.answerMap) {
+    for (const [questionNum, selectedOption] of Object.entries(data.answerMap)) {
+        answers.value[questionNum] = Number(selectedOption);
+    }
+    console.log("answers.value", answers.value)
+  }
+  if (data.time) {
+      endTime.value = data.time; // Assume the server sends the end time in the correct format
+      updateCountdown(); // Run once immediately to set the initial value
+      timerInterval = setInterval(updateCountdown, 1000); // Update every second
+    }
+  // Now you can check if the message type is the expected one
+  if(data.type === 'startExamResponse') {
+    console.log("startExam response:", data.payload);
+  }
+};
+
 });
 onUnmounted(() => {
   if (websocket.value) {
     websocket.value.close();
   }
+  clearInterval(timerInterval);
+
 });
 
 </script>

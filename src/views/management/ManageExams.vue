@@ -10,7 +10,7 @@
       <ExamNew/>
     </el-dialog>
     <el-dialog
-      title="新建考试"
+      title="编辑考试"
       v-model="dialogVisible2"
       width="800px"
       height="800px"
@@ -99,8 +99,9 @@ const handleCurrentChange = (newPage) => {
   fetchExams();
 };
 const editExam = (row) => {
+  eid.value = row.examId;
+  console.log("eid.value: ", row);
   dialogVisible2.value = true;
-  eid.value = row.eid;
 };
 onMounted(fetchExams);
 </script>
