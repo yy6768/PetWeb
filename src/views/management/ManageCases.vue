@@ -1,5 +1,19 @@
 <template>
+      <el-dialog
+      title="为病例添加化验和药品"
+      v-model="dialogVisible"
+      width="500px"
+      @close="dialogVisible = false"
+    >
+      <SelectDialog
+        :labOptions="labOptions"
+        :drugOptions="drugOptions"
+        :currentCase="currentCase"
+        @confirm="handleConfirm"
+      />
+    </el-dialog>
   <el-card>
+    
     <div>
       <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
@@ -59,10 +73,11 @@
       >
 
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="300px">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="editCase(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="delCase(row)">删除</el-button>
+          <el-button type="success" size="small" @click="openSelectDialog(row)">链接化验&药品</el-button>
 
         </template>
 
@@ -91,11 +106,20 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll, getLab, getMed} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
 import { useRouter } from 'vue-router';
-
+import SelectDialog from '@/views/caseStudy/components/SelectDialog.vue';
 const router = useRouter();
+const dialogVisible = ref(false);
+
+const handleConfirm = (selectedItems) => {
+  console.log('Selected Items:', selectedItems);
+  dialogVisible.value = false;
+};
+const currentCase = ref(null);
+const labOptions = ref({});
+const drugOptions = ref({})
 
 //查询表
 const queryForm = ref({
@@ -144,24 +168,43 @@ interface Case {
 
 const tableData = ref<Case[]>([]);
 const editCase = (row) => {
-  sessionStorage.setItem('cid', row.cid);
-  getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
-    const detail = res.data;
-    console.log("detail", detail);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
+  // sessionStorage.setItem('cid', row.cid);
+  // getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
+  //   const detail = res.data;
+  //   console.log("detail", detail);
+  //   // sessionStorage.setItem('case', JSON.stringify(res.data));
+  //   // router.push('/case-study/study');
+  // });
+  router.push({
+    name: 'case-modify',
+    params: { cid: row.cid },
   });
+  console.log("editCase row", row.cid)
 }
+const openSelectDialog = async (c) => {
+  // 链接病历的逻辑
+  const labResponse = await getLab(sessionStorage.getItem('token'));
+  console.log('链接lab', labResponse);
+  labOptions.value = labResponse.data.lab_list; // Set the current lab
+  const drugResponse = await getMed(sessionStorage.getItem('token'));
+  console.log('链接drug', drugResponse);
+  drugOptions.value = drugResponse.data.medicine_list; // Set the current lab
+  currentCase.value = c;
+  console.log('c, ', c);
 
-const delCase = (row) => {
+  dialogVisible.value = true
+};
+
+const delCase = async (row) => {
   sessionStorage.setItem('cid', row.cid);
-  console.log("del row", row.cid)
-  deleteCase(row.cid, sessionStorage.getItem('token')).then((res) => {
-    console.log("del res", res);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
-
-  });
+  const res = await deleteCase(row.cid, sessionStorage.getItem('token'))
+  console.log("del res", res);
+  if (res.status == 200) {
+    ElMessage.success('删除成功');
+    await initGetCasesList();
+  } else {
+    ElMessage.error('删除失败');
+  }
 
 }
 // GET

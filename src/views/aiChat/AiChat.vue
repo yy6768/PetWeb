@@ -109,6 +109,7 @@ const submitQuery = async () => {
       includeMetadata: true,
     })
     console.log("Query Response:", queryResponse);
+    responseText.value = "正在查询中...";
     if (queryResponse?.data?.length === 0) {
       responseText.value = "没找到相关信息";
       return;
@@ -121,6 +122,7 @@ const submitQuery = async () => {
     const llmQuery = getMedicineLLMQuery(formattedData, userInput.value);
     console.log("LLM Query:", llmQuery);
 // 这里你可以将 llmQuery 发送到你的 LLM 服务进行查询
+    responseText.value = llmQuery;
 
     const chat = new ChatOpenAI({modelName: "gpt-3.5-turbo", temperature: 0, openAIApiKey: OPENAI_API_KEY,});
 

@@ -109,11 +109,10 @@ export const getName = (params,token,key,authority,page,pageSize) => {
 };
 
 //获得药品
-export const getMed = (params,token) => {
+export const getMed = (token) => {
     return axios({
         url: '/api/case/get_all_medicine',
         method: 'get',
-        params,
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -157,7 +156,7 @@ export const getAllDrug = (params,token) => {
 export const addCase = (token, params) => {
     // Create a copy of params to avoid mutating the original object
     let modifiedParams = { ...params };
-    console.log("Modified params:", modifiedParams);
+    console.log("add params:", modifiedParams);
     // Remove cate_id from the copied params object
     delete modifiedParams.cate_id;
 
@@ -173,11 +172,17 @@ export const addCase = (token, params) => {
 
 
 //修改病例???
-export const editCase = (data, token) => {
+export const updateCase = (token, params) => {
+    let modifiedParams = { ...params };
+    delete modifiedParams.cate_id;
+    delete modifiedParams.ill_name;
+    delete modifiedParams.username;
+
+    console.log("modify params:", modifiedParams);
     return axios({
-        // url: `/api/case/getall?`,
-        method: 'put',
-        data,
+        url: `/api/case/update`,
+        method: 'post',
+        params: modifiedParams,
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -197,28 +202,54 @@ export const addLabToCase = (cid, lab_id, token) => {
         }
     });
 }
-//删除病例
-export const deleteCase = async (cid, token) => {
-    console.log("Deleting case with CID:", cid);
-    console.log("Token:", token)
-    try {
-        const params = new URLSearchParams({ cid: cid.toString() }).toString();
-        const response = await axios.delete(`/api/case/delete?${params}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        console.log('Delete response:', response.data);
-
-        if (response.data && response.data.error_message === 'success') {
-            console.log('Case successfully deleted.');
-            return { success: true, message: 'Case deleted successfully' };
-        } else {
-            console.error('Failed to delete case:', response.data.error_message);
-            return { success: false, message: response.data.error_message };
+export const deleteLabToCase = (cid, lab_id, token) => {
+    return axios({
+        url: `/api/case/delete_lab`,
+        method: 'delete',
+        params:{
+            lab_id: lab_id,
+            cid: cid
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
         }
-    } catch (error) {
-        console.error('Error deleting case:', error);
-        return { success: false, message: 'Error deleting case' };
-    }
-};
+    });
+}       
+export const addDrugToCase = (cid, med_id, token) => {
+    return axios({
+        url: `/api/case/add_medicine`,
+        method: 'post',
+        params:{
+            medicine_id: med_id,
+            cid: cid
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
+export const deleteDrugToCase = (cid, medicine_id, token) => {
+    return axios({
+        url: `/api/case/delete_medicine`,
+        method: 'delete',
+        params:{
+            medicine_id: medicine_id,
+            cid: cid
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}  
+export const deleteCase = (cid, token) => {
+    return axios({
+        url: `/api/case/delete`,
+        method: 'delete',
+        params:{
+            cid: cid
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}  

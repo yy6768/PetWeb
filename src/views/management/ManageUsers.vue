@@ -71,6 +71,10 @@
   const pageSize = ref<number>(10); // 每页显示数量
   const dialogFormVisible = ref(false)
   const form = ref({
+    uid: '',
+    username: '',
+    password: '',
+    authority: '',
   })
   const formatAuthority = (row, column, value) => {
     // 根据authority值返回对应的中文描述
