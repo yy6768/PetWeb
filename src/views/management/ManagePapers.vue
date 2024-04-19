@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ArrowRight} from "@element-plus/icons-vue";
+import {ArrowRight, Delete, Edit} from "@element-plus/icons-vue";
 import {computed, ref} from "vue";
 import {message} from "ant-design-vue";
 import axios from "axios";
@@ -307,9 +307,9 @@ const confirm = () =>{
       }
       showDetail.value = false
     }
-    else if(response.data.error_message === "不是试卷创始人无法修改试卷"){
-      console.log("不是试卷创始人，无法修改试卷")
-      message.error("不是试卷创始人，无法修改试卷")
+    else{
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
       editData.value = {
         paperId: 0,
         paperName: "",
@@ -323,14 +323,6 @@ const confirm = () =>{
         second: 0
       }
       showDetail.value = false
-    }
-    else{
-      console.log("修改/新建失败")
-      if(isCreate)
-        message.error("新建失败")
-      else
-        message.error("修改失败")
-
     }
   }).catch((e) => console.log(e))
 }

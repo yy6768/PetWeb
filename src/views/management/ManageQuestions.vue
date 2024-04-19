@@ -722,7 +722,7 @@ const questionRule = {
 }
 .search-btn{
   position: relative;
-  left: 4vw;
+  left: 3vw;
   border:0.1vw solid #57a3e3;
 }
 .search-type{
