@@ -352,6 +352,9 @@ const create = ()=>{
   showDetail.value = true
   searchQuestion()
 }
+const searchQuestionRules = {
+  paperName:[{required: true, message:'请输入试卷名', trigger:'blur'}]
+}
 </script>
 
 <template>
@@ -412,7 +415,7 @@ const create = ()=>{
         </el-pagination>
       </el-container>
       <el-dialog v-model="showDetail" :title="isCreate ? '新建题目' : '编辑题目'">
-        <el-form ref="myEditForm" :model="editData" class="form-detail">
+        <el-form ref="myEditForm" :model="editData" :rules="searchQuestionRules" class="form-detail">
           <el-form-item label="试卷名" prop="paperName" style="margin-left: 1vw">
             <el-input v-model="editData.paperName" style="width: 15vw"></el-input>
           </el-form-item>
