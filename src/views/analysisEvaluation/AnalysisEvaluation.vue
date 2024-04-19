@@ -86,9 +86,10 @@ const fetchExams = async () => {
   const token = sessionStorage.getItem('token');
   const response = await getUserExam(token, currentPage.value, pageSize.value,sessionStorage.getItem('uid'));
   console.log(response)
-  if (response.data.error_msg === 'success') {
+  if (response.status === 200) {
     exams.value = response.data.exam_list;
     totalExams.value = response.data.total;
+    ElMessage.success(response.data.error_msg);
   } else {
     console.error('Failed to fetch exams:', response.data.error_msg);
   }

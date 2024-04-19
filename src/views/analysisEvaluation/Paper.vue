@@ -36,6 +36,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { getContentByPid } from '@/api/exam';
 import { useRoute, useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 
 const router = useRouter();
 const route = useRoute()
@@ -114,7 +115,8 @@ onMounted(async () => {
 
   const response = await getContentByPid(paperId, token);
   console.log("getContentByPid", response);
-  if (response.data.error_msg === 'success') {
+  if (response.status === 200) {
+    ElMessage.success('试卷加载成功');
     paperDetails.value.paperName = response.data.paperName;
     paperDetails.value.totalMark = response.data.totalMark;
     paperDetails.value.question_list = response.data.question_list;

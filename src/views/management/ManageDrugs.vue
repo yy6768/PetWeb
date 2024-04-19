@@ -231,7 +231,7 @@ const deleteMedicine = async (medication) => {
       }
     });
     console.log('删除res:', response.data);
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       pineconeDelete(medication.medicineId, 'medicine')
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
@@ -271,7 +271,7 @@ const addMedicine = async () => {
     });
     console.log('添加药品组:', response.data);
 
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       const medicine_id = response.data.medicine_id;
        
       // 插入数据到 Pinecone
@@ -339,7 +339,7 @@ const fetchMedications = async () => {
     });
     console.log('获取药品组:', response.data);
     totalMedications.value = response.data.total;
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
       // ElMessage({

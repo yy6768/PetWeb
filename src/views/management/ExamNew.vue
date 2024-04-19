@@ -72,7 +72,7 @@ const handleConfirm = async () => {
         newExam.value.begin_time = formatDateTime(date);
 
         const res = await addExam(newExam.value, sessionStorage.getItem('token'));
-        if (res.data.error_msg === "success") {
+        if (res.status === 200) {
             ElMessage.success('添加成功');
             // Reset the form
             newExam.value = {
@@ -91,7 +91,7 @@ const handleConfirm = async () => {
 onMounted(async () => {
     // Fetch all users
     const res = await getAllUser(sessionStorage.getItem('token'), 1, 100, '');
-    if (res.data.error_message === "success") {
+    if (res.status === 200) {
         // Set the options for the user list
         // The options should be an array of objects with the following structure:
         // { value: 'user_id', label: 'user_name' }

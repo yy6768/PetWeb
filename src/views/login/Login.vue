@@ -50,7 +50,7 @@ const onLogin = async () => {
 
     const response = await axios.post(`/api/user/login?${params}`);
 
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       // Optionally store the user's authority level in sessionStorage
       message.success('登录成功');
       sessionStorage.setItem('authority', response.data.authority);
