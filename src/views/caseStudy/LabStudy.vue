@@ -157,7 +157,7 @@ const labChangeSubmit = async () => {
       }
     });
     console.log('修改res:', response.data);
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
       console.log('化验组:', labs.value);
       ElMessage({
@@ -198,7 +198,7 @@ const deleteLab = async (lab) => {
       }
     });
     console.log('禁用res:', response.data);
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       pineconeDelete(lab.labId, 'lab')
       labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
       console.log('化验组:', labs.value);
@@ -232,7 +232,7 @@ const addLab = async () => {
       }
     });
     console.log('获取化验组:', response.data);
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       console.log('化验组:', labs.value);
       const lab_id = response.data.lab_id
       if (newLab.value.saveToPinecone) {
@@ -298,13 +298,13 @@ const fetchLabs = async () => {
     });
     console.log('获取化验组:', response.data);
     totalLabs.value = response.data.lab_list.length;
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
       console.log('化验组:', labs.value);
-      // ElMessage({
-      //   message: '获取化验组成功',
-      //   type: 'success',
-      // });
+      ElMessage({
+        message: '获取化验组成功',
+        type: 'success',
+      });
     } else {
       ElMessage.error(`获取化验组失败: ${response.data.error_message}`);
     }
