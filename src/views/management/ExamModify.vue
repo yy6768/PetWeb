@@ -6,7 +6,7 @@
 
 
       <el-form-item label="参考人员">
-        <el-select v-model="newExam.user_list"  multiple placeholder="请选择参考人员">
+        <el-select v-model="newExam.user_list"  multiple placeholder="请选择参考人员" @change="changeUserList">
           <!-- Options for users will go here -->
           <el-option
           v-for="item in userOptions"
@@ -17,7 +17,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" native-type="submit"  @click="handleConfirm" >提交</el-button>
+        <el-button type="primary"   @click="handleConfirm" >提交</el-button>
       </el-form-item>
     </el-form>
 </template>
@@ -40,19 +40,24 @@ const rules = {
     user_list: [{ required: true, message: '请选择参考人员', trigger: 'blur' }]
 };
 const newExam = ref({
+    exam_id: props.eid,
     exam_name: '',
     user_list: []
 });
 
-
+const changeUserList = (value: number[]) => {
+    console.log("changeUserList: ", value);
+};
 const handleConfirm = async () => {
     console.log("changeExam: ", newExam.value);
     try {
         //newExam.value.begin_time = new Date(newExam.value.begin_time).getTime();
 
         const res = await UpdateExam(newExam.value, sessionStorage.getItem('token'));
-        if (res.data.error_msg === "success") {
-            ElMessage.success('添加成功');
+        console.log("respone: ", res.data)
+
+        if (res.status === 200) {
+            ElMessage.info(res.data.error_msg);
             // Reset the form
         } else {
             ElMessage.error("添加失败");
@@ -67,10 +72,11 @@ onMounted(async () => {
     const res = await getAllUser(sessionStorage.getItem('token'), 1, 100, '');
     console.log("detail: ", detail.data)
     console.log("getAllUser: ", res.data)
-
+    
     newExam.value.exam_name = detail.data.examName;
-    newExam.value.user_list = detail.data.userList;
-    if (res.data.error_message === "success") {
+    newExam.value.user_list = detail.data.userIds;
+    console.log("newExam.value.user_list: ", newExam.value.user_list)
+    if (res.status === 200) {
         // Set the options for the user list
         // The options should be an array of objects with the following structure:
         // { value: 'user_id', label: 'user_name' }
