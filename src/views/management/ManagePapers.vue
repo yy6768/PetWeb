@@ -34,7 +34,10 @@ const editData = ref({
   userName: "",
   date: "",
   questionList: [],
-  totalMark: 0
+  totalMark: 0,
+  hour: 0,
+  minute: 0,
+  second: 0
 })
 const typeList = ref([{
   id:0,
@@ -75,10 +78,25 @@ const search = () =>{
         tableData.value.map((item)=>{
           console.log(item.time)
           var date = new Date(item.date)
-          var time = new Date(item.time)
-          console.log(time)
           item.date = moment(date).subtract(8,'hour').format('YYYY-MM-DD')
-          item.time = moment(time).subtract(8,'hour').format('HH:mm:ss')
+          var second = item.time % 60;
+          var minute = (item.time / 60) % 60;
+          var hour = item.time / 3600 ;
+          if(hour < 10){
+            item.time = `0${hour}:`
+          }else{
+            item.time = `${hour}:`
+          }
+          if(minute < 10){
+            item.time += `0${minute}:`
+          }else{
+            item.time += `${minute}:`
+          }
+          if(second < 10){
+            item.time += `0${second}`
+          }else{
+            item.time += `${second}`
+          }
         })
       }
       else{
@@ -145,17 +163,13 @@ const showDetailFunc = (id) =>{
       editData.value = response.data
       response.data.question_list.map((item) =>{
         checkQuestionList.value.push({
-          qid:item.num,
+          qid:item.qid,
           mark:item.mark
         })
       })
-      var time = new Date(editData.value.time)
-      var hour = moment(time).subtract(8,'hour').format('HH')
-      var minute = moment(time).subtract(8,'hour').format('mm')
-      var second = moment(time).subtract(8,'hour').format('ss')
-      Reflect.set(editData.value, 'hour', hour)
-      Reflect.set(editData.value, 'minute', minute)
-      Reflect.set(editData.value, 'second', second)
+      editData.value.second = editData.value.time % 60;
+      editData.value.minute = (editData.value.time / 60) % 60;
+      editData.value.hour = editData.value.time / 3600 ;
       console.log(checkQuestionList.value)
       searchQuestion()
       showDetail.value = true
@@ -249,27 +263,25 @@ const confirm = () =>{
     return item.qid
   })
   console.log(`题目列表为${list}`)
-  var timeStamp = new Date("2024-04-17 " + editData.value.hour + ':' + editData.value.minute + ':' + editData.value.second)
-  var time = moment(timeStamp).subtract(8,'hour').format('YYYY-MM-DD HH:mm:ss')
+  var time = editData.value.hour * 3600 + editData.value.minute * 60 + editData.value.second
   console.log(time)
-  var myParam = ref({
-    uid: uid,
+  var body = {
+    uid: parseInt(uid),
     paper_name:editData.value.paperName,
-    time:time.toString(),
+    time:time,
     question_list: list
-  })
-  if(!isCreate){
-    Reflect.set(myParam, 'paper_id', editData.value.paperId)
+  }
+  if(!isCreate.value){
+    Reflect.set(body, 'paper_id', editData.value.paperId.toString())
   }
   var api = isCreate.value ? "/api/paper/add" : "/api/paper/update"
-  var params = new URLSearchParams(myParam.value).toString()
-  axios.post(`${api}?${params}`, {}, {
+  axios.post(`${api}`, body, {
     headers:{
       'Authorization':`Bearer ${token}`
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_msg === "success"){
+    if(response.data.error_message === "success"){
       console.log("成功修改/新建")
       search()
       editData.value = {
@@ -279,7 +291,36 @@ const confirm = () =>{
         userName: "",
         date: "",
         questionList: [],
-        totalMark: 0
+        totalMark: 0,
+        hour: 0,
+        minute: 0,
+        second: 0
+      }
+      if(isCreate.value){
+        message.success("成功创建试卷")
+        console.log("成功创建试卷")
+        isCreate.value = false;
+      }
+      else{
+        message.success("成功修改试卷")
+        console.log("成功修改试卷")
+      }
+      showDetail.value = false
+    }
+    else if(response.data.error_message === "不是试卷创始人无法修改试卷"){
+      console.log("不是试卷创始人，无法修改试卷")
+      message.error("不是试卷创始人，无法修改试卷")
+      editData.value = {
+        paperId: 0,
+        paperName: "",
+        time: "",
+        userName: "",
+        date: "",
+        questionList: [],
+        totalMark: 0,
+        hour: 0,
+        minute: 0,
+        second: 0
       }
       showDetail.value = false
     }
@@ -292,6 +333,24 @@ const confirm = () =>{
 
     }
   }).catch((e) => console.log(e))
+}
+const create = ()=>{
+  isCreate.value = true
+  editData.value = {
+    paperId: 0,
+    paperName: "",
+    time: "",
+    userName: "",
+    date: "",
+    questionList: [],
+    totalMark: 0,
+    hour: 0,
+    minute: 0,
+    second: 0
+  }
+  checkQuestionList.value = []
+  showDetail.value = true
+  searchQuestion()
 }
 </script>
 
@@ -357,7 +416,7 @@ const confirm = () =>{
           <el-form-item label="试卷名" prop="paperName" style="margin-left: 1vw">
             <el-input v-model="editData.paperName" style="width: 15vw"></el-input>
           </el-form-item>
-          <el-form-item label="试卷分值" prop="totalMark" style="margin-left: 5vw">
+          <el-form-item label="试卷分值" prop="totalMark" style="position:absolute;right: 6vw">
             <el-input readonly v-model="editData.totalMark" style="width: 15vw"></el-input>
           </el-form-item>
           <el-form-item label="试卷时限" prop="time" style="margin-left: 1vw">
@@ -394,7 +453,7 @@ const confirm = () =>{
             </el-option>
           </el-select>
           <el-button class="search-question-btn" @click="searchQuestion">搜索</el-button>
-        </el-container>
+      </el-container>
         <el-table :data="allQuestionList" stripe height="40vh">
           <el-table-column prop="check" label="选择" align="center" min-width="8%">
             <template #default="scope">
@@ -526,5 +585,9 @@ const confirm = () =>{
 .confirm-btn{
   position: absolute;
   right: 2vw;
+}
+.show-checked{
+  position: absolute;
+  right:2vw;
 }
 </style>

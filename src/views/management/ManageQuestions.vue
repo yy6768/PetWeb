@@ -499,6 +499,35 @@ const newFunc = () =>{
     spread:1
   }
 }
+const questionRule = {
+  content: [
+    {required: true, message: '请输入题干内容',trigger:'blur'},
+  ],
+  optionA:[
+    {required:true, message:'请输入选项A内容',trigger:'blur'}
+  ],
+  optionB:[
+    {required:true, message:'请输入选项B内容',trigger:'blur'}
+  ],
+  optionC:[
+    {required:true, message:'请输入选项C内容',trigger:'blur'}
+  ],
+  optionD:[
+    {required:true, message:'请输入选项D内容',trigger:'blur'}
+  ],
+  point:[
+    {required:true, message:'请输入题目分数',trigger:'blur'}
+  ],
+  answer:[
+    {required:true, message:'请选择题目答案',trigger:'blur'}
+  ],
+  cate:[
+    {required:true, message:'请选择题目所对应病种',trigger:'blur'}
+  ],
+  disease:[
+    {required:true, message:'请选择题目所对应病名',trigger:'blur'}
+  ]
+}
 </script>
 <template>
   <div class="about">
@@ -607,7 +636,7 @@ const newFunc = () =>{
         </el-table>
       </el-container>
       <el-dialog v-model="showDetail" :title="isEdit ? '编辑题目' : isCreate ? '新建题目' : '题目详情'">
-        <el-form :ref="form" :model="editData" label-width="12vh">
+        <el-form :ref="form" :model="editData" :rules="questionRule" label-width="12vh">
           <el-form-item v-if="!isCreate" label="题目id" prop="qid">
             <el-input readonly v-model="editData.qid"></el-input>
           </el-form-item>
