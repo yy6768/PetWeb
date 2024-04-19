@@ -71,8 +71,8 @@ const search = () =>{
         'Authorization':`Bearer ${token}`
       }
     }).then((response) =>{
-      console.log(response.data)
-      if(response.data.error_msg === "success"){
+      console.log(response)
+      if(response.status === 200){
         tableData.value = response.data.paper_list
         totalAccount.value = response.data.total
         tableData.value.map((item)=>{
@@ -100,7 +100,8 @@ const search = () =>{
         })
       }
       else{
-        message.error("搜索失败")
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -138,14 +139,14 @@ const deleteFunc = (paperId) =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log(`成功删除id为${paperId}的试卷`)
       message.success("删除成功")
       search()
     }
     else{
-      console.log("删除失败")
-      message.error("删除失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
     }
   }).catch((e)=>{
     console.log(e)
@@ -159,7 +160,7 @@ const showDetailFunc = (id) =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_msg === "success"){
+    if(response.status === 200){
       editData.value = response.data
       response.data.question_list.map((item) =>{
         checkQuestionList.value.push({
@@ -177,7 +178,8 @@ const showDetailFunc = (id) =>{
       console.log(editData.value)
     }
     else{
-      message.error("获取试卷详情失败")
+      message.error(response.data.error_message)
+      console.log(response.data.error_message)
     }
   })
 }
@@ -205,7 +207,7 @@ const searchQuestion = () =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功搜索")
       totalAccount_question.value = response.data.total
       allQuestionList.value = response.data.question_list
@@ -221,8 +223,8 @@ const searchQuestion = () =>{
       message.success("搜索成功")
     }
     else{
-      console.log("搜索失败")
-      message.error("搜索失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
       allQuestionList.value = []
     }
   }).catch((err)=> console.log(err))
@@ -281,7 +283,7 @@ const confirm = () =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功修改/新建")
       search()
       editData.value = {
