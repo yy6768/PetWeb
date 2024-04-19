@@ -14,6 +14,19 @@ export const getAllExam = (token, page, pageSize, key) => {
         }
     });
 };
+export const getExamDetailById = (token, exam_id) => {
+    return axios({
+        url: '/api/exam/getById',
+        method: 'get',
+        params: {
+            exam_id: exam_id
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
+
 export const getUserExam = (token, page, pageSize, uid) => {
     return axios({
         url: '/api/exam/getByUid',

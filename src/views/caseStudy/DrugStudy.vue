@@ -149,7 +149,7 @@ const medicationChangeSubmit = async () => {
       }
     });
     console.log('修改res:', response.data);
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
         const input_text = "药品名称：" + form.value.medicine_name + "，药品价格："+ form.value.medicine_cost.toString() + ",疗效与用途：" + form.value.description
         console.log('Vue input_text:', input_text); 
         const medicine_id = response.data.medicine_id
@@ -321,13 +321,13 @@ const fetchMedications = async () => {
     });
     console.log('获取药品组:', response.data);
     totalMedications.value = response.data.total;
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
       console.log('药品组:', medications.value);
-      // ElMessage({
-      //   message: '获取药品组成功',
-      //   type: 'success',
-      // });
+      ElMessage({
+        message: '获取药品组成功',
+        type: 'success',
+      });
     } else {
       ElMessage.error(`获取药品组失败: ${response.data.error_message}`);
     }

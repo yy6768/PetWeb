@@ -32,7 +32,7 @@
       <el-table-column prop="endTime" label="结束时间" :formatter="formatTime"></el-table-column>
       <el-table-column label="我的得分">
         <template #default="{ row }">
-          <span v-if="row.grade === null">未开始</span>
+          <span v-if="row.grade === null">0</span>
           <span v-else>{{ row.grade }}</span>
         </template>
       </el-table-column>
@@ -86,9 +86,10 @@ const fetchExams = async () => {
   const token = sessionStorage.getItem('token');
   const response = await getUserExam(token, currentPage.value, pageSize.value,sessionStorage.getItem('uid'));
   console.log(response)
-  if (response.data.error_msg === 'success') {
+  if (response.status === 200) {
     exams.value = response.data.exam_list;
     totalExams.value = response.data.total;
+    ElMessage.success(response.data.error_msg);
   } else {
     console.error('Failed to fetch exams:', response.data.error_msg);
   }
@@ -117,17 +118,17 @@ const startExam = (row) => {
 
   if (now < startTime) {
     ElMessage.warning('考试还未开始，请耐心等待！');
-    route.push({
-        name: 'paper',
-        params: { eu_id: row.eu_id }
-      });
+    // route.push({
+    //     name: 'paper',
+    //     params: { eu_id: row.eu_id }
+    //   });
 
   } else if (now > endTime) {
     ElMessage.error('考试已经结束！');
-    route.push({
-        name: 'paper',
-        params: { eu_id: row.eu_id }
-      });
+    // route.push({
+    //     name: 'paper',
+    //     params: { eu_id: row.eu_id }
+    //   });
   } else {
     ElMessageBox.confirm(
       '考试即将开始，你准备好了吗？',
@@ -142,7 +143,7 @@ const startExam = (row) => {
       console.log("开始考试", row);
       route.push({
         name: 'paper',
-        params: { eu_id: row.eu_id }
+        params: { eu_id: row.eu_id, paper_id: row.paper_id }
       });
     }).catch(() => {
       // The user cancelled the exam start
