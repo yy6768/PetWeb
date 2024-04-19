@@ -77,7 +77,7 @@ const eid = ref('');
 const fetchExams = async () => {
   const token = sessionStorage.getItem('token');
   const response = await getAllExam(token, currentPage.value, pageSize.value,'');
-  if (response.data.error_msg === 'success') {
+  if (response.status === 200) {
     exams.value = response.data.exam_list;
     totalExams.value = response.data.total;
   } else {
