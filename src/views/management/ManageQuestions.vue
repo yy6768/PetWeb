@@ -95,13 +95,13 @@ axios.get("/api/cate/get_all",{
   }
 }).then((response)=>{
   console.log(response)
-  if(response.data.error_message === "success"){
+  if(response.status === 200){
     cateList.value = response.data.cate_list
     console.log("成功获取病种列表")
   }
   else{
-    message.error("获取病种列表失败")
-    console.log("获取病种列表失败")
+    message.error(response.data.error_message)
+    console.log(response.data.error_message)
   }
 })
 const getDisease = (cateId:Number)=>{
@@ -124,7 +124,7 @@ const isSearchCateSelected = computed(()=>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log(`成功获取病种${cateId}的疾病列表`)
         searchDiseaseList.value = response.data.ill_list
         searchDiseaseList.value.push([])
@@ -132,6 +132,7 @@ const isSearchCateSelected = computed(()=>{
       }
       else{
         console.log(`获取病种${cateId}的疾病列表失败`)
+        message.error(response.data.error_message)
       }
     })
       return true
@@ -154,7 +155,7 @@ const isCateSelected = computed(()=>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log(`成功获取病种${cateId}的疾病列表`)
         diseaseList.value = response.data.ill_list
         diseaseList.value.push([])
@@ -162,6 +163,7 @@ const isCateSelected = computed(()=>{
       }
       else{
         console.log(`获取病种${cateId}的疾病列表失败`)
+        message.error(response.data.error_message)
       }
     })
     return true
@@ -207,7 +209,7 @@ const search = () => {
         'Authorization':`Bearer ${token}`
       }}).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功搜索")
         totalAccount.value = response.data.total
         tableData.value = response.data.question_list
@@ -215,8 +217,10 @@ const search = () => {
           Reflect.set(item, "spread", 1)
         })
       }
-      else if(response.data.error_message === "未找到对应题目"){
+      else{
         tableData.value = []
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -238,13 +242,17 @@ const search = () => {
         'Authorization':`Bearer ${token}`
       }}).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功搜索")
         totalAccount.value = response.data.total
         tableData.value = response.data.question_list
         tableData.value.map((item)=>{
           Reflect.set(item, "spread", 1)
         })
+      }
+      else{
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -265,7 +273,7 @@ const showDetailFunc = (id) =>{
         'Authorization':`Bearer ${token}`
     }}).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       editData.value = response.data.question
       Reflect.set(editData.value, "spread",  1)
       Reflect.set(editData.value,  "filterAnswer", filterAnswer.value)
@@ -276,7 +284,8 @@ const showDetailFunc = (id) =>{
       console.log("showDetail的值变为" + showDetail.value)
     }
     else{
-      message.error("获取失败")
+      message.error(response.data.error_message)
+      console.log(response.data.error_message)
     }
   })
 }
@@ -339,7 +348,7 @@ const confirm = () =>{
     }).then((response)=>{
       console.log(editData.value)
       console.log(response)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功编辑")
         console.log(editData.value)
         try{
@@ -378,7 +387,8 @@ const confirm = () =>{
         }
       }
       else{
-        console.log("编辑失败")
+        console.log("编辑失败" + response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -390,7 +400,7 @@ const confirm = () =>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功新建")
         let newData = response.data.question
         Reflect.set(newData, "spread", 1)
@@ -400,6 +410,7 @@ const confirm = () =>{
       }
       else{
         console.log("新建失败")
+        message.error(response.data.error_message)
       }
     })
   }
@@ -438,7 +449,7 @@ const deleteFunc = (row) =>{
     }
   }).then((response)=>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功删除")
       let deleteIndex = 0
       tableData.value.map((item,index) =>{
@@ -450,7 +461,8 @@ const deleteFunc = (row) =>{
       search()
     }
     else{
-      console.log("删除失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
     }
   })
 }
