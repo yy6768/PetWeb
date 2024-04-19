@@ -23,14 +23,15 @@
 
       <el-table-column label="操作">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="editLab(row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="deleteLab(row)">删除</el-button>
-
+          <el-button type="primary" size="small" @click="editLab(row)">学习</el-button>
+、
         </template>
 
       </el-table-column>
     </el-table>
     </el-container>
+
+
     <el-dialog v-model="changeVisible" title="修改化验信息" width="500">
       <el-form :model="form">
 <!--        <el-form-item label="labId" >-->
@@ -102,7 +103,9 @@ import { ElMessage } from 'element-plus'
 import { ref, onMounted } from 'vue';
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { useRouter } from 'vue-router';
+import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
 import { embedText, pineconeAdd, pineconeDelete } from '@/components/usePinecone';
+
 
 const router = useRouter();
 
@@ -134,7 +137,6 @@ const newLab = ref({
 const newFunc = () => {
   addVisible.value = true;
 }
-
 const labChangeSubmit = async () => {
   // 提交化验修改的逻辑
   console.log('提交化验修改', form.value);
@@ -176,9 +178,9 @@ const labChangeSubmit = async () => {
 };
 const editLab = (lab) => {
   // 编辑化验的逻辑
+  const response = getCase()
   changeVisible.value = true;
   form.value = { ...lab }; // Use spread operator to copy lab properties
-
   console.log('编辑化验', lab);
 };
 
@@ -278,6 +280,7 @@ const handleSizeChange = (newSize) => {
   pageSize.value = newSize;
   fetchLabs();
 };
+
 const fetchLabs = async () => {
   console.log('化验管理页面加载');
   try {

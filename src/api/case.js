@@ -121,9 +121,30 @@ export const getMed = (params,token) => {
 };
 
 //获取化验项目
-export const getLab = (params,token) => {
+export const getLab = (token) => {
     return axios({
         url: '/api/case/get_all_lab',
+        method: 'get',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const getAllLab = (params, token) => {
+    return axios({
+        url: '/api/lab/getall',
+        method: 'get',
+        params,
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const getAllDrug = (params,token) => {
+    return axios({
+        url: '/api/medications/getall',
         method: 'get',
         params,
         headers: {
@@ -133,20 +154,23 @@ export const getLab = (params,token) => {
 };
 
 //添加病例???
-export const addCase = (data,token,username,ill_name,date) => {
+export const addCase = (token, params) => {
+    // Create a copy of params to avoid mutating the original object
+    let modifiedParams = { ...params };
+    console.log("Modified params:", modifiedParams);
+    // Remove cate_id from the copied params object
+    delete modifiedParams.cate_id;
+
     return axios({
         url: '/api/case/add',
         method: 'post',
-        data:{
-            username:username,
-            ill_name:ill_name,
-            date:date
-        },
+        params: modifiedParams,
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
 };
+
 
 //修改病例???
 export const editCase = (data, token) => {
@@ -160,14 +184,41 @@ export const editCase = (data, token) => {
     });
 };
 
-//删除病例
-export const deleteCase = (cid, token) => {
+export const addLabToCase = (cid, lab_id, token) => {
     return axios({
-        url: `/api/case/delete?cid=${cid}`,
-        method: 'delete',
+        url: `/api/case/add_lab`,
+        method: 'post',
+        params:{
+            lab_id: lab_id,
+            cid: cid
+        },
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
-};
+}
+//删除病例
+export const deleteCase = async (cid, token) => {
+    console.log("Deleting case with CID:", cid);
+    console.log("Token:", token)
+    try {
+        const params = new URLSearchParams({ cid: cid.toString() }).toString();
+        const response = await axios.delete(`/api/case/delete?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        console.log('Delete response:', response.data);
 
+        if (response.data && response.data.error_message === 'success') {
+            console.log('Case successfully deleted.');
+            return { success: true, message: 'Case deleted successfully' };
+        } else {
+            console.error('Failed to delete case:', response.data.error_message);
+            return { success: false, message: response.data.error_message };
+        }
+    } catch (error) {
+        console.error('Error deleting case:', error);
+        return { success: false, message: 'Error deleting case' };
+    }
+};

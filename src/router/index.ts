@@ -35,6 +35,28 @@ const router = createRouter({
           component: () => import('../views/caseStudy/CaseStudy.vue')
         },
         {
+          path:'/drug-study',
+          name: 'drug-study',
+          component: () => import('../views/caseStudy/DrugStudy.vue')
+        },
+        {
+          path:'/lab-study',
+          name: 'lab-study',
+          component: () => import('../views/caseStudy/LabStudy.vue')
+        },
+        {
+          path: '/case-detail/:cid',
+          name: 'case-details',
+          component: () => import('../views/caseStudy/CaseDetails.vue'),
+          props: true  // Enable route params to be passed as props
+        },
+        {
+          path: '/case-new',
+          name: 'case-new',
+          component: () => import('../views/caseStudy/CaseNew.vue'),
+          props: true  // Enable route params to be passed as props
+        },
+        {
           path:'/analysis-evaluation',
           name: 'analysis-evaluation',
           component: () => import('../views/analysisEvaluation/AnalysisEvaluation.vue')
@@ -90,5 +112,12 @@ const router = createRouter({
 
   ]
 })
+router.beforeEach((to, from, next) => {
+  if (!sessionStorage.getItem('token') && to.name !== 'login' && to.name !== 'register') {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
+});
 
 export default router
