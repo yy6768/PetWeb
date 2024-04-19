@@ -123,6 +123,9 @@ const changeVisible = ref(false);
 const addVisible = ref(false)
 
 const form = ref({
+  labId: 0,
+  labCost: 0,
+  description: ''
 })
 const newLab = ref({
   saveToPinecone: false,

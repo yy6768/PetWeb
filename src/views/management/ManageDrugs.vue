@@ -120,6 +120,10 @@ const pageSize = ref<number>(10); // 每页显示数量
 const changeVisible = ref(false)
 const addVisible = ref(false)
 const form = ref({
+  medicine_id: 0,
+  medicine_name: '',
+  medicine_cost: '',
+  description: ''
 })
 const loading = ref(null)
 const newMedicine = ref({

@@ -20,6 +20,11 @@ export default defineConfig({
         target: 'http://localhost:3001', // the target host
         changeOrigin: true, // needed for virtual hosted sites
         ws: true, // proxy websockets
+      },
+      '/ws': {
+        target: 'ws://localhost:3000', // the target host
+        changeOrigin: true, // needed for virtual hosted sites
+        ws: true, // proxy websockets
       }
     }
   },
