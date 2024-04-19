@@ -70,7 +70,7 @@
       </el-form-item>
       <div style="margin-left: 100px;">
         <el-button @click="handleClose">取消</el-button>
-        <el-button type="primary" @click="handleConfirm">确认添加</el-button>
+        <el-button type="primary" @click="handleConfirm">确认更新</el-button>
       </div>
     </el-form>
 
@@ -174,6 +174,7 @@ const handleConfirm = async () => {
       return;
     }
   }
+  
   console.log("add", form.value)
   console.log("categoriesList", categoriesList.value)
   console.log("illList", illList.value)

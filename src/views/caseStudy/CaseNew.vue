@@ -12,7 +12,7 @@
       <el-switch v-model="uploadToggle" active-text="启用上传"></el-switch>
 
       <div v-if="uploadToggle">
-        <el-upload ref="uploadImageRef" class="upload-demo" action="http://localhost:3001/vid/case/upload" :auto-upload="false" :limit="1"
+        <el-upload ref="uploadImageRef" class="upload-demo" action="/vid/case/upload" :auto-upload="false" :limit="1"
           :on-success="handleImageSuccess" accept="image/*">
           <template #trigger>
             <el-button type="primary">选择图片</el-button>
@@ -21,7 +21,7 @@
             上传图片
           </el-button>
         </el-upload>
-        <el-upload ref="uploadVideoRef" class="upload-demo" action="http://localhost:3001/vid/case/upload" :auto-upload="false" :limit="1"
+        <el-upload ref="uploadVideoRef" class="upload-demo" action="/vid/case/upload" :auto-upload="false" :limit="1"
           :on-success="handleVideoSuccess" accept="video/*">
           <template #trigger>
             <el-button type="primary">选择视频</el-button>
@@ -43,14 +43,14 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="病名" prop="illId">
+      <el-form-item label="病名" prop="ill_name">
         <el-select v-model="form.ill_name" placeholder="请选择病名">
           <el-option v-for="illness in illList" :key="illness.illName" :label="illness.illName"
             :value="illness.illName"></el-option>
         </el-select>
       </el-form-item>
 
-      <el-form-item label="就诊医师" prop="uid">
+      <el-form-item label="就诊医师" prop="username">
         <el-select v-model="form.username" placeholder="请选择医师">
           <el-option v-for="doctor in nameList" :key="doctor.username" :label="doctor.username"
             :value="doctor.username"></el-option>
@@ -145,12 +145,11 @@ const illList = ref([]);
 const nameList = ref([]);
 
 const rules = {
-  cateId: [{ required: true, message: '请选择病种', trigger: 'change' }],
+  cate_id: [{ required: true, message: '请选择病种', trigger: 'change' }],
   ill_name: [{ required: true, message: '请选择病名', trigger: 'change' }],
   username: [{ required: true, message: '请选择医师', trigger: 'change' }],
-  basic_situation: [{ required: true, message: '请输入基本情况', trigger: 'blur' }],
-  therapy: [{ required: true, message: '请输入治疗方案', trigger: 'blur' }]
 };
+
 
 const fetchCategories = async () => {
   const response = await getCate({}, sessionStorage.getItem('token'));
@@ -178,6 +177,10 @@ const handleConfirm = async () => {
       ElMessage.error('请上传图片和视频');
       return;
     }
+  }
+  if(form.value.cate_id === '' || form.value.ill_name === '' || form.value.username === '' || form.value.basic_situation === '' || form.value.therapy === '' || form.value.result === ''){
+    ElMessage.error('请填写完整信息');
+    return;
   }
   console.log("add", form.value)
   console.log("categoriesList", categoriesList.value)

@@ -121,19 +121,18 @@ import { useRouter } from 'vue-router';
 import SelectDialog from './components/SelectDialog.vue';
 
 const dialogVisible = ref(false);
-const testOptions = [{ label: '病历1', value: '1' }, { label: '病历2', value: '2' }];
 
 const handleConfirm = (selectedItems) => {
   console.log('Selected Items:', selectedItems);
   dialogVisible.value = false;
 };
-
+const currentCase = ref(null);
 const labOptions = ref({});
 const drugOptions = ref({})
+
 const router = useRouter();
 const startDate = ref(null);
 const endDate = ref(null);
-const currentCase = ref(null);
 const openSelectDialog = async (c) => {
   // 链接病历的逻辑
   const labResponse = await getLab(sessionStorage.getItem('token'));
@@ -145,11 +144,6 @@ const openSelectDialog = async (c) => {
   currentCase.value = c;
   console.log('c, ', c);
 
-  dialogVisible.value = true
-};
-const openDrugSelectDialog = (c) => {
-  // 链接病历的逻辑
-  currentCase.value = c; // Set the current lab
   dialogVisible.value = true
 };
 //查询表
