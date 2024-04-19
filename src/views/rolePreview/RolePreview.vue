@@ -36,9 +36,7 @@
 <!--      <p>前台：好的，我会记录下来。我们的医生会进行一些检查来确保它的健康。请问您方便今天下午还是明天？</p>-->
 <!--      <p>客户：今天下午可以吗？</p>-->
 <!--      <p>前台：让我查一下我们的医生日程表。稍等片刻。</p>-->
-
       <div >
-<!--        <h2>欢迎来到宠物医院前台！</h2>-->
         <p>你是今天的前台接待员，有宠物主人需要帮助，请选择你的回答：</p>
         <button @click="respond('您好，有什么可以帮您？')">宠主：我想预约看诊。</button><p></p>
         <button @click="respond('当然，请问您的宠物有什么症状？')">宠主：我家宠物不舒服。</button><p></p>
@@ -46,19 +44,6 @@
         <button @click="respond('欢迎来到我们宠物医院，我可以为您提供什么帮助？')">其他</button>
         <p>{{ response }}</p>
       </div>
-<!--      <el-form ref="consultationForm" :model="consultationForm" label-width="100px">-->
-<!--        <p>请问您的姓名是？</p>-->
-<!--        <el-form-item label="客户姓名">-->
-<!--          <el-input v-model="consultationForm.customerName" ></el-input>-->
-<!--        </el-form-item>-->
-<!--        <p>请问您的爱宠种类是？</p>-->
-<!--        <el-form-item label="宠物种类">-->
-<!--          <el-input v-model="consultationForm.petType" readonly></el-input>-->
-<!--        </el-form-item>-->
-<!--        <p>请问您要咨询的问题是？</p>-->
-<!--        <el-form-item label="咨询问题">-->
-<!--          <el-input type="textarea" v-model="consultationForm.query" rows="3" readonly></el-input>-->
-<!--        </el-form-item>-->
         <div class="button-container">
           <el-button type="primary" @click="submitConsultationForm">下一步</el-button>
         </div>
@@ -67,21 +52,38 @@
 
     <div v-if="selectedRole === 'receptionist' && current === 1" class="appointment-form">
       <h3>请稍等，我们将会为您登记预约信息</h3>
-      <p>请输入客户姓名：</p>
-      <el-input v-model="appointmentForm.customerName" placeholder="登记客户姓名" class="small-input"></el-input>
-      <p>请输入宠物种类：</p>
-      <el-input v-model="appointmentForm.petName" placeholder="登记宠物种类" class="small-input"></el-input>
-      <p>请输入预约医师姓名：</p>
-      <el-input v-model="appointmentForm.doctorName" placeholder="登记医师姓名" class="small-input"></el-input>
-      <p>请选择预约时间：</p>
-      <el-date-picker v-model="appointmentForm.appointmentTime" type="datetime"></el-date-picker>
+<!--      <p>请输入客户姓名：</p>-->
+<!--      <el-input v-model="appointmentForm.customerName" placeholder="登记客户姓名" class="small-input"></el-input>-->
+<!--      <p>请输入宠物种类：</p>-->
+<!--      <el-input v-model="appointmentForm.petName" placeholder="登记宠物种类" class="small-input"></el-input>-->
+<!--      <p>请输入预约医师姓名：</p>-->
+<!--      <el-input v-model="appointmentForm.doctorName" placeholder="登记医师姓名" class="small-input"></el-input>-->
+<!--      <p>请选择预约时间：</p>-->
+<!--      <el-date-picker v-model="appointmentForm.appointmentTime" type="datetime"></el-date-picker>-->
+<!--      -->
+      <p><strong>登记客户信息:</strong></p>
+      <ul>
+        <li>姓名、联系方式等</li>
+      </ul>
+      <p><strong>登记宠物信息:</strong></p>
+      <ul>
+        <li>种类、名字、年龄、疾病史等</li>
+      </ul>
+      <p><strong>登记医生信息:</strong></p>
+      <ul>
+        <li>医生姓名、可预约时间段、擅长领域等</li>
+      </ul>
+      <p><strong>登记预约信息:</strong></p>
+      <ul>
+        <li>预约日期、预约时间、预约目的（例如疫苗接种、体检、治疗等）</li>
+      </ul>
       <div class="button-container">
         <el-button type="primary" @click="submitAppointmentForm">下一步</el-button>
       </div>
     </div>
 
     <div v-if="selectedRole === 'receptionist' && current === 2" class="record-management-form">
-      <p>作为宠物医院前台管理人员，维护客户和宠物的档案记录是你的主要责任之一。</p>
+      <h3>作为宠物医院前台管理人员，维护客户和宠物的档案记录是你的主要责任之一</h3>
       <p><strong>建立客户档案:</strong></p>
         <ul>
           <li>当客户第一次到访时，创建一个客户档案，并记录客户的基本信息，包括姓名、联系方式、地址等。</li>
@@ -121,7 +123,7 @@
 
     <div v-if="selectedRole === 'assistant' && current === 0" class="preparation-form">
       <h3>完成检查准备工作</h3>
-      <p>准备检查室是确保宠物医院顺利运作的关键步骤之一。</p>
+      <p>准备检查室是确保宠物医院顺利运作的关键步骤之一</p>
       <p><strong>清洁和消毒：</strong></p>
       <ul>
         <li>检查室应该是清洁和消毒的，以确保宠物在安全的环境中接受治疗。</li>
@@ -159,8 +161,8 @@
     </div>
 
     <div v-if="selectedRole === 'assistant' && current === 1" class="assistance-form">
-      <h3>协助宠物进入检查室时，提供安抚和舒适，确保它们不感到焦虑或紧张。</h3>
-      <p>根据需要协助宠物进行体位调整，使医生能够更好地进行检查。</p>
+      <h3>协助宠物进入检查室时，提供安抚和舒适，确保它们不感到焦虑或紧张</h3>
+      <p>根据需要协助宠物进行体位调整，使医生能够更好地进行检查</p>
       <p><strong>操作设备：</strong></p>
       <ul>
         <li>在医生的指导下，操作各种设备和器械，如血压计、体温计、听诊器等。</li>
@@ -264,7 +266,7 @@
     </div>
 
     <div v-if="selectedRole === 'doctor' && current === 1" class="consultation-form">
-      <h3>根据诊断结果可能会开具药物处方，以帮助宠物治疗疾病或缓解症状。</h3>
+      <h3>根据诊断结果可能会开具药物处方，以帮助宠物治疗疾病或缓解症状</h3>
       <p><strong>选择合适的药物：</strong></p>
       <ul>
         <li>根据诊断结果和宠物的病情，选择适当的药物进行治疗。</li>
@@ -325,10 +327,10 @@
     </div>
 
     <div v-if="showInstrumentBox && selectedRole !== 'receptionist'" class="corner-container" style="width: 200px;">
-      <div class="corner-header">器具</div>
+      <div class="corner-header">{{ form.name || '器具' }}</div>
       <div class="corner-content">
         <el-button type="text" @click="dialogFormVisible = true">功能说明</el-button>
-        <el-button type="text">操作视频</el-button>
+        <el-button type="text" @click="openInstructionalVideo">操作视频</el-button>
       </div>
       <el-dialog v-model="dialogFormVisible" title="器具" width="500" draggable>
         <el-form :model="form">
@@ -355,7 +357,7 @@
             <el-input
                 v-model="form.function"
                 style="width: 240px"
-                :rows="2"
+                :rows="1"
                 type="textarea"
             />
           </el-form-item>
@@ -363,8 +365,9 @@
             <el-input
                 v-model="form.process"
                 style="width: 240px"
-                :rows="2"
+                :rows="6"
                 type="textarea"
+                autosize
             />
           </el-form-item>
         </el-form>
@@ -385,27 +388,19 @@
 <script setup lang="ts">
 import { ref, watch, reactive,toRefs} from 'vue';
 import { ElForm, ElFormItem, ElInput, ElButton,ElAvatar } from 'element-plus';
-
-const showInstrumentBox = ref(false)
-const dialogFormVisible = ref(false)
-const formLabelWidth = '140px'
-
-//
-const response = ref('');
-
-const respond = (message: string) => {
-  response.value = `你的回答：${message}`;
-};
-
 // 角色头像映射表
 import receptionistAvatar from '@/photo/receptionist.jpg';
 import assistantAvatar from '@/photo/assistant.jpg';
 import doctorAvatar from '@/photo/doctor.jpg';
 
-// //头像边下拉框
-// const toggleInstrumentBox = () => {
-//   showAvatarBox.value = !showAvatarBox.value;
-// };
+const showInstrumentBox = ref(false)
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+const response = ref('');
+
+const respond = (message: string) => {
+  response.value = `你的回答：${message}`;
+};
 
 //角色头像映射表
 const roleAvatars = {
@@ -414,22 +409,45 @@ const roleAvatars = {
   doctor: doctorAvatar,
 };
 
-//器具
-const instruments = ref([
-  { name: '血压计' },
-  { name: '体温计' },
-  { name: '心电图仪' },
-]);
-
-const formData = ref({
-  assistantIdentity: '医助',
-  doctorIdentity: '医师'
-})
 
 const form = reactive({
   name: '',
   function:'',
   process:''
+})
+
+//器具
+const instruments = ref([
+  { name: '宠物体温计', function: '测量宠物体温', process: '1. 准备好宠物体温计。\n2. 将宠物体温计放入宠物的直肠或口腔。\n3. 等待一段时间直到体温计发出提示声。\n4. 查看体温计上的数字显示宠物体温。' },
+  { name: '宠物胃管', function: '喂食或灌肠', process: '1. 准备好宠物胃管和所需的药物或营养液。\n2. 轻柔地将胃管插入宠物的嘴里，然后逐渐引导进入胃部。\n3. 慢慢地喂食或注入所需的药物或营养液。\n4. 注意观察宠物的反应，确保操作安全。' },
+  { name: '宠物输液器', function: '静脉输液', process: '1. 准备好宠物输液器和所需的液体药物。\n2. 确保找到宠物的静脉注射点，通常在前腿或颈部。\n3. 将输液器连接到静脉注射点。\n4. 控制输液速度，并定期检查宠物的反应。' },
+  { name: '宠物药物吸入器', function: '给宠物吸入药物', process: '1. 准备好宠物药物吸入器和所需的药物。\n2. 将药物吸入器连接到合适的面罩。\n3. 将面罩覆盖在宠物的口鼻部位。\n4. 打开吸入器，让宠物吸入药物。' },
+  { name: '宠物心电图仪', function: '记录宠物心电图', process: '1. 准备好宠物心电图仪。\n2. 清洁和剃光宠物的胸部。\n3. 将电极粘贴到特定的位置。\n4. 开始记录宠物的心电图。' },
+  { name: '宠物导尿管', function: '进行导尿', process: '1. 准备好宠物导尿管和所需的药物或液体。\n2. 使用消毒液清洁宠物的尿道口。\n3. 轻柔地将导尿管插入宠物的尿道，直至尿液开始流出。\n4. 将导尿管连接到收集容器，并控制导尿过程。' },
+]);
+
+watch(() => form.name, (newVal) => {
+  const selectedInstrument = instruments.value.find(instrument => instrument.name === newVal);
+  if (selectedInstrument) {
+    form.function = selectedInstrument.function;
+    form.process = selectedInstrument.process;
+  }
+});
+
+
+//操作视频
+const openInstructionalVideo = () => {
+  const selectedInstrumentName = form.name;
+  console.log(`打开 ${selectedInstrumentName} 的操作视频`);
+  if (selectedInstrumentName === '宠物体温计') {
+    //打开视频
+  }
+};
+
+
+const formData = ref({
+  assistantIdentity: '医助',
+  doctorIdentity: '医师'
 })
 
 //客户接待
@@ -565,12 +583,13 @@ button {
 }
 
 .corner-header {
-  font-size: 16px;
+  white-space: nowrap; /* 文字不换行 */
+  font-size: 18px;
   font-weight: bold;
   text-align: center;
   margin-bottom: 10px;
   margin-right: 100px;
-  background-color: #f8f8f8; /* 轻灰色背景 */
+  background-color: #f0f0f0; /* 轻灰色背景 */
   padding: 10px;
   border-top-left-radius: 10px; /* 左上角圆角 */
   border-top-right-radius: 10px; /* 右上角圆角 */
@@ -580,11 +599,10 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(24, 143, 254, 0.84); /* 白色背景 */
-  padding: 20px;
+  background-color: rgba(24, 143, 254, 0.84);
+  padding: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
-  border-bottom-left-radius: 10px; /* 左下角圆角 */
-  border-bottom-right-radius: 10px; /* 右下角圆角 */
+  border-radius: 15px; /* 四个角都是圆角 */
   border: 1px solid #ccc; /* 添加边框 */
 }
 
