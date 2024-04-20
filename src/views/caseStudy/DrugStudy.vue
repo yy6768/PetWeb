@@ -4,13 +4,11 @@
     <el-input
         type="text"
         prefix-icon="search"
-        v-model="searchKey"
+        v-model="queryForm.search"
         placeholder="请输入关键字"
-        class="search-box"
-    >
+        style="margin-right: 20px; width: 340px;"
+        @change="fetchMedications">
     </el-input>
-
-    <el-button class="search-btn" @click="search">搜索</el-button>
     <el-button type="primary" size="small" class="newBtn" @click="newFunc">新建+</el-button>
 
   </div>
@@ -107,7 +105,11 @@ import { useRouter } from 'vue-router';
 import OpenAI from "openai";
 import { embedText, pineconeAdd,pineconeDelete, pineconeUpdate } from '@/components/usePinecone';
 
-
+const queryForm = ref({
+  search: '',
+  pagenum: 1,
+  pagesize: 10
+})
 const router = useRouter();
 onMounted( () => {
   fetchMedications();
@@ -308,7 +310,7 @@ const fetchMedications = async () => {
   console.log('药品管理页面加载');
   try {
     const params = new URLSearchParams({
-      search: '',
+      search: queryForm.value.search,
       page: page.value.toString(),
       pageSize: pageSize.value.toString()
     }).toString();
@@ -319,15 +321,18 @@ const fetchMedications = async () => {
         'Authorization': `Bearer ${token}`
       }
     });
-    console.log('获取药品组:', response.data);
-    totalMedications.value = response.data.total;
     if (response.data && response.status === 200) {
-      medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
-      console.log('药品组:', medications.value);
-      ElMessage({
+      if (response.data.medicine_list) {
+        medications.value = response.data.medicine_list;  // Assuming that medication list is returned under the 'medicine_list' key
+        totalMedications.value = response.data.total;
+        ElMessage({
         message: '获取药品组成功',
         type: 'success',
       });
+      }else{
+        ElMessage.info('没有药品数据');
+      }
+
     } else {
       ElMessage.error(`获取药品组失败: ${response.data.error_message}`);
     }

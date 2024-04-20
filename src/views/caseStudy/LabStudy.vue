@@ -4,13 +4,13 @@
       <el-input
           type="text"
           prefix-icon="search"
-          v-model="searchKey"
+          v-model="queryForm.search"
           placeholder="请输入关键字"
-          class="search-box"
+          style="width: 340px; margin-right: 20px;"
+          @change="fetchLabs"
       >
       </el-input>
 
-      <el-button class="search-btn" @click="search">搜索</el-button>
       <el-button type="primary" size="small" class="newBtn" @click="newFunc">新建+</el-button>
 
     </div>
@@ -108,7 +108,11 @@ import { embedText, pineconeAdd, pineconeDelete } from '@/components/usePinecone
 
 
 const router = useRouter();
-
+const queryForm = ref({
+  search: '',
+  pagenum: 1,
+  pagesize: 10
+});
 onMounted(() => {
   fetchLabs();
 });
@@ -184,38 +188,6 @@ const editLab = (lab) => {
   console.log('编辑化验', lab);
 };
 
-const deleteLab = async (lab) => {
-  // 禁用化验的逻辑
-  console.log('删除化验', labs);
-  try {
-    const params = new URLSearchParams({
-      lab_id: lab.labId.toString(),
-    }).toString();
-    const token = sessionStorage.getItem('token');
-    const response = await axios.delete(`/api/lab/delete?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    console.log('禁用res:', response.data);
-    if (response.data && response.status === 200) {
-      pineconeDelete(lab.labId, 'lab')
-      labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
-      console.log('化验组:', labs.value);
-      ElMessage({
-        message: '删除成功',
-        type: 'success',
-      });
-      fetchLabs();
-
-    } else {
-      ElMessage.error(`删除失败: ${response.data.error_message}`);
-    }
-  } catch (error) {
-    console.error('禁用错误:', error);
-    ElMessage.error('禁用错误');
-  }
-};
 const addLab = async () => {
   // 添加化验的逻辑
   console.log('添加化验', labs);
@@ -285,7 +257,7 @@ const fetchLabs = async () => {
   console.log('化验管理页面加载');
   try {
     const params = new URLSearchParams({
-      search: '',
+      search: queryForm.value.search.toString(),
       page: page.value.toString(),
       pageSize: pageSize.value.toString()
     }).toString();
@@ -297,14 +269,19 @@ const fetchLabs = async () => {
       }
     });
     console.log('获取化验组:', response.data);
-    totalLabs.value = response.data.lab_list.length;
     if (response.data && response.status === 200) {
-      labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
-      console.log('化验组:', labs.value);
-      ElMessage({
+      if (response.data.lab_list) {
+        labs.value = response.data.lab_list;
+        totalLabs.value = response.data.lab_list.length;
+
+        ElMessage({
         message: '获取化验组成功',
         type: 'success',
       });
+      }else{
+        ElMessage.info(response.data.error_message)
+      }
+      
     } else {
       ElMessage.error(`获取化验组失败: ${response.data.error_message}`);
     }

@@ -20,54 +20,9 @@
       />
     </el-dialog>
 
-    <div class="margin"></div><!--    间距-->
-    <div class="input_box">
-      <div class="input_box">
-    <el-date-picker
-      v-model="startDate"
-      type="date"
-      placeholder="开始日期"
-      style="width: 180px; margin-right: 20px;">
-    </el-date-picker>
-    <el-date-picker
-      v-model="endDate"
-      type="date"
-      placeholder="结束日期"
-      style="width: 180px;">
-    </el-date-picker>
-  </div>
-      <el-select
-          v-model="cateValue"
-          placeholder="病种"
-          size="default"
-          style="width: 180px; margin-left: 20px"
-          clearable
-          @click="fetchCategories"
-          @change="handleCateChange"
-      >
-        <el-option
-            v-for="item in cateOptions "
-            :key="item.cateId"
-            :label="item.cateName"
-            :value="item.cateId"
-        />
-      </el-select>
-      <el-select
-          v-model="illValue"
-          placeholder="病名"
-          size="default"
-          style="width: 180px ; margin-left: 20px"
-          clearable
-          @click="fetchIll"
-          @change="handleIllChange"
-      >
-        <el-option
-            v-for="item in illOptions "
-            :key="item.illId"
-            :label="item.illName"
-            :value="item.illId"
-        />
-      </el-select>
+    <div style="margin-top: 10px;">
+        <el-input v-model="queryForm.search" placeholder="请输入搜索内容" style="width: 340px" clearable @change="initGetCasesList"></el-input>
+
       <el-button type="primary" size="small" style="margin-left: 100px;" @click="newCase">新建+</el-button>
 
     </div>
@@ -148,11 +103,10 @@ const openSelectDialog = async (c) => {
 };
 //查询表
 const queryForm = ref({
-  query:'',
-  key:'',
+  search:'',
   pagenum: 1,
   pagesize: 10,
-  // cate_name:''
+  // cateName:''
 })
 
 //
@@ -164,11 +118,11 @@ const options =[
   },
   {
     label:'病种',
-    prop:'cate_name'
+    prop:'cateName'
   },
   {
     label:'病名',
-    prop:'ill_name'
+    prop:'illName'
   },
   {
     label:'时间',
@@ -186,8 +140,8 @@ const total = ref(0)
 //描述病例对象
 interface Case {
   cid: number;
-  cate_name: string;
-  ill_name: string;
+  cateName: string;
+  illName: string;
   date: string;
   username: string;
 }
@@ -199,8 +153,8 @@ const studyCase = (row) => {
   // Ensure you are passing the `cid` as part of the route parameters correctly
   console.log("row:",row)
   const caseDetails = {
-    cate_name: row.cate_name,
-    ill_name: row.ill_name,
+    cateName: row.cateName,
+    illName: row.illName,
     date: row.date,
     username: row.username
   };
@@ -212,11 +166,10 @@ const studyCase = (row) => {
 };
 const initGetCasesList = async () => {
   const res = await getCase(
-      queryForm.value,
       sessionStorage.getItem('token'),
       queryForm.value.pagenum,
       queryForm.value.pagesize,
-      queryForm.value.query
+      queryForm.value.search
   );
   console.log("initGetCasesList:", res);
 
@@ -256,7 +209,7 @@ watch(sortValue, (newValue) => {
     tableData.value.sort((a, b) => a.cid - b.cid);
   } else if (newValue === 'Sort2') {
     // 按病名排序
-    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+    tableData.value.sort((a, b) => a.illName.localeCompare(b.illName));
   } else if (newValue === 'Sort3') {
     // 按修改时间排序
     tableData.value.sort((a, b) => {
@@ -353,10 +306,10 @@ const displayedTableData = computed(() => {
   let filteredData = tableData.value;
   console.log("tableData.value",tableData.value)
   if (cateValue.value) {
-    filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
+    filteredData = filteredData.filter(item => item.cateName=== cateValue.value);
   }
   if (illValue.value) {
-    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+    filteredData = filteredData.filter(item => item.illName === illValue.value);
   }
   if (startDate.value && endDate.value) {
     const start = new Date(startDate.value).setHours(0, 0, 0, 0);
@@ -381,9 +334,9 @@ const displayedTableData = computed(() => {
 const form = ref({
   cid:'',
   cateId:'',//
-  cate_name:'',
+  cateName:'',
   illId:'',//
-  ill_name:'',
+  illName:'',
   date:'',
   uid:'',//
   username:'',
