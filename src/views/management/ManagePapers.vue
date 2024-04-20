@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ArrowRight} from "@element-plus/icons-vue";
+import {ArrowRight, Delete, Edit} from "@element-plus/icons-vue";
 import {computed, ref} from "vue";
 import {message} from "ant-design-vue";
 import axios from "axios";
@@ -71,8 +71,8 @@ const search = () =>{
         'Authorization':`Bearer ${token}`
       }
     }).then((response) =>{
-      console.log(response.data)
-      if(response.data.error_msg === "success"){
+      console.log(response)
+      if(response.status === 200){
         tableData.value = response.data.paper_list
         totalAccount.value = response.data.total
         tableData.value.map((item)=>{
@@ -100,7 +100,8 @@ const search = () =>{
         })
       }
       else{
-        message.error("搜索失败")
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -138,14 +139,14 @@ const deleteFunc = (paperId) =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log(`成功删除id为${paperId}的试卷`)
       message.success("删除成功")
       search()
     }
     else{
-      console.log("删除失败")
-      message.error("删除失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
     }
   }).catch((e)=>{
     console.log(e)
@@ -159,7 +160,7 @@ const showDetailFunc = (id) =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_msg === "success"){
+    if(response.status === 200){
       editData.value = response.data
       response.data.question_list.map((item) =>{
         checkQuestionList.value.push({
@@ -177,7 +178,8 @@ const showDetailFunc = (id) =>{
       console.log(editData.value)
     }
     else{
-      message.error("获取试卷详情失败")
+      message.error(response.data.error_message)
+      console.log(response.data.error_message)
     }
   })
 }
@@ -205,7 +207,7 @@ const searchQuestion = () =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功搜索")
       totalAccount_question.value = response.data.total
       allQuestionList.value = response.data.question_list
@@ -221,8 +223,8 @@ const searchQuestion = () =>{
       message.success("搜索成功")
     }
     else{
-      console.log("搜索失败")
-      message.error("搜索失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
       allQuestionList.value = []
     }
   }).catch((err)=> console.log(err))
@@ -281,7 +283,7 @@ const confirm = () =>{
     }
   }).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功修改/新建")
       search()
       editData.value = {
@@ -307,9 +309,9 @@ const confirm = () =>{
       }
       showDetail.value = false
     }
-    else if(response.data.error_message === "不是试卷创始人无法修改试卷"){
-      console.log("不是试卷创始人，无法修改试卷")
-      message.error("不是试卷创始人，无法修改试卷")
+    else{
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
       editData.value = {
         paperId: 0,
         paperName: "",
@@ -323,14 +325,6 @@ const confirm = () =>{
         second: 0
       }
       showDetail.value = false
-    }
-    else{
-      console.log("修改/新建失败")
-      if(isCreate)
-        message.error("新建失败")
-      else
-        message.error("修改失败")
-
     }
   }).catch((e) => console.log(e))
 }
@@ -351,6 +345,9 @@ const create = ()=>{
   checkQuestionList.value = []
   showDetail.value = true
   searchQuestion()
+}
+const searchQuestionRules = {
+  paperName:[{required: true, message:'请输入试卷名', trigger:'blur'}]
 }
 </script>
 
@@ -412,7 +409,7 @@ const create = ()=>{
         </el-pagination>
       </el-container>
       <el-dialog v-model="showDetail" :title="isCreate ? '新建题目' : '编辑题目'">
-        <el-form ref="myEditForm" :model="editData" class="form-detail">
+        <el-form ref="myEditForm" :model="editData" :rules="searchQuestionRules" class="form-detail">
           <el-form-item label="试卷名" prop="paperName" style="margin-left: 1vw">
             <el-input v-model="editData.paperName" style="width: 15vw"></el-input>
           </el-form-item>
