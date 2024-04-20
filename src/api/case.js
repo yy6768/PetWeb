@@ -3,7 +3,7 @@ import axios from "axios";
 //url 方法 参数
 
 //获取病例信息
-export const getCase = (params, token, page, pageSize,search) => {
+export const getCase = (token, page, pageSize,search) => {
     return axios({
         url: '/api/case/getall',
         method: 'get',
