@@ -4,13 +4,13 @@
       <el-input
           type="text"
           prefix-icon="search"
-          v-model="searchKey"
+          v-model="queryForm.search"
           placeholder="请输入关键字"
-          class="search-box"
+          style="margin-right: 20px; width: 340px;"
+          @change="fetchLabs"
       >
       </el-input>
 
-      <el-button class="search-btn" @click="search">搜索</el-button>
       <el-button type="primary" size="small" class="newBtn" @click="newFunc">新建+</el-button>
 
     </div>
@@ -105,7 +105,9 @@ import { useRouter } from 'vue-router';
 import { embedText, pineconeAdd, pineconeDelete } from '@/components/usePinecone';
 
 const router = useRouter();
-
+const queryForm = ref({
+  search: ''
+});
 onMounted(() => {
   fetchLabs();
 });
@@ -281,11 +283,12 @@ const handleSizeChange = (newSize) => {
   pageSize.value = newSize;
   fetchLabs();
 };
+
 const fetchLabs = async () => {
   console.log('化验管理页面加载');
   try {
     const params = new URLSearchParams({
-      search: '',
+      search: queryForm.value.search.toString(),
       page: page.value.toString(),
       pageSize: pageSize.value.toString()
     }).toString();
@@ -297,14 +300,19 @@ const fetchLabs = async () => {
       }
     });
     console.log('获取化验组:', response.data);
-    totalLabs.value = response.data.lab_list.length;
-    if (response.data && response.data.error_message === 'success') {
-      labs.value = response.data.lab_list;  // Assuming that lab list is returned under the 'lab_list' key
-      console.log('化验组:', labs.value);
-      // ElMessage({
-      //   message: '获取化验组成功',
-      //   type: 'success',
-      // });
+    if (response.data && response.status === 200) {
+      if (response.data.lab_list) {
+        labs.value = response.data.lab_list;
+        totalLabs.value = response.data.lab_list.length;
+
+        ElMessage({
+        message: '获取化验组成功',
+        type: 'success',
+      });
+      }else{
+        ElMessage.info(response.data.error_message)
+      }
+      
     } else {
       ElMessage.error(`获取化验组失败: ${response.data.error_message}`);
     }
