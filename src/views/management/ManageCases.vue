@@ -26,38 +26,9 @@
 
     <div class="margin"></div><!--    间距-->
     <div class="input_box">
-      <el-select
-          v-model="cateValue"
-          placeholder="病种"
-          size="default"
-          style="width: 180px"
-          clearable
-          @click="fetchCategories"
-          @change="handleCateChange"
-      >
-        <el-option
-            v-for="item in cateOptions "
-            :key="item.cateId"
-            :label="item.cateName"
-            :value="item.cateId"
-        />
-      </el-select>
-      <el-select
-          v-model="illValue"
-          placeholder="病名"
-          size="default"
-          style="width: 180px ; margin-left: 40px"
-          clearable
-          @click="fetchIll"
-          @change="handleIllChange"
-      >
-        <el-option
-            v-for="item in illOptions "
-            :key="item.illId"
-            :label="item.illName"
-            :value="item.illId"
-        />
-      </el-select>
+      <el-input v-model="queryForm.search" placeholder="请输入搜索内容" style="width: 340px" clearable @change="initGetCasesList"></el-input>
+
+
 
       <el-button type="primary" size="small" style="margin-left: 100px;" @click="newCase">新建+</el-button>
 
@@ -123,11 +94,9 @@ const drugOptions = ref({})
 
 //查询表
 const queryForm = ref({
-  query:'',
-  key:'',
+  search:'',
   pagenum: 1,
   pagesize: 10,
-  // cate_name:''
 })
 
 //
@@ -138,11 +107,11 @@ const options =[
   },
   {
     label:'病种',
-    prop:'cate_name'
+    prop:'cateName'
   },
   {
     label:'病名',
-    prop:'ill_name'
+    prop:'illName'
   },
   {
     label:'时间',
@@ -160,8 +129,8 @@ const total = ref(0)
 //描述病例对象
 interface Case {
   cid: number;
-  cate_name: string;
-  ill_name: string;
+  cateName: string;
+  illName: string;
   date: string;
   username: string;
 }
@@ -210,15 +179,14 @@ const delCase = async (row) => {
 // GET
 const initGetCasesList = async () => {
   const res = await getCase(
-      queryForm.value,
       sessionStorage.getItem('token'),
       queryForm.value.pagenum,
       queryForm.value.pagesize,
-      queryForm.value.query
+      queryForm.value.search
   );
   console.log("initGetCasesList:", res);
-
-  if (res.data && res.data.case_list) {
+  if (res.status === 200) {
+    if (res.data && res.data.case_list) {
     tableData.value = res.data.case_list.map((item) => {
       return {
         ...item,
@@ -229,9 +197,18 @@ const initGetCasesList = async () => {
         })
       };
     });
+    ElMessage.success('获取成功');
+    total.value = res.data.total;
+  }else{
+    ElMessage.info(res.data.error_message);
+    tableData.value = []
+    total.value = 0
+  }
+  
+  }else{
+    ElMessage.error('获取失败');
   }
 
-  total.value = res.data.total;
 }
 
 
@@ -254,7 +231,7 @@ watch(sortValue, (newValue) => {
     tableData.value.sort((a, b) => a.cid - b.cid);
   } else if (newValue === 'Sort2') {
     // 按病名排序
-    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+    tableData.value.sort((a, b) => a.illName.localeCompare(b.illName));
   } else if (newValue === 'Sort3') {
     // 按修改时间排序
     tableData.value.sort((a, b) => {
@@ -350,10 +327,10 @@ const monthValue = ref('')
 const displayedTableData = computed(() => {
   let filteredData = tableData.value;
   if (cateValue.value) {
-    filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
+    filteredData = filteredData.filter(item => item.cateName=== cateValue.value);
   }
   if (illValue.value) {
-    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+    filteredData = filteredData.filter(item => item.illName === illValue.value);
   }
   if (yearValue.value) {
     filteredData = filteredData.filter(item => item.date.startsWith(yearValue.value));
@@ -376,9 +353,9 @@ const newCase = () => {
 const form = ref({
   cid:'',
   cateId:'',//
-  cate_name:'',
+  cateName:'',
   illId:'',//
-  ill_name:'',
+  illName:'',
   date:'',
   uid:'',//
   userame:'',

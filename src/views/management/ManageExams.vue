@@ -42,7 +42,7 @@
       <el-table-column label="操作">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="editExam(row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="deleteExam(row)">删除</el-button>
+          <el-button type="danger" size="small" @click="delExam(row)">删除</el-button>
 
         </template>
 
@@ -66,7 +66,7 @@ import { ref, onMounted } from 'vue';
 import { getAllExam, deleteExam } from '@/api/exam';
 import ExamNew from './ExamNew.vue';
 import ExamModify from './ExamModify.vue';
-
+import { ElMessage } from 'element-plus';
 const exams = ref([]);
 const totalExams = ref(0);
 const currentPage = ref(1);
@@ -103,5 +103,16 @@ const editExam = (row) => {
   console.log("eid.value: ", row);
   dialogVisible2.value = true;
 };
+const delExam = (row) =>{
+  deleteExam(row.examId, sessionStorage.getItem('token')).then((response) => {
+    if (response.status === 200) {
+      ElMessage.success('删除成功');
+      fetchExams();
+    } else {
+      console.error('Failed to delete exam:', response.data.error_msg);
+    }
+  });
+};
+
 onMounted(fetchExams);
 </script>
