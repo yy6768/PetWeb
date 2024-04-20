@@ -95,13 +95,13 @@ axios.get("/api/cate/get_all",{
   }
 }).then((response)=>{
   console.log(response)
-  if(response.data.error_message === "success"){
+  if(response.status === 200){
     cateList.value = response.data.cate_list
     console.log("成功获取病种列表")
   }
   else{
-    message.error("获取病种列表失败")
-    console.log("获取病种列表失败")
+    message.error(response.data.error_message)
+    console.log(response.data.error_message)
   }
 })
 const getDisease = (cateId:Number)=>{
@@ -124,7 +124,7 @@ const isSearchCateSelected = computed(()=>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log(`成功获取病种${cateId}的疾病列表`)
         searchDiseaseList.value = response.data.ill_list
         searchDiseaseList.value.push([])
@@ -132,6 +132,7 @@ const isSearchCateSelected = computed(()=>{
       }
       else{
         console.log(`获取病种${cateId}的疾病列表失败`)
+        message.error(response.data.error_message)
       }
     })
       return true
@@ -154,7 +155,7 @@ const isCateSelected = computed(()=>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log(`成功获取病种${cateId}的疾病列表`)
         diseaseList.value = response.data.ill_list
         diseaseList.value.push([])
@@ -162,6 +163,7 @@ const isCateSelected = computed(()=>{
       }
       else{
         console.log(`获取病种${cateId}的疾病列表失败`)
+        message.error(response.data.error_message)
       }
     })
     return true
@@ -207,7 +209,7 @@ const search = () => {
         'Authorization':`Bearer ${token}`
       }}).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功搜索")
         totalAccount.value = response.data.total
         tableData.value = response.data.question_list
@@ -215,8 +217,10 @@ const search = () => {
           Reflect.set(item, "spread", 1)
         })
       }
-      else if(response.data.error_message === "未找到对应题目"){
+      else{
         tableData.value = []
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -238,13 +242,17 @@ const search = () => {
         'Authorization':`Bearer ${token}`
       }}).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功搜索")
         totalAccount.value = response.data.total
         tableData.value = response.data.question_list
         tableData.value.map((item)=>{
           Reflect.set(item, "spread", 1)
         })
+      }
+      else{
+        console.log(response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -265,7 +273,7 @@ const showDetailFunc = (id) =>{
         'Authorization':`Bearer ${token}`
     }}).then((response) =>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       editData.value = response.data.question
       Reflect.set(editData.value, "spread",  1)
       Reflect.set(editData.value,  "filterAnswer", filterAnswer.value)
@@ -276,7 +284,8 @@ const showDetailFunc = (id) =>{
       console.log("showDetail的值变为" + showDetail.value)
     }
     else{
-      message.error("获取失败")
+      message.error(response.data.error_message)
+      console.log(response.data.error_message)
     }
   })
 }
@@ -339,7 +348,7 @@ const confirm = () =>{
     }).then((response)=>{
       console.log(editData.value)
       console.log(response)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功编辑")
         console.log(editData.value)
         try{
@@ -378,7 +387,8 @@ const confirm = () =>{
         }
       }
       else{
-        console.log("编辑失败")
+        console.log("编辑失败" + response.data.error_message)
+        message.error(response.data.error_message)
       }
     })
   }
@@ -390,7 +400,7 @@ const confirm = () =>{
       }
     }).then((response)=>{
       console.log(response.data)
-      if(response.data.error_message === "success"){
+      if(response.status === 200){
         console.log("成功新建")
         let newData = response.data.question
         Reflect.set(newData, "spread", 1)
@@ -400,6 +410,7 @@ const confirm = () =>{
       }
       else{
         console.log("新建失败")
+        message.error(response.data.error_message)
       }
     })
   }
@@ -438,7 +449,7 @@ const deleteFunc = (row) =>{
     }
   }).then((response)=>{
     console.log(response.data)
-    if(response.data.error_message === "success"){
+    if(response.status === 200){
       console.log("成功删除")
       let deleteIndex = 0
       tableData.value.map((item,index) =>{
@@ -450,7 +461,8 @@ const deleteFunc = (row) =>{
       search()
     }
     else{
-      console.log("删除失败")
+      console.log(response.data.error_message)
+      message.error(response.data.error_message)
     }
   })
 }
@@ -500,31 +512,31 @@ const newFunc = () =>{
   }
 }
 const questionRule = {
-  content: [
-    {required: true, message: '请输入题干内容',trigger:'blur'},
+  description: [
+    {required: true, message:'请输入题干内容', trigger:'blur'},
   ],
-  optionA:[
+  contentA:[
     {required:true, message:'请输入选项A内容',trigger:'blur'}
   ],
-  optionB:[
+  contentB:[
     {required:true, message:'请输入选项B内容',trigger:'blur'}
   ],
-  optionC:[
+  contentC:[
     {required:true, message:'请输入选项C内容',trigger:'blur'}
   ],
-  optionD:[
+  contentD:[
     {required:true, message:'请输入选项D内容',trigger:'blur'}
   ],
-  point:[
+  mark:[
     {required:true, message:'请输入题目分数',trigger:'blur'}
   ],
-  answer:[
+  filterAnswer:[
     {required:true, message:'请选择题目答案',trigger:'blur'}
   ],
-  cate:[
+  cateName:[
     {required:true, message:'请选择题目所对应病种',trigger:'blur'}
   ],
-  disease:[
+  illName:[
     {required:true, message:'请选择题目所对应病名',trigger:'blur'}
   ]
 }
@@ -640,25 +652,25 @@ const questionRule = {
           <el-form-item v-if="!isCreate" label="题目id" prop="qid">
             <el-input readonly v-model="editData.qid"></el-input>
           </el-form-item>
-          <el-form-item label="题干内容" prop="content">
+          <el-form-item label="题干内容" prop="description">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.description"></el-input>
           </el-form-item>
-          <el-form-item label="选项A" prop="optionA">
+          <el-form-item label="选项A" prop="contentA">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentA"></el-input>
           </el-form-item>
-          <el-form-item label="选项B" prop="optionB">
+          <el-form-item label="选项B" prop="contentB">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentB"></el-input>
           </el-form-item>
-          <el-form-item label="选项C" prop="optionC">
+          <el-form-item label="选项C" prop="contentC">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentC"></el-input>
           </el-form-item>
-          <el-form-item label="选项D" prop="optionD">
+          <el-form-item label="选项D" prop="contentD">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.contentD"></el-input>
           </el-form-item>
-          <el-form-item label="分数" prop="point">
+          <el-form-item label="分数" prop="mark">
             <el-input :readonly="!isEdit && !isCreate" v-model="editData.mark"></el-input>
           </el-form-item>
-          <el-form-item label="答案" prop="answer" placeholder="选择答案">
+          <el-form-item label="答案" prop="filterAnswer" placeholder="选择答案">
             <el-select v-model="editData.filterAnswer" :disabled="!isCreate && !isEdit">
               <el-option value="A" label="A"></el-option>
               <el-option value="B" label="B"></el-option>
@@ -666,7 +678,7 @@ const questionRule = {
               <el-option value="D" label="D"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="病种" prop="cate">
+          <el-form-item label="病种" prop="cateName">
             <el-select v-model="editData.cateName"
                        clearable
                        filterabl
@@ -676,7 +688,7 @@ const questionRule = {
                          :value="item.cateName"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="病名" prop="disease">
+          <el-form-item label="病名" prop="illName">
             <el-select v-model="editData.illName"
                        clearable
                        filterabl
@@ -722,7 +734,7 @@ const questionRule = {
 }
 .search-btn{
   position: relative;
-  left: 4vw;
+  left: 3vw;
   border:0.1vw solid #57a3e3;
 }
 .search-type{
