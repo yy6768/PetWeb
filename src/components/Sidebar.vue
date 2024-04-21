@@ -38,7 +38,7 @@ const hasAuthority = ref(authority === '1');
 const menuItems = ref([
   { key: '1', title: '角色职责', path: '/role-preview' },
   { key: '2', title: '全景导览', path: '/panorama-tour' },
-  { key: '3', title: '分析测评', path: '/analysis-evaluation' },
+  { key: '3', title: '我的考试', path: '/analysis-evaluation' },
   { key: '4', title: 'AI对话', path: '/ai-chat' },
   { key: '5', title: '病例学习', path: '/case-study' },
   { key: '6', title: '药品学习', path: '/drug-study' },

@@ -20,7 +20,6 @@
     </el-dialog>
 
     <div class="header">
-      <el-button @click="fetchExams">刷新列表</el-button>
       <el-button type="primary" @click="dialogVisible = true">新建考试</el-button>
 
     </div>
@@ -56,6 +55,7 @@
       :page-sizes="[10, 20, 30, 40]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
+      style="margin-top: 20px"
       :total="totalExams">
     </el-pagination>
   </el-card>
@@ -106,10 +106,14 @@ const editExam = (row) => {
 const delExam = (row) =>{
   deleteExam(row.examId, sessionStorage.getItem('token')).then((response) => {
     if (response.status === 200) {
-      ElMessage.success('删除成功');
+      if (response.data.error_message === 'success') {
+        ElMessage.success('删除成功');
+      } else {
+        ElMessage.error(response.data.error_message);
+      }
       fetchExams();
     } else {
-      console.error('Failed to delete exam:', response.data.error_msg);
+      console.error('删除失败:', response.data.error_message);
     }
   });
 };
