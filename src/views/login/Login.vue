@@ -14,10 +14,6 @@
           <a-input-password v-model:value="formState.password" />
         </a-form-item>
 
-        <a-form-item name="remember" :wrapper-col="{ offset: 8, span: 16 }">
-          <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
-        </a-form-item>
-
 
         <a-form-item :wrapper-col="{ span: 24 }" style="text-align: center;">
           <div style="display: flex; justify-content: center;">
@@ -54,7 +50,7 @@ const onLogin = async () => {
 
     const response = await axios.post(`/api/user/login?${params}`);
 
-    if (response.data && response.data.error_message === 'success') {
+    if (response.data && response.status === 200) {
       // Optionally store the user's authority level in sessionStorage
       message.success('登录成功');
       sessionStorage.setItem('authority', response.data.authority);

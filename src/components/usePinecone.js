@@ -49,6 +49,8 @@ export const pineconeAdd = async (id, namespace, input_text, metadata) => {
 export const pineconeUpdate = async (id, namespace, input_text, metadata) => {
     const embedding = await embedText(input_text);
     try {
+        console.log("update input_text", input_text)
+        console.log("update metadata", metadata)
         const insertResponse = await index.namespace(namespace).update(
             {
                 id: `${namespace}${id}`,

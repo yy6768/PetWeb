@@ -6,43 +6,25 @@
         <el-breadcrumb-item>病例学习</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="margin"></div><!--    间距-->
+    <el-dialog
+      title="为病例添加化验和药品"
+      v-model="dialogVisible"
+      width="500px"
+      @close="dialogVisible = false"
+    >
+      <SelectDialog
+        :labOptions="labOptions"
+        :drugOptions="drugOptions"
+        :currentCase="currentCase"
+        @confirm="handleConfirm"
+      />
+    </el-dialog>
 
+    <div style="margin-top: 10px;">
+        <el-input v-model="queryForm.search" placeholder="请输入搜索内容" style="width: 340px" clearable @change="initGetCasesList"></el-input>
 
-    <div class="margin"></div><!--    间距-->
-    <div class="input_box">
-      <el-select
-          v-model="cateValue"
-          placeholder="病种"
-          size="default"
-          style="width: 180px"
-          clearable
-          @click="fetchCategories"
-          @change="handleCateChange"
-      >
-        <el-option
-            v-for="item in cateOptions "
-            :key="item.cateId"
-            :label="item.cateName"
-            :value="item.cateId"
-        />
-      </el-select>
-      <el-select
-          v-model="illValue"
-          placeholder="病名"
-          size="default"
-          style="width: 180px ; margin-left: 40px"
-          clearable
-          @click="fetchIll"
-          @change="handleIllChange"
-      >
-        <el-option
-            v-for="item in illOptions "
-            :key="item.illId"
-            :label="item.illName"
-            :value="item.illId"
-        />
-      </el-select>
+      <el-button type="primary" size="small" style="margin-left: 100px;" @click="newCase">新建+</el-button>
+
     </div>
     <div class="margin"></div><!--    间距-->
     <el-table :data="displayedTableData" stripe style="width: 100%">
@@ -53,19 +35,18 @@
           v-for="(item,index) in options "
           :key="index"
       >
-        <!--        <template v-slot="{ row }" v-if="item.prop === 'date'">-->
-        <!--          {{ $filters.filterTimes(row.date) }}-->
-        <!--        </template>-->
 
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="studyCase(row)">学习</el-button>
+          <el-button type="success" size="small" @click="openSelectDialog(row)">链接化验&药品</el-button>
 
         </template>
 
       </el-table-column>
     </el-table>
+
     <div class="margin"></div><!--    间距-->
     <div class="page">
       <el-pagination
@@ -79,8 +60,8 @@
       />
     </div>
 
-
   </el-card>
+
 </template>
 
 <script setup lang="ts">
@@ -89,31 +70,59 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getLab, getCasesByCate, getIll, getCasesByIll, getMed} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
+import { useRouter } from 'vue-router';
+import SelectDialog from './components/SelectDialog.vue';
 
+const dialogVisible = ref(false);
+
+const handleConfirm = (selectedItems) => {
+  console.log('Selected Items:', selectedItems);
+  dialogVisible.value = false;
+};
+const currentCase = ref(null);
+const labOptions = ref({});
+const drugOptions = ref({})
+
+const router = useRouter();
+const startDate = ref(null);
+const endDate = ref(null);
+const openSelectDialog = async (c) => {
+  // 链接病历的逻辑
+  const labResponse = await getLab(sessionStorage.getItem('token'));
+  console.log('链接lab', labResponse);
+  labOptions.value = labResponse.data.lab_list; // Set the current lab
+  const drugResponse = await getMed(sessionStorage.getItem('token'));
+  console.log('链接drug', drugResponse);
+  drugOptions.value = drugResponse.data.medicine_list; // Set the current lab
+  currentCase.value = c;
+  console.log('c, ', c);
+
+  dialogVisible.value = true
+};
 //查询表
 const queryForm = ref({
-  query:'',
-  key:'',
+  search:'',
   pagenum: 1,
   pagesize: 10,
-  // cate_name:''
+  // cateName:''
 })
 
 //
 const options =[
   {
     label:'编号',
-    prop:'cid'
+    prop:'cid',
+    width: 100
   },
   {
     label:'病种',
-    prop:'cate_name'
+    prop:'cateName'
   },
   {
     label:'病名',
-    prop:'ill_name'
+    prop:'illName'
   },
   {
     label:'时间',
@@ -131,29 +140,36 @@ const total = ref(0)
 //描述病例对象
 interface Case {
   cid: number;
-  cate_name: string;
-  ill_name: string;
+  cateName: string;
+  illName: string;
   date: string;
   username: string;
 }
-
+const newCase = () => {
+  router.push('/case-new')
+}
 const tableData = ref<Case[]>([]);
 const studyCase = (row) => {
-  sessionStorage.setItem('cid', row.cid);
-  getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
-    console.log("getCaseById", res);
-    // sessionStorage.setItem('case', JSON.stringify(res.data));
-    // router.push('/case-study/study');
+  // Ensure you are passing the `cid` as part of the route parameters correctly
+  console.log("row:",row)
+  const caseDetails = {
+    cateName: row.cateName,
+    illName: row.illName,
+    date: row.date,
+    username: row.username
+  };
+  sessionStorage.setItem('caseDetails', JSON.stringify(caseDetails));
+  router.push({
+    name: 'case-details',
+    params: { cid: row.cid },
   });
-}
-// GET
+};
 const initGetCasesList = async () => {
   const res = await getCase(
-      queryForm.value,
       sessionStorage.getItem('token'),
       queryForm.value.pagenum,
       queryForm.value.pagesize,
-      queryForm.value.query
+      queryForm.value.search
   );
   console.log("initGetCasesList:", res);
 
@@ -193,7 +209,7 @@ watch(sortValue, (newValue) => {
     tableData.value.sort((a, b) => a.cid - b.cid);
   } else if (newValue === 'Sort2') {
     // 按病名排序
-    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+    tableData.value.sort((a, b) => a.illName.localeCompare(b.illName));
   } else if (newValue === 'Sort3') {
     // 按修改时间排序
     tableData.value.sort((a, b) => {
@@ -216,7 +232,7 @@ interface Category {
 const cateOptions = ref<Category[]>([]); // 存储病种列表
 const fetchCategories = async () => {
   const response = await getCate({}, sessionStorage.getItem('token'));
-  console.log("oooooo",response)
+  console.log("fetchCategories",response)
   cateOptions.value = response.data.cate_list;
 };
 // 获取病种列表
@@ -235,7 +251,7 @@ const handleCateChange = async (id) => {
     cateValue.value = selectedCate.cateName; // 将选中的病种名称存储到cateValue中
     try {
       const response = await getCasesByCate(id, sessionStorage.getItem('token'), cateValue.value, queryForm.value.pagenum, queryForm.value.pagesize);
-      console.log("iiiiii", response);
+      console.log("handleCateChange", response);
       // tableData.value = response.data.case_list;
     } catch (error) {
       console.error('Error fetching cases by category:', error);
@@ -288,20 +304,25 @@ const monthValue = ref('')
 // 计算属性，根据cateValue和illValue的值动态过滤数据
 const displayedTableData = computed(() => {
   let filteredData = tableData.value;
+  console.log("tableData.value",tableData.value)
   if (cateValue.value) {
-    filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
+    filteredData = filteredData.filter(item => item.cateName=== cateValue.value);
   }
   if (illValue.value) {
-    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+    filteredData = filteredData.filter(item => item.illName === illValue.value);
   }
-  if (yearValue.value) {
-    filteredData = filteredData.filter(item => item.date.startsWith(yearValue.value));
-  }
-  if (monthValue.value) {
-    const month = monthValue.value.slice(-2); // Extract the month number from the value
+  if (startDate.value && endDate.value) {
+    const start = new Date(startDate.value).setHours(0, 0, 0, 0);
+    const end = new Date(endDate.value).setHours(23, 59, 59, 999);
+
     filteredData = filteredData.filter(item => {
-      const itemMonth = item.date.split('-')[1]; // Extract the month from the create_time
-      return itemMonth === month;
+      // Parsing the date assuming the format "YYYY年MM月DD日"
+      let parts = item.date.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      if (parts) {
+        let itemDate = new Date(parseInt(parts[1]), parseInt(parts[2]) - 1, parseInt(parts[3])).getTime();
+        return itemDate >= start && itemDate <= end;
+      }
+      return false; // If date doesn't match format, it won't be included
     });
   }
   return filteredData;
@@ -313,12 +334,12 @@ const displayedTableData = computed(() => {
 const form = ref({
   cid:'',
   cateId:'',//
-  cate_name:'',
+  cateName:'',
   illId:'',//
-  ill_name:'',
+  illName:'',
   date:'',
   uid:'',//
-  userame:'',
+  username:'',
   basic_situation:'',
   photo:[],
   lab_name:'',

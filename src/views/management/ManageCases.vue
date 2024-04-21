@@ -1,5 +1,19 @@
 <template>
+      <el-dialog
+      title="为病例添加化验和药品"
+      v-model="dialogVisible"
+      width="500px"
+      @close="dialogVisible = false"
+    >
+      <SelectDialog
+        :labOptions="labOptions"
+        :drugOptions="drugOptions"
+        :currentCase="currentCase"
+        @confirm="handleConfirm"
+      />
+    </el-dialog>
   <el-card>
+    
     <div>
       <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
@@ -8,102 +22,16 @@
       </el-breadcrumb>
     </div>
     <div class="margin"></div><!--    间距-->
-    <div class="input_box">
-      <el-row gutter="20">
-        <el-col :span="15">
-          <el-input
-              placeholder="请输入搜索内容"
-              clearable
-              v-model="queryForm.query"
-          >
-          </el-input>
-        </el-col>
-        <el-button type="primary" :icon="Search" @click="initGetCasesList()">搜索</el-button>
-      </el-row>
 
-      <div class="flex flex-wrap gap-4 items-center">
-        <el-select
-            v-model="sortValue"
-            placeholder="按编号排序"
-            size="default"
-            style="width: 180px"
-            clearable
-        >
-          <el-option
-              v-for="item in sortOptions "
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
-      </div>
-    </div>
 
     <div class="margin"></div><!--    间距-->
     <div class="input_box">
-      <el-select
-          v-model="cateValue"
-          placeholder="病种"
-          size="default"
-          style="width: 180px"
-          clearable
-          @click="fetchCategories"
-          @change="handleCateChange"
-      >
-        <el-option
-            v-for="item in cateOptions "
-            :key="item.cateId"
-            :label="item.cateName"
-            :value="item.cateId"
-        />
-      </el-select>
-      <el-select
-          v-model="illValue"
-          placeholder="病名"
-          size="default"
-          style="width: 180px ; margin-left: 40px"
-          clearable
-          @click="fetchIll"
-          @change="handleIllChange"
-      >
-        <el-option
-            v-for="item in illOptions "
-            :key="item.illId"
-            :label="item.illName"
-            :value="item.illId"
-        />
-      </el-select>
-      <el-select
-          v-model="yearValue"
-          placeholder="年份"
-          size="default"
-          style="width: 180px ; margin-left: 40px"
-          clearable
-      >
-        <el-option
-            v-for="item in yearOptions "
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-        />
-      </el-select>
-      <el-select
-          v-model="monthValue"
-          placeholder="月份"
-          size="default"
-          style="width: 180px ; margin-left: 40px"
-          clearable
-      >
-        <el-option
-            v-for="item in monthOptions "
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-        />
-      </el-select>
-    </div>
-    <div style="margin-left:1000px">
-      <el-button size="small"  type="primary" round @click="handleDialogValueAdd()">新增+</el-button>
+      <el-input v-model="queryForm.search" placeholder="请输入搜索内容" style="width: 340px" clearable @change="initGetCasesList"></el-input>
+
+
+
+      <el-button type="primary" size="small" style="margin-left: 100px;" @click="newCase">新建+</el-button>
+
     </div>
     <div class="margin"></div><!--    间距-->
     <el-table :data="displayedTableData" stripe style="width: 100%">
@@ -114,24 +42,17 @@
           v-for="(item,index) in options "
           :key="index"
       >
-<!--        <template v-slot="{ row }" v-if="item.prop === 'date'">-->
-<!--          {{ $filters.filterTimes(row.date) }}-->
-<!--        </template>-->
-        <template #default="{ row }" v-if="item.prop === 'operation'">
-          <el-button
-              type="primary"
-              size="small"
-              :icon="Edit"
-              @click="handleDialogValueAdd(row)"
-          ></el-button>
-          <el-button
-              type="danger"
-              size="small"
-              :icon="Delete"
-              @click="delCase(row)"
-          ></el-button>
-        </template></el-table-column
-      >
+
+      </el-table-column>
+      <el-table-column label="操作" width="300px">
+        <template #default="{ row }">
+          <el-button type="primary" size="small" @click="editCase(row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="delCase(row)">删除</el-button>
+          <el-button type="success" size="small" @click="openSelectDialog(row)">链接化验&药品</el-button>
+
+        </template>
+
+      </el-table-column>
     </el-table>
     <div class="margin"></div><!--    间距-->
     <div class="page">
@@ -145,41 +66,62 @@
           @current-change="handleCurrentChange"
       />
     </div>
+
+
   </el-card>
-  <!--  <DialogDetail-->
-  <!--      v-model = "dialogVisibleDetail"-->
-  <!--      :dialogTitleDetail="dialogTitleDetail"-->
-  <!--      v-if="dialogVisibleDetail"-->
-  <!--  />-->
-  <DialogAdd
-      v-model="dialogVisibleAdd"
-      :dialogTitleAdd="dialogTitleAdd"
-      v-if="dialogVisibleAdd"
-      @initCaseList = "initGetCasesList"
-      :dialogTableValueAdd="dialogTableValueAdd"
-  />
 </template>
 
 <script setup lang="ts">
 import axios from 'axios';
-import { message } from 'antd';
 import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
-import {options} from '@/views/caseStudy/options';
 import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
-import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll, getLab, getMed} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';
+import { useRouter } from 'vue-router';
+import SelectDialog from '@/views/caseStudy/components/SelectDialog.vue';
+const router = useRouter();
+const dialogVisible = ref(false);
 
+const handleConfirm = (selectedItems) => {
+  console.log('Selected Items:', selectedItems);
+  dialogVisible.value = false;
+};
+const currentCase = ref(null);
+const labOptions = ref({});
+const drugOptions = ref({})
 
 //查询表
 const queryForm = ref({
-  query:'',
-  key:'',
+  search:'',
   pagenum: 1,
   pagesize: 10,
-  // cate_name:''
 })
+
+//
+const options =[
+  {
+    label:'编号',
+    prop:'cid'
+  },
+  {
+    label:'病种',
+    prop:'cateName'
+  },
+  {
+    label:'病名',
+    prop:'illName'
+  },
+  {
+    label:'时间',
+    prop:'date'
+  },
+  {
+    label:'就诊医师',
+    prop:'username'
+  },
+]
 
 //分页器
 const total = ref(0)
@@ -187,30 +129,77 @@ const total = ref(0)
 //描述病例对象
 interface Case {
   cid: number;
-  cate_name: string;
-  ill_name: string;
+  cateName: string;
+  illName: string;
   date: string;
   username: string;
 }
 
 const tableData = ref<Case[]>([]);
+const editCase = (row) => {
+  router.push({
+    name: 'case-modify',
+    params: { cid: row.cid },
+  });
+  console.log("editCase row", row.cid)
+}
+const openSelectDialog = async (c) => {
+  // 链接病历的逻辑
+  const labResponse = await getLab(sessionStorage.getItem('token'));
+  labOptions.value = labResponse.data.lab_list; // Set the current lab
+  const drugResponse = await getMed(sessionStorage.getItem('token'));
+  drugOptions.value = drugResponse.data.medicine_list; // Set the current lab
+  currentCase.value = c;
 
+  dialogVisible.value = true
+};
+
+const delCase = async (row) => {
+  sessionStorage.setItem('cid', row.cid);
+  const res = await deleteCase(row.cid, sessionStorage.getItem('token'))
+  console.log("del res", res);
+  if (res.status == 200) {
+    ElMessage.success('删除成功');
+    await initGetCasesList();
+  } else {
+    ElMessage.error('删除失败');
+  }
+
+}
 // GET
-const initGetCasesList = async () =>{
-  const res = await getCase(queryForm.value,
+const initGetCasesList = async () => {
+  const res = await getCase(
       sessionStorage.getItem('token'),
       queryForm.value.pagenum,
       queryForm.value.pagesize,
-      queryForm.value.query
+      queryForm.value.search
   );
-  //拿页表信息 还没拿
-  console.log("res.data.case_list: ",  res.data.case_list);
+  if (res.status === 200) {
+    if (res.data && res.data.case_list) {
+    tableData.value = res.data.case_list.map((item) => {
+      return {
+        ...item,
+        date: new Date(item.date).toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      };
+    });
+    ElMessage.success('获取成功');
+    total.value = res.data.total;
+  }else{
+    ElMessage.info(res.data.error_message);
+    tableData.value = []
+    total.value = 0
+  }
+  
+  }else{
+    ElMessage.error('获取失败');
+  }
 
-  tableData.value = res.data.case_list
-
-  //拿total页数信息 还未使用
 }
-initGetCasesList()
+
 
 //页码改变方法
 const handleSizeChange = (pageSize) => {
@@ -225,19 +214,13 @@ const handleCurrentChange = (pageNum) =>{
 
 //排序方式下拉框
 const sortValue = ref('')
-const sortOptions = [
-  { value: 'Sort1', label: '按编号排序'},
-  { value: 'Sort2', label: '按病名排序'},
-  { value: 'Sort3', label: '按修改时间排序'},
-]
-// 监听sortValue的变化??
 watch(sortValue, (newValue) => {
   if (newValue === 'Sort1') {
     // 按编号排序
     tableData.value.sort((a, b) => a.cid - b.cid);
   } else if (newValue === 'Sort2') {
     // 按病名排序
-    tableData.value.sort((a, b) => a.ill_name.localeCompare(b.ill_name));
+    tableData.value.sort((a, b) => a.illName.localeCompare(b.illName));
   } else if (newValue === 'Sort3') {
     // 按修改时间排序
     tableData.value.sort((a, b) => {
@@ -251,6 +234,7 @@ watch(sortValue, (newValue) => {
 //病种选择
 const cateValue = ref('')
 const selectedCateId = ref(null); // 存储当前选中的病种id
+const illValue = ref('')
 
 interface Category {
   cateId:number;
@@ -263,7 +247,11 @@ const fetchCategories = async () => {
   cateOptions.value = response.data.cate_list;
 };
 // 获取病种列表
-onMounted(fetchCategories);
+onMounted(()=>{
+      initGetCasesList()
+      fetchIll()
+    }
+)
 
 // 处理病种选择变化
 const handleCateChange = async (id) => {
@@ -286,7 +274,6 @@ const handleCateChange = async (id) => {
 };
 
 //病名选择
-const illValue = ref('')
 
 interface Illgory {
   illId:number;
@@ -303,7 +290,6 @@ const fetchIll = async () => {
     console.warn('No selected category to fetch illnesses');
   }
 };
-onMounted(fetchIll);
 const handleIllChange = async (selectedIllId) => {
   const selectedIll = illOptions.value.find((item) => item.illId === selectedIllId);
   if (selectedIll) {
@@ -320,50 +306,20 @@ const handleIllChange = async (selectedIllId) => {
   }
 };
 
-
-
-
 //年份选择
 const yearValue = ref('')
-const yearOptions = [
-  { value: '2014', label: '2014'},
-  { value: '2015', label: '2015'},
-  { value: '2016', label: '2016'},
-  { value: '2017', label: '2017'},
-  { value: '2018', label: '2018'},
-  { value: '2019', label: '2019'},
-  { value: '2020', label: '2020'},
-  { value: '2021', label: '2021'},
-  { value: '2022', label: '2022'},
-  { value: '2023', label: '2023'},
-  { value: '2024', label: '2024'},
-]
-
 //月份选择
 const monthValue = ref('')
-const monthOptions = [
-  { value: '01', label: '1月'},
-  { value: '02', label: '2月'},
-  { value: '03', label: '3月'},
-  { value: '04', label: '4月'},
-  { value: '05', label: '5月'},
-  { value: '06', label: '6月'},
-  { value: '07', label: '7月'},
-  { value: '08', label: '8月'},
-  { value: '09', label: '9月'},
-  { value: '10', label: '10月'},
-  { value: '11', label: '11月'},
-  { value: '12', label: '12月'},
-]
+
 
 // 计算属性，根据cateValue和illValue的值动态过滤数据
 const displayedTableData = computed(() => {
   let filteredData = tableData.value;
   if (cateValue.value) {
-    filteredData = filteredData.filter(item => item.cate_name=== cateValue.value);
+    filteredData = filteredData.filter(item => item.cateName=== cateValue.value);
   }
   if (illValue.value) {
-    filteredData = filteredData.filter(item => item.ill_name === illValue.value);
+    filteredData = filteredData.filter(item => item.illName === illValue.value);
   }
   if (yearValue.value) {
     filteredData = filteredData.filter(item => item.date.startsWith(yearValue.value));
@@ -379,103 +335,36 @@ const displayedTableData = computed(() => {
 });
 
 
-//新增框
-const dialogVisibleAdd = ref(false)
-const dialogTitleAdd = ref('')
-const dialogTableValueAdd= ref({})
-
-
-//POST
-const testData = ref<string>('');
-onMounted(async () => {
-  // try {
-  //     const response = await axios.post('/api/test2', {
-  //       key: 'value' // 你要POST的数据
-  //     });
-  //     console.log(response.data); // 假设后端返回的是 { message: 'Test2 response' }
-  //     testData.value = response.data.message;
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
+const newCase = () => {
+  router.push('/case-new')
+}
+//传参数
+const form = ref({
+  cid:'',
+  cateId:'',//
+  cateName:'',
+  illId:'',//
+  illName:'',
+  date:'',
+  uid:'',//
+  userame:'',
+  basic_situation:'',
+  photo:[],
+  lab_name:'',
+  lab_cost:1,
+  lab_result:'',
+  lab_photo:[],
+  medicine:'',
+  medicine_name:'',
+  medicine_cost:'',
+  result:'',
+  therapy:'',
+  cost:1,
+  surgery_video:[],
 })
 
-//详情
-// const handleDialogValueDetail = () => {
-//   dialogTitleDetail.value= '病例详情'
-//   dialogVisibleDetail.value = true
-// }
 
 
-const dialogData = ref<CaseDetails[]>([]);
-
-export interface CaseDetails {
-  cid: number;
-  cateId: string;
-  cate_name: string;
-  illId: number;
-  ill_name: string;
-  date: string;
-  uid: number;
-  username: string;
-  basicSituation: string;
-  photo: string[]; // 假设照片是字符串数组
-  lab_id: number;
-  lab_name: string;
-  lab_cost: number;
-  lab_result: string;
-  lab_photo: string[]; // 假设化验图片也是字符串数组
-  medicine: string;
-  medicine_name: string;
-  medicine_cost: string; // 假设药品费用是字符串类型
-  result: string;
-  therapy: string;
-  cost: number;
-  surgeryVideo: string[]; // 假设手术视频是字符串数组
-}
-
-//新增标题
-const handleDialogValueAdd = async (row:any) =>{
-  if(isNull(row)){
-    dialogTitleAdd.value = '添加病例'
-    dialogTableValueAdd.value={}
-  }else{
-    dialogTitleAdd.value = '病例详情'
-    dialogTableValueAdd.value=JSON.parse(JSON.stringify(row))
-    // 获取病例详情数据的方法
-    const response = await getCaseById({}, sessionStorage.getItem('token'), row.cid);
-    console.log("Dialog data:",response)
-    dialogData.value = response.data.case_list[0];
-  }
-  dialogVisibleAdd.value = true
-}
-
-//删除弹窗
-const delCase = (row:any) => {
-  ElMessageBox.confirm(
-      '确定删除病例?',
-      'Warning',
-      {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      }
-  )
-      .then(async () => {
-        await deleteCase(row.cid,sessionStorage.getItem('token'))
-        ElMessage({
-          type: 'success',
-          message: '删除成功',
-        })
-        //删除成功后还要重新获取数据
-        initGetCasesList()
-      })
-      .catch(() => {
-        ElMessage({
-          type: 'info',
-          message: '删除失败',
-        })
-      })
-}
 </script>
 
 <style lang="scss" scoped>

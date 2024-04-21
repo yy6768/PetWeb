@@ -50,12 +50,12 @@ interface FormState {
 // 添加额外的规则来验证用户名和密码
 const usernameRules = [
   { required: true, message: '请输入您的用户名' },
-  { min: 3, max: 16, message: '用户名长度应为3到16位' }
+  { min: 2, max: 16, message: '用户名长度应为2到16位' }
 ];
 
 const passwordRules = [
   { required: true, message: '请输入您的密码' },
-  { min: 6, message: '密码长度不能少于6位' } // 假设密码最小长度为6位
+  { min: 3, message: '密码长度不能少于3位' } // 假设密码最小长度为6位
 ];
 
 const confirmPasswordRules = [
@@ -91,7 +91,7 @@ const onRegister = async () => {
         
         const response = await axios.post(`/api/user/register?${params}`);
 
-        if (response.data && response.data.error_message === 'success') {
+        if (response.data && response.status === 200) {
             console.log('注册成功:', response.data);
             message.success('注册成功');
             router.push('/login');
