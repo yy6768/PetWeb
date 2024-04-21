@@ -1,5 +1,5 @@
 <template>
-    <div ref="panoramaContainer" class="panorama-container"></div>
+    <div ref="panoramaContainer" class="panorama-container" style="width: 100%; height: 85vh;"></div>
 </template>
   
 <script setup lang="ts">
@@ -22,18 +22,22 @@ onMounted(() => {
     const init = () => {
         if (!container) return;
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 1000);
+        camera = new THREE.PerspectiveCamera(110, container.clientWidth / container.clientHeight, 1, 1000);
         camera.position.z = 0.1;
 
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // 光的颜色，强度
+        scene.add(ambientLight);
         textureLoader = new THREE.TextureLoader();
 
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
         controls.enablePan = false;
+        controls.rotateSpeed = 0.3; // 设置旋转速度
+        controls.zoomSpeed = 1.0; // 设置缩放速度
 
         window.addEventListener('resize', onWindowResize, false);
         const roomName = decodeURIComponent(route.params.roomName.valueOf() as string);
@@ -41,7 +45,8 @@ onMounted(() => {
     };
 
     const loadPanoramaImage = (roomName:string) => {
-        textureLoader.load(`/images/${roomName}.jpg`, (texture) => {
+        console.log(roomName)
+        textureLoader.load(`/roomtour/${roomName}.jpg`, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         scene.background = texture;
         });

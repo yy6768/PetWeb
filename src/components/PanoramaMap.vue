@@ -1,5 +1,5 @@
 <template>
-    <div ref="threeJsContainer" style="width: 100%; height: 100vh;"></div>
+    <div ref="threeJsContainer" style="width: 100%; height: 85vh;"></div>
 </template>
 
 <script setup lang="ts">
@@ -23,19 +23,19 @@ onMounted(() => {
     // 创建场景
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xa0c69d);
-    var initCameraPos = [20, -5, 20];
+    var initCameraPos = [20, 0, 20];
 
     // 创建相机
     const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
     camera.position.set(initCameraPos[0], initCameraPos[1], initCameraPos[2]);
     
     const guiParams = {
-        modelTransX: 0,
-        modelTransY: 0,
-        modelTransZ: 0,
-        modelScaleX: 1,
-        modelScaleY: 1,
-        modelScaleZ: 1,
+        modelTransX: 5,
+        modelTransY: 5,
+        modelTransZ: 5,
+        modelScaleX: 1.0,
+        modelScaleY: 1.0,
+        modelScaleZ: 1.0,
 
          // 相机属性
         cameraPosX: camera.position.x,
@@ -74,9 +74,8 @@ onMounted(() => {
     loader.load(
         '/models/petweb_group.gltf',
         (gltf) => {
-            model = gltf.scene;
-            console.log(model);
-            scene.add(model);
+            model = scene;
+            scene.add(gltf.scene);
             model.scale.set(guiParams.modelScaleX, guiParams.modelScaleY, guiParams.modelScaleZ);
             model.position.set(guiParams.modelTransX, guiParams.modelTransY, guiParams.modelTransZ);
             // 创建GUI

@@ -14,6 +14,9 @@ class Selector {
     private selectObject: THREE.Object3D = new THREE.Object3D();
     private gui:dat.GUI;
 
+    private clickTimeout:number | null = null;
+    private doubleClickDelay:number = 300;
+
     private guiData = {
         name: '',
         room_number:"",
@@ -46,6 +49,18 @@ class Selector {
 
 
     private onMouseClick = (event: MouseEvent): void => {
+        if (this.clickTimeout !== null) {
+            clearTimeout(this.clickTimeout);
+        }
+
+        this.clickTimeout = window.setTimeout(() => {
+            // 单击事件的处理逻辑
+            this.handleClickEvent(event);
+        }, this.doubleClickDelay);
+        
+    };
+
+    private handleClickEvent = (event:MouseEvent): void => {
         const rect = this.container.getBoundingClientRect();
 
         // 计算容器内的鼠标位置
