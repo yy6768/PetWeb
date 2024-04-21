@@ -137,13 +137,6 @@ interface Case {
 
 const tableData = ref<Case[]>([]);
 const editCase = (row) => {
-  // sessionStorage.setItem('cid', row.cid);
-  // getCaseById('', sessionStorage.getItem('token'), row.cid).then((res) => {
-  //   const detail = res.data;
-  //   console.log("detail", detail);
-  //   // sessionStorage.setItem('case', JSON.stringify(res.data));
-  //   // router.push('/case-study/study');
-  // });
   router.push({
     name: 'case-modify',
     params: { cid: row.cid },
@@ -153,13 +146,10 @@ const editCase = (row) => {
 const openSelectDialog = async (c) => {
   // 链接病历的逻辑
   const labResponse = await getLab(sessionStorage.getItem('token'));
-  console.log('链接lab', labResponse);
   labOptions.value = labResponse.data.lab_list; // Set the current lab
   const drugResponse = await getMed(sessionStorage.getItem('token'));
-  console.log('链接drug', drugResponse);
   drugOptions.value = drugResponse.data.medicine_list; // Set the current lab
   currentCase.value = c;
-  console.log('c, ', c);
 
   dialogVisible.value = true
 };
@@ -184,7 +174,6 @@ const initGetCasesList = async () => {
       queryForm.value.pagesize,
       queryForm.value.search
   );
-  console.log("initGetCasesList:", res);
   if (res.status === 200) {
     if (res.data && res.data.case_list) {
     tableData.value = res.data.case_list.map((item) => {
