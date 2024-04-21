@@ -332,6 +332,7 @@
         <el-button type="text" @click="dialogFormVisible = true">功能说明</el-button>
         <el-button type="text" @click="openInstructionalVideo">操作视频</el-button>
       </div>
+
       <el-dialog v-model="dialogFormVisible" title="器具" width="500" draggable>
         <el-form :model="form">
 
@@ -380,6 +381,16 @@
           </div>
         </template>
       </el-dialog>
+
+      <el-dialog v-model="videoDialogVisible" title="操作视频" width="700px">
+        <video controls :src="videoSource" style="width: 100%;"></video>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="videoDialogVisible = false">关闭</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
     </div>
 
   </div>
@@ -393,10 +404,22 @@ import receptionistAvatar from '@/photo/receptionist.jpg';
 import assistantAvatar from '@/photo/assistant.jpg';
 import doctorAvatar from '@/photo/doctor.jpg';
 
+import temperature from '@/video/temperature.mp4';
+import infusion from '@/video/infusion.mp4'
+import electrocardiogram from '@/video/electrocardiogram.mp4'
+import catheter from '@/video/catheter.mp4'
+import cardiotachometer from '@/video/cardiotachometer.mp4'
+import oximeter from '@/video/oximeter.mp4'
+
+let videoSource: {} = ref('')
+
+
 const showInstrumentBox = ref(false)
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 const response = ref('');
+const videoDialogVisible = ref(false)
+
 
 const respond = (message: string) => {
   response.value = `你的回答：${message}`;
@@ -419,11 +442,11 @@ const form = reactive({
 //器具
 const instruments = ref([
   { name: '宠物体温计', function: '测量宠物体温', process: '1. 准备好宠物体温计。\n2. 将宠物体温计放入宠物的直肠或口腔。\n3. 等待一段时间直到体温计发出提示声。\n4. 查看体温计上的数字显示宠物体温。' },
-  { name: '宠物胃管', function: '喂食或灌肠', process: '1. 准备好宠物胃管和所需的药物或营养液。\n2. 轻柔地将胃管插入宠物的嘴里，然后逐渐引导进入胃部。\n3. 慢慢地喂食或注入所需的药物或营养液。\n4. 注意观察宠物的反应，确保操作安全。' },
-  { name: '宠物输液器', function: '静脉输液', process: '1. 准备好宠物输液器和所需的液体药物。\n2. 确保找到宠物的静脉注射点，通常在前腿或颈部。\n3. 将输液器连接到静脉注射点。\n4. 控制输液速度，并定期检查宠物的反应。' },
-  { name: '宠物药物吸入器', function: '给宠物吸入药物', process: '1. 准备好宠物药物吸入器和所需的药物。\n2. 将药物吸入器连接到合适的面罩。\n3. 将面罩覆盖在宠物的口鼻部位。\n4. 打开吸入器，让宠物吸入药物。' },
-  { name: '宠物心电图仪', function: '记录宠物心电图', process: '1. 准备好宠物心电图仪。\n2. 清洁和剃光宠物的胸部。\n3. 将电极粘贴到特定的位置。\n4. 开始记录宠物的心电图。' },
   { name: '宠物导尿管', function: '进行导尿', process: '1. 准备好宠物导尿管和所需的药物或液体。\n2. 使用消毒液清洁宠物的尿道口。\n3. 轻柔地将导尿管插入宠物的尿道，直至尿液开始流出。\n4. 将导尿管连接到收集容器，并控制导尿过程。' },
+  { name: '宠物血氧仪', function: '监测宠物的血氧饱和度', process: '1. 准备好宠物血氧仪及其配件。\n2. 选择适当的探头，通常根据宠物的大小和皮毛密度选择。\n3. 将探头安装在宠物的耳垂、尾巴或其他较少毛发的部位。\n4. 开启血氧仪，等待设备稳定后读取血氧饱和度的值。' },
+  { name: '宠物输液器', function: '静脉输液', process: '1. 准备好宠物输液器和所需的液体药物。\n2. 确保找到宠物的静脉注射点，通常在前腿或颈部。\n3. 将输液器连接到静脉注射点。\n4. 控制输液速度，并定期检查宠物的反应。' },
+  { name: '宠物心率仪', function: '给宠物测心率', process: '1. 准备好宠物心率仪。\n2. 将心率仪电极贴到特定位置。\n3. 测量宠物心率。' },
+  { name: '宠物心电图仪', function: '记录宠物心电图', process: '1. 准备好宠物心电图仪。\n2. 清洁和剃光宠物的胸部。\n3. 将电极粘贴到特定的位置。\n4. 开始记录宠物的心电图。' },
 ]);
 
 watch(() => form.name, (newVal) => {
@@ -440,7 +463,28 @@ const openInstructionalVideo = () => {
   const selectedInstrumentName = form.name;
   console.log(`打开 ${selectedInstrumentName} 的操作视频`);
   if (selectedInstrumentName === '宠物体温计') {
-    //打开视频
+    videoSource = temperature;
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物血氧仪') {
+    videoSource = oximeter;
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物输液器') {
+    videoSource = infusion;
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物心率仪') {
+    videoSource = cardiotachometer;
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物心电图仪') {
+    videoSource = electrocardiogram;
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物导尿管') {
+    videoSource = catheter;
+    videoDialogVisible.value = true;
   }
 };
 
