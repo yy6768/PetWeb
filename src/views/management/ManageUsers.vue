@@ -213,22 +213,19 @@
         page: page.value.toString(),
         pageSize: pageSize.value.toString()
       }).toString();
-      console.log('params:', params)
       const token = sessionStorage.getItem('token');
       const response = await axios.get(`/api/user/getall?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      console.log('获取用户组:', response.data);
       totalUsers.value = response.data.total;
       if (response.data && response.data.error_message === 'success') {
         users.value = response.data.user_list;  // Assuming that user list is returned under the 'user_list' key
-        console.log('用户组:', users.value);
-        // ElMessage({
-        //   message: '获取用户组成功',
-        //   type: 'success',
-        // });
+        ElMessage({
+          message: '获取用户组成功',
+          type: 'success',
+        });
       } else {
         ElMessage.error(`获取用户组失败: ${response.data.error_message}`);
       }

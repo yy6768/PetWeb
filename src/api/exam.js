@@ -14,6 +14,20 @@ export const getAllExam = (token, page, pageSize, key) => {
         }
     });
 };
+export const getAllPaper = (token, page, pageSize, type) => {
+    return axios({
+        url: '/api/paper/getAll',
+        method: 'get',
+        params: {
+            type:type,
+            page: page,
+            pageSize: pageSize
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
 export const getExamDetailById = (token, exam_id) => {
     return axios({
         url: '/api/exam/getById',
@@ -96,6 +110,19 @@ export const addExam = async (params, token) => {
         method: 'get',
         params: {
             paper_id: paper_id
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+  }
+
+  export const getPastExamById = async(eu_id, token) =>{
+    return axios({
+        url: '/api/exam/getDetailById',
+        method: 'get',
+        params: {
+            eu_id: eu_id
         },
         headers: {
             'Authorization': `Bearer ${token}`
