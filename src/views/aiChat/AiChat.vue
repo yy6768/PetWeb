@@ -11,7 +11,6 @@
             :key="item.value"
             :label="item.label"
             :value="item.value"
-            :disabled="item.disabled"
         />
       </el-select>
 
@@ -59,10 +58,10 @@ const options = [
     value: 'system',
     label: '询问系统信息',
   },
-  {
-    value: 'medicine',
-    label: '询问药品信息',
-  },
+  // {
+  //   value: 'medicine',
+  //   label: '询问药品信息',
+  // },
   {
     value: 'lab',
     label: '询问化验信息',

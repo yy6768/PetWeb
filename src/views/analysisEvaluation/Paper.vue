@@ -1,5 +1,8 @@
 <template>
   <el-card>
+    <div class="navigation-bar">
+            <el-button @click="goBack" :icon="ArrowLeft">返回</el-button>
+        </div>
     <div class="paper-header">
       <h2>{{ paperDetails.paperName }}</h2>
       <div class="countdown-timer">剩余时间: {{ countdown }}</div>
@@ -25,18 +28,23 @@
     </div>
     <div class="paper-header">
 
-        <el-button  type="primary" @click="submit" >提交试卷</el-button>
+        <el-button  type="primary" @click="confirmSubmit" >提交试卷</el-button>
         <!-- Add additional buttons or actions as needed -->
     </div>
 
   </el-card>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { getContentByPid } from '@/api/exam';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+    ArrowLeft,
+
+} from '@element-plus/icons-vue'
+
 
 const router = useRouter();
 const route = useRoute()
@@ -47,8 +55,12 @@ const paperDetails = ref({
   totalMark: 0,
   question_list: []
 });
-
+const goBack = () => {
+    router.back();
+};
 const answers = ref({});
+const endTime = ref(null); // This will hold the exam end time
+const countdown = ref('');
 
 // Function to extract options from a question object
 const getOptions = (question) => {
@@ -72,11 +84,13 @@ watch(() => route.params.eu_id, (newEuid, oldEuid) => {
  console.log("change")
 }, { immediate: true });
 
-const submit = () => {
+const submitExam = async () => {
   console.log("answers", answers.value);
   if (websocket.value && websocket.value.readyState === WebSocket.OPEN) {
-
-    websocket.value.send("endExam")
+    await websocket.value.send("endExam")
+    ElMessage.success('试卷提交成功');
+    cleanup();
+    router.back();
   }
   // Add logic to submit answers to the server
 };
@@ -86,18 +100,18 @@ watch(() => answers.value, (newAnswers, oldAnswers) => {
     websocket.value.send("answer " + answers.value);
   }
 });
-const endTime = ref(null); // This will hold the exam end time
-const countdown = ref('');
 
 // Function to calculate and update the countdown timer
 const updateCountdown = () => {
   const now = new Date().getTime();
   const distance = endTime.value - now;
 
-  if (distance < 0) {
+  if (distance <= 0) {
     clearInterval(timerInterval);
     countdown.value = 'Exam time is over';
     // You can also trigger any additional actions here, like auto-submitting the exam
+    submitExam();
+    
   } else {
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -160,12 +174,32 @@ onMounted(async () => {
 };
 
 });
-onUnmounted(() => {
+
+const confirmSubmit = () => {
+  ElMessageBox.confirm(
+    '确认要提交吗？提交后不可更改，考试将结束。',
+    '提交确认',
+    {
+      confirmButtonText: '提交',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
+    submitExam(); // Proceed with submitting the exam
+  }).catch(() => {
+    ElMessage.info('提交已取消');
+  });
+};
+
+const cleanup = () => {
   if (websocket.value) {
     websocket.value.close();
   }
   clearInterval(timerInterval);
+};
 
+onUnmounted(() => {
+  cleanup();
 });
 
 </script>
