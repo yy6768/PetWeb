@@ -36,9 +36,7 @@
 <!--      <p>前台：好的，我会记录下来。我们的医生会进行一些检查来确保它的健康。请问您方便今天下午还是明天？</p>-->
 <!--      <p>客户：今天下午可以吗？</p>-->
 <!--      <p>前台：让我查一下我们的医生日程表。稍等片刻。</p>-->
-
       <div >
-<!--        <h2>欢迎来到宠物医院前台！</h2>-->
         <p>你是今天的前台接待员，有宠物主人需要帮助，请选择你的回答：</p>
         <button @click="respond('您好，有什么可以帮您？')">宠主：我想预约看诊。</button><p></p>
         <button @click="respond('当然，请问您的宠物有什么症状？')">宠主：我家宠物不舒服。</button><p></p>
@@ -46,19 +44,6 @@
         <button @click="respond('欢迎来到我们宠物医院，我可以为您提供什么帮助？')">其他</button>
         <p>{{ response }}</p>
       </div>
-<!--      <el-form ref="consultationForm" :model="consultationForm" label-width="100px">-->
-<!--        <p>请问您的姓名是？</p>-->
-<!--        <el-form-item label="客户姓名">-->
-<!--          <el-input v-model="consultationForm.customerName" ></el-input>-->
-<!--        </el-form-item>-->
-<!--        <p>请问您的爱宠种类是？</p>-->
-<!--        <el-form-item label="宠物种类">-->
-<!--          <el-input v-model="consultationForm.petType" readonly></el-input>-->
-<!--        </el-form-item>-->
-<!--        <p>请问您要咨询的问题是？</p>-->
-<!--        <el-form-item label="咨询问题">-->
-<!--          <el-input type="textarea" v-model="consultationForm.query" rows="3" readonly></el-input>-->
-<!--        </el-form-item>-->
         <div class="button-container">
           <el-button type="primary" @click="submitConsultationForm">下一步</el-button>
         </div>
@@ -67,21 +52,38 @@
 
     <div v-if="selectedRole === 'receptionist' && current === 1" class="appointment-form">
       <h3>请稍等，我们将会为您登记预约信息</h3>
-      <p>请输入客户姓名：</p>
-      <el-input v-model="appointmentForm.customerName" placeholder="登记客户姓名" class="small-input"></el-input>
-      <p>请输入宠物种类：</p>
-      <el-input v-model="appointmentForm.petName" placeholder="登记宠物种类" class="small-input"></el-input>
-      <p>请输入预约医师姓名：</p>
-      <el-input v-model="appointmentForm.doctorName" placeholder="登记医师姓名" class="small-input"></el-input>
-      <p>请选择预约时间：</p>
-      <el-date-picker v-model="appointmentForm.appointmentTime" type="datetime"></el-date-picker>
+<!--      <p>请输入客户姓名：</p>-->
+<!--      <el-input v-model="appointmentForm.customerName" placeholder="登记客户姓名" class="small-input"></el-input>-->
+<!--      <p>请输入宠物种类：</p>-->
+<!--      <el-input v-model="appointmentForm.petName" placeholder="登记宠物种类" class="small-input"></el-input>-->
+<!--      <p>请输入预约医师姓名：</p>-->
+<!--      <el-input v-model="appointmentForm.doctorName" placeholder="登记医师姓名" class="small-input"></el-input>-->
+<!--      <p>请选择预约时间：</p>-->
+<!--      <el-date-picker v-model="appointmentForm.appointmentTime" type="datetime"></el-date-picker>-->
+<!--      -->
+      <p><strong>登记客户信息:</strong></p>
+      <ul>
+        <li>姓名、联系方式等</li>
+      </ul>
+      <p><strong>登记宠物信息:</strong></p>
+      <ul>
+        <li>种类、名字、年龄、疾病史等</li>
+      </ul>
+      <p><strong>登记医生信息:</strong></p>
+      <ul>
+        <li>医生姓名、可预约时间段、擅长领域等</li>
+      </ul>
+      <p><strong>登记预约信息:</strong></p>
+      <ul>
+        <li>预约日期、预约时间、预约目的（例如疫苗接种、体检、治疗等）</li>
+      </ul>
       <div class="button-container">
         <el-button type="primary" @click="submitAppointmentForm">下一步</el-button>
       </div>
     </div>
 
     <div v-if="selectedRole === 'receptionist' && current === 2" class="record-management-form">
-      <p>作为宠物医院前台管理人员，维护客户和宠物的档案记录是你的主要责任之一。</p>
+      <h3>作为宠物医院前台管理人员，维护客户和宠物的档案记录是你的主要责任之一</h3>
       <p><strong>建立客户档案:</strong></p>
         <ul>
           <li>当客户第一次到访时，创建一个客户档案，并记录客户的基本信息，包括姓名、联系方式、地址等。</li>
@@ -121,7 +123,7 @@
 
     <div v-if="selectedRole === 'assistant' && current === 0" class="preparation-form">
       <h3>完成检查准备工作</h3>
-      <p>准备检查室是确保宠物医院顺利运作的关键步骤之一。</p>
+      <p>准备检查室是确保宠物医院顺利运作的关键步骤之一</p>
       <p><strong>清洁和消毒：</strong></p>
       <ul>
         <li>检查室应该是清洁和消毒的，以确保宠物在安全的环境中接受治疗。</li>
@@ -159,8 +161,8 @@
     </div>
 
     <div v-if="selectedRole === 'assistant' && current === 1" class="assistance-form">
-      <h3>协助宠物进入检查室时，提供安抚和舒适，确保它们不感到焦虑或紧张。</h3>
-      <p>根据需要协助宠物进行体位调整，使医生能够更好地进行检查。</p>
+      <h3>协助宠物进入检查室时，提供安抚和舒适，确保它们不感到焦虑或紧张</h3>
+      <p>根据需要协助宠物进行体位调整，使医生能够更好地进行检查</p>
       <p><strong>操作设备：</strong></p>
       <ul>
         <li>在医生的指导下，操作各种设备和器械，如血压计、体温计、听诊器等。</li>
@@ -264,7 +266,7 @@
     </div>
 
     <div v-if="selectedRole === 'doctor' && current === 1" class="consultation-form">
-      <h3>根据诊断结果可能会开具药物处方，以帮助宠物治疗疾病或缓解症状。</h3>
+      <h3>根据诊断结果可能会开具药物处方，以帮助宠物治疗疾病或缓解症状</h3>
       <p><strong>选择合适的药物：</strong></p>
       <ul>
         <li>根据诊断结果和宠物的病情，选择适当的药物进行治疗。</li>
@@ -325,11 +327,12 @@
     </div>
 
     <div v-if="showInstrumentBox && selectedRole !== 'receptionist'" class="corner-container" style="width: 200px;">
-      <div class="corner-header">器具</div>
+      <div class="corner-header">{{ form.name || '器具' }}</div>
       <div class="corner-content">
         <el-button type="text" @click="dialogFormVisible = true">功能说明</el-button>
-        <el-button type="text">操作视频</el-button>
+        <el-button type="text" @click="openInstructionalVideo">操作视频</el-button>
       </div>
+
       <el-dialog v-model="dialogFormVisible" title="器具" width="500" draggable>
         <el-form :model="form">
 
@@ -355,7 +358,7 @@
             <el-input
                 v-model="form.function"
                 style="width: 240px"
-                :rows="2"
+                :rows="1"
                 type="textarea"
             />
           </el-form-item>
@@ -363,8 +366,9 @@
             <el-input
                 v-model="form.process"
                 style="width: 240px"
-                :rows="2"
+                :rows="6"
                 type="textarea"
+                autosize
             />
           </el-form-item>
         </el-form>
@@ -377,6 +381,16 @@
           </div>
         </template>
       </el-dialog>
+
+      <el-dialog v-model="videoDialogVisible" title="操作视频" width="700px">
+        <video controls :src="videoSource" style="width: 100%;"></video>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="videoDialogVisible = false">关闭</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
     </div>
 
   </div>
@@ -385,27 +399,24 @@
 <script setup lang="ts">
 import { ref, watch, reactive,toRefs} from 'vue';
 import { ElForm, ElFormItem, ElInput, ElButton,ElAvatar } from 'element-plus';
-
-const showInstrumentBox = ref(false)
-const dialogFormVisible = ref(false)
-const formLabelWidth = '140px'
-
-//
-const response = ref('');
-
-const respond = (message: string) => {
-  response.value = `你的回答：${message}`;
-};
-
 // 角色头像映射表
 import receptionistAvatar from '@/photo/receptionist.jpg';
 import assistantAvatar from '@/photo/assistant.jpg';
 import doctorAvatar from '@/photo/doctor.jpg';
 
-// //头像边下拉框
-// const toggleInstrumentBox = () => {
-//   showAvatarBox.value = !showAvatarBox.value;
-// };
+const videoSource = ref({});
+
+
+const showInstrumentBox = ref(false)
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+const response = ref('');
+const videoDialogVisible = ref(false)
+
+
+const respond = (message: string) => {
+  response.value = `你的回答：${message}`;
+};
 
 //角色头像映射表
 const roleAvatars = {
@@ -414,22 +425,101 @@ const roleAvatars = {
   doctor: doctorAvatar,
 };
 
-//器具
-const instruments = ref([
-  { name: '血压计' },
-  { name: '体温计' },
-  { name: '心电图仪' },
-]);
-
-const formData = ref({
-  assistantIdentity: '医助',
-  doctorIdentity: '医师'
-})
 
 const form = reactive({
   name: '',
   function:'',
   process:''
+})
+
+//器具
+const instruments = ref([
+  { name: '宠物体温计', function: '测量宠物体温', process: '1. 准备好宠物体温计。\n2. 将宠物体温计放入宠物的直肠或口腔。\n3. 等待一段时间直到体温计发出提示声。\n4. 查看体温计上的数字显示宠物体温。' },
+  { name: '宠物留置针', function: '在宠物体内留置导管，便于输液或药物注射', process: '1. 准备好宠物留置针及其相关器械和消毒液。\n2. 选择适当的留置针尺寸，根据宠物的大小和预计使用时间确定。\n3. 使用消毒液清洁并消毒留置针的周围皮肤，以预防感染。\n4. 缓慢而均匀地将留置针插入到宠物的皮下组织中，通常在颈部或背部。\n5. 确保留置针的稳固固定，并避免在插入过程中弄断或弯曲。\n6. 在需要时连接输液袋或注射器，并根据医嘱进行药物或液体的注入。\n7. 定期检查留置针的位置和状况，防止感染或脱出。\n8. 在使用完毕后，正确拆除留置针，并清洁周围皮肤，避免残留物和感染。' },
+  { name: '宠物导尿管', function: '进行导尿', process: '1. 准备好宠物导尿管和所需的药物或液体。\n2. 使用消毒液清洁宠物的尿道口。\n3. 轻柔地将导尿管插入宠物的尿道，直至尿液开始流出。\n4. 将导尿管连接到收集容器，并控制导尿过程。' },
+  { name: '宠物血氧仪', function: '监测宠物的血氧饱和度', process: '1. 准备好宠物血氧仪及其配件。\n2. 选择适当的探头，通常根据宠物的大小和皮毛密度选择。\n3. 将探头安装在宠物的耳垂、尾巴或其他较少毛发的部位。\n4. 开启血氧仪，等待设备稳定后读取血氧饱和度的值。' },
+  { name: '宠物输液器', function: '静脉输液', process: '1. 准备好宠物输液器和所需的液体药物。\n2. 确保找到宠物的静脉注射点，通常在前腿或颈部。\n3. 将输液器连接到静脉注射点。\n4. 控制输液速度，并定期检查宠物的反应。' },
+  { name: '宠物鼻饲管', function: '通过鼻腔进行喂养', process: '1. 准备好宠物鼻饲管和适当的喂养配方。\n2. 测量鼻饲管的长度，从鼻尖到胃部为止，以确保管子的正确长度。\n3. 轻轻将润滑过的鼻饲管通过宠物的鼻孔缓慢推进，直至达到预先测量的长度。\n4. 确认鼻饲管的位置，通常使用X光或听诊器检查是否到达胃部。\n5. 开始缓慢注入配方食物，注意观察宠物的反应和确保不造成窒息。\n6. 喂养结束后，清洁鼻饲管，并定期更换管道，以防感染或堵塞。' },
+  { name: '宠物制氧机', function: '制造并提供纯净氧气给宠物', process: '1. 准备好宠物制氧机及其所有附件。\n2. 检查设备是否干净且连接完好，确保无泄漏。\n3. 根据宠物的需求，设置合适的氧气浓度和流量。\n4. 将输出管连接到合适的呼吸接口，如面罩或鼻插管。\n5. 轻轻地将呼吸接口放置在宠物的鼻子上，确保它舒适且密封良好。\n6. 开启制氧机，开始供氧。\n7. 在使用过程中持续监控宠物的反应和舒适度，必要时调整氧气设置。\n8. 使用完毕后，关闭设备并断开所有连接。\n9. 清洁和消毒呼吸接口及设备表面，以备下次使用。' },
+  { name: '宠物心率仪', function: '给宠物测心率', process: '1. 准备好宠物心率仪。\n2. 将心率仪电极贴到特定位置，通常是宠物的胸部或前腿。\n3. 确保宠物平静，避免因紧张或活动而影响心率读数。\n4. 开启心率仪并记录数据，监测宠物的心率和心律。\n5. 测量完成后，记录结果，并根据需要进行健康评估或医疗干预。\n6. 清洁设备并妥善存放以备下次使用。' },
+  { name: '宠物心电图仪', function: '记录宠物心电图', process: '1. 准备好宠物心电图仪。\n2. 清洁和剃光宠物的胸部。\n3. 将电极粘贴到特定的位置。\n4. 开始记录宠物的心电图。' },
+  { name: '宠物食道饲管', function: '通过食道向宠物提供营养', process: '1. 准备好食道饲管及相关的营养液或食物。\n2. 对宠物进行轻度镇静，以减少安装过程中的不适。\n3. 仔细测量饲管长度，确保其从口腔延伸至适当的食道位置。\n4. 轻柔地通过宠物的口腔插入食道饲管，直到达到预计的位置。\n5. 确认饲管位置正确后，开始缓慢注入营养液或食物。\n6. 喂养结束后，清洁宠物的口腔和饲管，确保无食物残留。' },
+  { name: '宠物气管插管', function: '为宠物提供呼吸支持', process: '1. 准备好气管插管及相关设备，如呼吸机和吸引装置。\n2. 对宠物进行全身麻醉，确保过程中宠物安静且无痛感。\n3. 打开宠物的口腔，轻柔地将气管镜插入，以视察气管开口。\n4. 在气管镜的指引下，将气管插管缓慢地插入到宠物的气管内。\n5. 确认插管位置正确，无气漏，并固定气管插管，防止移位。\n6. 连接呼吸机或其他辅助呼吸设备，开始为宠物提供必要的呼吸支持。\n7. 定期检查插管位置和功能，确保通气顺畅无阻碍。' },
+  { name: '超声波洁牙机', function: '清洁宠物牙齿，去除牙石和菌斑', process: '1. 准备好超声波洁牙机及其附件。\n2. 安抚宠物，确保其处于舒适和可控的状态以便进行洁牙。\n3. 选择合适的洁牙头，根据宠物的牙齿大小和口腔状况调整。\n4. 轻轻地将洁牙机头放在宠物的牙齿上，使用超声波技术去除牙石和菌斑。\n5. 在整个过程中定期冲洗宠物的口腔，以清除松动的牙石和菌斑残留。\n6. 完成后，给宠物口腔冲洗清洁，确保没有洁牙材料残留。\n7. 对宠物进行奖励，以增强其对未来洁牙的积极态度。\n8. 清洁并消毒洁牙机头，准备下一次使用。' },
+  { name: '宠物尿分析仪', function: '分析宠物尿液中的化学成分和指标', process: '1. 准备好宠物尿分析仪及其必要的试剂和耗材。\n2. 收集宠物的尿液样本，确保样本的新鲜性和完整性。\n3. 使用尿分析仪将尿液样本注入样本槽中。\n4. 启动分析仪，进行化学成分和指标的检测。\n5. 根据分析仪的结果，识别尿液中的蛋白质、葡萄糖、pH值等指标。\n6. 分析仪通常会提供打印或数字化的报告，记录并分析检测结果。\n7. 根据检测结果制定宠物的饮食和治疗计划。\n8. 清洁和维护尿分析仪，确保其准确性和可靠性。' },
+]);
+
+watch(() => form.name, (newVal) => {
+  const selectedInstrument = instruments.value.find(instrument => instrument.name === newVal);
+  if (selectedInstrument) {
+    form.function = selectedInstrument.function;
+    form.process = selectedInstrument.process;
+  }
+});
+
+
+//操作视频
+const openInstructionalVideo = () => {
+  const selectedInstrumentName = form.name;
+  console.log(`打开 ${selectedInstrumentName} 的操作视频`);
+  if (selectedInstrumentName === '宠物体温计') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/18d330e5-70ea-4eba-a7f7-4646b2df9c1b_%E5%AE%A0%E7%89%A9%E5%8C%BB%E7%96%97%E6%95%99%E7%A8%8B%EF%BC%9A%E5%8A%A8%E7%89%A9%E4%BD%93%E6%B8%A9%E6%B5%8B%E9%87%8F.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物血氧仪') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/73f8df0b-3cdc-41c6-ab24-e0264fbeffeb_%E5%AE%A0%E7%89%A9%E5%8C%BB%E7%96%97%E6%95%99%E7%A8%8B%EF%BC%9A%E8%A1%80%E6%B0%A7%E6%B5%8B%E9%87%8F.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物输液器') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/cca8cf13-6f8c-4b21-aebf-1e6bd1b0609f_%E5%AE%A0%E7%89%A9%E5%8C%BB%E7%96%97%E6%95%99%E7%A8%8B%EF%BC%9A%E8%BE%93%E6%B6%B2%E6%93%8D%E4%BD%9C.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物心率仪') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/4659733a-d1b9-4176-b71f-baff63e28e2a_%E5%AE%A0%E7%89%A9%E5%8C%BB%E7%96%97%E6%95%99%E7%A8%8B%EF%BC%9A%E5%BF%83%E7%8E%87%E6%B5%8B%E9%87%8F.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物心电图仪') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/53f86187-2281-4dc0-9cb4-563096fbcbff_%E5%8A%A8%E7%89%A9%E5%8C%BB%E9%99%A2%20%20%E5%BF%83%E7%94%B5%E5%9B%BE%E4%B8%B4%E5%BA%8A%E6%93%8D%E4%BD%9C.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物导尿管') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/3fe68900-c020-453e-95a9-7d2b18a85957_%E7%8C%AB%E5%AF%BC%E5%B0%BF%E6%93%8D%E4%BD%9C%E6%8A%80%E6%9C%AF.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物食道饲管') {
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/686e1fed-419e-4995-b2c0-db1ff3b6366b_%E5%AE%A0%E7%89%A9%E9%A3%9F%E9%81%93%E9%A5%B2%E7%AE%A1%E6%94%BE%E7%BD%AE%E6%8A%80%E6%9C%AF%E5%8F%8A%E4%B8%B4%E5%BA%8A%E5%BA%94%E7%94%A8.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物气管插管' ){
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/340d3561-6af7-43d5-b970-0881705161ed_%E7%8A%AC%E6%B0%94%E7%AE%A1%E6%8F%92%E7%AE%A1%E6%8A%80%E6%9C%AF%E6%93%8D%E4%BD%9C%E6%95%99%E5%AD%A6.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if(selectedInstrumentName === '宠物鼻饲管'){
+    videoSource.value ="https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/fdd4fac9-2826-4307-a25a-ceb35111df89_%E5%AE%A0%E7%89%A9%E9%BC%BB%E9%A5%B2%E7%AE%A1%E7%9A%84%E6%94%BE%E7%BD%AE%E6%8A%80%E6%9C%AF%E5%92%8C%E5%BA%94%E7%94%A8.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '超声波洁牙机'){
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/57347156-d782-4fd0-8ab4-8bcf9752c74d_%E7%BB%B4%E6%B6%A6VRN-A8%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B4%81%E7%89%99%E6%9C%BA.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物制氧机'){
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/6c01a371-112a-425f-a511-3006a7a025aa_%E5%88%B6%E6%B0%A7%E6%9C%BA%E6%97%A5%E5%B8%B8%E5%90%B8%E6%B0%A7%E5%92%8C%E9%9B%BE%E5%8C%96%E5%8A%9F%E8%83%BD%E4%BD%BF%E7%94%A8%E5%8F%8A%E7%BB%B4%E6%8A%A4%E8%AF%B4%E6%98%8E.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物尿分析仪'){
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/a71dda4d-77f8-41bf-a726-8a785c51457e_%E4%BC%98%E5%88%A9%E7%89%B9%E5%AE%A0%E7%89%A9%E5%B0%BF%E5%88%86%E6%9E%90%E4%BB%AAURIT-31%E6%93%8D%E4%BD%9C%E8%A7%86%E9%A2%91.mp4";
+    videoDialogVisible.value = true;
+  }
+  else if (selectedInstrumentName === '宠物留置针'){
+    videoSource.value = "https://pethospital-1310941840.cos.ap-nanjing.myqcloud.com/video/f6045451-8a4a-411f-a38f-9f59a0260aee_%E8%B4%9D%E6%81%A9Y%E5%9E%8B%E7%95%99%E7%BD%AE%E9%92%88%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.mp4";
+    videoDialogVisible.value = true;
+  }
+};
+
+
+const formData = ref({
+  assistantIdentity: '医助',
+  doctorIdentity: '医师'
 })
 
 //客户接待
@@ -565,12 +655,13 @@ button {
 }
 
 .corner-header {
-  font-size: 16px;
+  white-space: nowrap; /* 文字不换行 */
+  font-size: 18px;
   font-weight: bold;
   text-align: center;
   margin-bottom: 10px;
   margin-right: 100px;
-  background-color: #f8f8f8; /* 轻灰色背景 */
+  background-color: #f0f0f0; /* 轻灰色背景 */
   padding: 10px;
   border-top-left-radius: 10px; /* 左上角圆角 */
   border-top-right-radius: 10px; /* 右上角圆角 */
@@ -580,11 +671,10 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(24, 143, 254, 0.84); /* 白色背景 */
-  padding: 20px;
+  background-color: rgba(24, 143, 254, 0.84);
+  padding: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
-  border-bottom-left-radius: 10px; /* 左下角圆角 */
-  border-bottom-right-radius: 10px; /* 右下角圆角 */
+  border-radius: 15px; /* 四个角都是圆角 */
   border: 1px solid #ccc; /* 添加边框 */
 }
 
