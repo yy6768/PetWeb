@@ -54,3 +54,5 @@ Thumbs.db
 /yarn-error.log*
 
 .env
+
+dist/

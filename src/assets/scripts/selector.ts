@@ -3,11 +3,6 @@ import axios from 'axios';
 import * as dat from 'dat.gui';
 
 
-interface SelectorParams {
-    name:String;
-    room_number:String;
-    desc:String;
-}
 
 class Selector {
     private container: HTMLDivElement;
@@ -18,18 +13,24 @@ class Selector {
     private highlightedEdges: Array<THREE.LineSegments> = new Array<THREE.LineSegments>();
     private selectObject: THREE.Object3D = new THREE.Object3D();
     private gui:dat.GUI;
+    private mode:string;
+
+    private clickTimeout:number | null = null;
+    private doubleClickDelay:number = 300;
 
     private guiData = {
+        room_id:'',
         name: '',
         room_number:"",
         desc: ''
     }
 
-    constructor(container: HTMLDivElement, scene: THREE.Scene, camera: THREE.Camera, gui:dat.GUI) {
+    constructor(container: HTMLDivElement, scene: THREE.Scene, camera: THREE.Camera, gui:dat.GUI, mode:string) {
         this.container = container;
         this.scene = scene;
         this.camera = camera;
         this.gui = gui;
+        this.mode = mode;
         const subgui = this.gui.addFolder("当前科室");
         subgui.add(this.guiData, "name").listen().name("选中科室");
         subgui.add(this.guiData, "room_number").listen().name("科室门牌号");
@@ -37,10 +38,39 @@ class Selector {
         subgui.open();
         // 绑定事件
         window.addEventListener('click', this.onMouseClick);
+        window.addEventListener('dblclick', this.onMouseDoubleClick);  // 添加双击事件监听
     }
+
+    private onMouseDoubleClick = (event: MouseEvent): void => {
+        if (this.selectObject && this.selectObject.name) {
+            // 构造跳转URL
+            const roomName = encodeURIComponent(this.selectObject.name);
+            if (this.guiData.room_id == "") {
+                console.error("RoomId is null");
+            }
+            // 跳转到全景图页面
+            if (this.mode == 'view'){
+                window.location.href = `http://localhost:5173/roomtour/${this.guiData.room_id}/${roomName}`;
+            } else {
+                window.location.href = `http://localhost:5173/manage-roomtour/${this.guiData.room_id}/${roomName}`;
+            }
+        }
+    };
 
 
     private onMouseClick = (event: MouseEvent): void => {
+        if (this.clickTimeout !== null) {
+            clearTimeout(this.clickTimeout);
+        }
+
+        this.clickTimeout = window.setTimeout(() => {
+            // 单击事件的处理逻辑
+            this.handleClickEvent(event);
+        }, this.doubleClickDelay);
+        
+    };
+
+    private handleClickEvent = (event:MouseEvent): void => {
         const rect = this.container.getBoundingClientRect();
 
         // 计算容器内的鼠标位置
@@ -77,7 +107,6 @@ class Selector {
     };
 
     private onSelect(objects: THREE.Object3D): void {
-        console.log('Selected object:', objects);
     
         this.resetGUI();
         // 如果之前有高亮的对象，先清除之前的高亮效果
@@ -106,14 +135,13 @@ class Selector {
         const params = new URLSearchParams({ room_name: this.guiData.name }).toString();
         const token = sessionStorage.getItem('token');
         
-        console.log(params);
-        console.log(token);
         axios.get(`/api/room/get?${params}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         }).then(response => {
             if (response.data && response.data.error_message === 'success') {
+                this.guiData.room_id = response.data.room_id;
                 this.guiData.desc = response.data.description;
                 this.guiData.room_number = response.data.room_num;
             } else {
@@ -125,6 +153,7 @@ class Selector {
     }
     
     private resetGUI(): void {
+        this.guiData.room_id = "";
         this.guiData.name = "";
         this.guiData.room_number = "";
         this.guiData.desc = "";
@@ -134,6 +163,7 @@ class Selector {
     // 在需要的时候，可以调用此方法移除事件监听器
     public dispose(): void {
         window.removeEventListener('click', this.onMouseClick);
+        window.removeEventListener('dblclick', this.onMouseDoubleClick);
     }
 }
 

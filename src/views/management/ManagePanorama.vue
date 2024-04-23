@@ -1,7 +1,7 @@
 <template>
     <div class="about">
-      <h1>This is 全景导览，</h1>
-      <PanoramaMap mode="view"></PanoramaMap>
+      <h1>管理员管理全景导览，</h1>
+      <PanoramaMap mode="admin"></PanoramaMap>
     </div>
 </template>
   
@@ -18,4 +18,3 @@ export default {
 <style>
   
 </style>
-  
