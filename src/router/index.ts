@@ -85,9 +85,9 @@ const router = createRouter({
           component: () => import('../views/panoramaTour/PanoramaTour.vue')
         },
         {
-          path: '/roomtour/:roomName',
+          path: '/roomtour/:roomId/:roomName',
           name: 'PanoramaViewer',
-          component: ()=> import('../views/panoramaTour/RoomPanorama.vue')
+          component: ()=> import('../views/panoramaTour/RoomTour.vue')
         },
         {
           path:'/ai-chat',
@@ -128,7 +128,17 @@ const router = createRouter({
           path: '/manage-papers',
           name: 'manage-papers',
           component: () => import('../views/management/ManagePapers.vue')
-        }
+        },
+        {
+          path:'/manage-panorama',
+          name: 'manage-panorama',
+          component: () => import('../views/management/ManagePanorama.vue')
+        },
+        {
+          path:'/manage-roomtour/:roomId/:roomName',
+          name:'manage-roomtour',
+          component: () => import("../views/management/ManageRoomTour.vue")
+        },
       ]
     },
 

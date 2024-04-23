@@ -3,13 +3,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { PropType, onMounted, onUnmounted, ref } from 'vue';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'dat.gui';
 import { createGUI } from '@/assets/scripts/gui';
 import { Selector } from '@/assets/scripts/selector';
+
+
+const props = defineProps<{
+    mode:'admin' | 'view'
+}>();
 
 const threeJsContainer = ref<HTMLDivElement | null>(null);
 let gui:dat.GUI;
@@ -81,7 +86,7 @@ onMounted(() => {
             // 创建GUI
             gui = createGUI(guiParams, model, camera);
             // 初始化选择器
-            selector = new Selector(container, scene, camera, gui);
+            selector = new Selector(container, scene, camera, gui, props.mode);
         },
         undefined,  
         (error) => {

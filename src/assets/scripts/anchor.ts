@@ -1,29 +1,34 @@
 // Anchor.ts
 import * as THREE from 'three';
-import { AnchorPanel } from './anchorPanel';
+export interface AnchorData {
+    anchorId: number;    // 对应 Java 中的 Integer
+    roomId: number;      // 对应 Java 中的 Integer
+    anchorX: number;     // 对应 Java 中的 Float
+    anchorY: number;     // 对应 Java 中的 Float
+    anchorZ: number;     // 对应 Java 中的 Float
+    anchorDesc: string;  // 对应 Java 中的 String
+    imageUrl: string;    // 对应 Java 中的 String
+    videoUrl: string;    // 对应 Java 中的 String
+};
 
 export class Anchor {
     private mesh: THREE.Mesh;
-    private anchorData: any;
+    public anchorData: AnchorData;
 
     constructor(anchorData: any, scene: THREE.Scene) {
         this.anchorData = anchorData;
         this.mesh = this.createMesh();
         scene.add(this.mesh);
-        this.mesh.userData = { anchor: this };
+        this.mesh.userData = { anchor: this }; // Attach onClick to userData
     }
 
     private createMesh(): THREE.Mesh {
-        const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+        const geometry = new THREE.SphereGeometry(5, 32, 32);
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const sphere = new THREE.Mesh(geometry, material);
         sphere.position.set(this.anchorData.anchorX, this.anchorData.anchorY, this.anchorData.anchorZ);
-        sphere.addEventListener = this.onClick.bind(this)   ;
+
         return sphere;
     }
-
-    private onClick(): void {
-        const panel = new AnchorPanel(this.anchorData);
-        panel.show();
-    }
 }
+

@@ -154,7 +154,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import  {defineEmits,ref,defineProps,watch,onMounted} from 'vue'
-import {addCase, editCase, getCase, getCate, getIll, getMed, getName,getLab,getCaseById} from '@/api/case.js'
+import {addCase, updateCase, getCase, getCate, getIll, getMed, getName,getLab,getCaseById} from '@/api/case.js'
 import { ElMessage, ElUpload, ElButton, ElInput,ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile } from 'element-plus'
@@ -349,7 +349,7 @@ const handleConfirm = () => {
     if(valid){
       props.dialogTitleAdd === '添加病例'
           ? await addCase(form.value,sessionStorage.getItem('token'),form.value.userame,form.value.ill_name,form.value.date)
-          : await editCase(form.value,sessionStorage.getItem('token'))
+          : await updateCase(form.value,sessionStorage.getItem('token'))
       //消息提示
       ElMessage({
         message:'Add successfully',
