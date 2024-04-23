@@ -62,8 +62,8 @@ const getCaseDetails = () => {
 
 onMounted(async () => {
   const cid = route.params.cid;
-  cate_name.value = getCaseDetails().cate_name;
-  ill_name.value = getCaseDetails().ill_name;
+  cate_name.value = getCaseDetails().cateName;
+  ill_name.value = getCaseDetails().illName;
   username.value = getCaseDetails().username;
   getCaseById('', sessionStorage.getItem('token'), cid).then((res) => {
     caseDetails.value = res.data.case;

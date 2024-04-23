@@ -40,7 +40,7 @@
     currentCase: Object, // Accept lab as a prop
     drugOptions: Array
   });
-  
+
   watch(() => props.currentCase, async (newCase) => {
   if (newCase && newCase.cid) {
     const response = await getCaseById('', sessionStorage.getItem('token'), newCase.cid);
@@ -85,8 +85,8 @@
       
     }
     ElMessage.success('添加成功');
+    
     emit('confirm', selectedLabOptions.value);
-
   };
   </script>
   

@@ -83,9 +83,10 @@ import { ref, onMounted, watch} from 'vue';
 import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch, ElLoading } from 'element-plus';
 import { addCase, getCate, getIll, getName, getCaseById, updateCase } from '@/api/case.js';
 import type { UploadInstance } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const uploadImageRef = ref(null);
 const uploadVideoRef = ref(null);
 const uploadToggle = ref(false);
@@ -184,14 +185,13 @@ const handleConfirm = async () => {
     console.log("updateCase response", response)
     if (response.data.error_message === "success") {
       ElMessage.success('病例更新成功');
-      dialogVisible.value = false;
     } else {
       ElMessage.error(response.data.message);
     }
 };
 
 const handleClose = () => {
-  dialogVisible.value = false;
+  router.push('/manage-cases');
 };
 
 const fetchCaseData = async (cid) => {

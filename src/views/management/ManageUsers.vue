@@ -88,12 +88,9 @@
       const params = new URLSearchParams({
         uid: form.value.uid.toString(),
         username: form.value.username.toString(),
+        password: form.value.password.toString(),
         authority: form.value.authority.toString(),
       });
-
-      if (form.value.password.toString() !== '') {
-        params.append('password', form.value.password.toString());
-      }
 
       const paramString = params.toString();
 
