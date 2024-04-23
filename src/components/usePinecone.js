@@ -51,16 +51,16 @@ export const pineconeUpdate = async (id, namespace, input_text, metadata) => {
     try {
         console.log("update input_text", input_text)
         console.log("update metadata", metadata)
-        const insertResponse = await index.namespace(namespace).update(
+        const insertResponse = await index.namespace(namespace).upsert([
             {
                 id: `${namespace}${id}`,
                 values: embedding,
                 metadata: metadata
             }
-        );
+        ]);
         return { success: true, message: 'Pinecone 更新成功', detail: insertResponse };
     } catch (error) {
-        return { success: false, message: 'Pinecone 插入错误', error };
+        return { success: false, message: 'Pinecone 更新错误', error };
     }
 };
 
@@ -70,13 +70,15 @@ export const medicineFormatForLLM = (queryResponse) => {
         id: match.id,
         name: match.metadata.medicine_name,
         cost: match.metadata.medicine_cost,
+        description: match.metadata.description,
         score: match.score
     }));
 };
 
 export const getMedicineLLMQuery = (data, userInput) => {
     // 将数据转换为文本形式，用于作为查询上下文
-    const context = data.map(item => `ID: ${item.id}, 药品名称: ${item.name}, 药品花费（单位rmb）: ${item.cost}`).join('\n');
+    const context = data.map(item => `ID: ${item.id}, 药品名称: ${item.name}, 
+    药品花费（单位rmb）: ${item.cost}, 描述：${item.description}`).join('\n');
     return `根据下列搜索到的药品信息:\n${context}\n用中文回答用户提问：\n${userInput}。`;
 };
 

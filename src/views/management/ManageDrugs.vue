@@ -164,7 +164,7 @@ const medicationChangeSubmit = async () => {
           });  
         const input_text = "药品名称：" + form.value.medicine_name + "，药品价格："+ form.value.medicine_cost.toString() + ",疗效与用途：" + form.value.description
         console.log('Vue input_text:', input_text); 
-        const medicine_id = response.data.medicine_id
+        const medicine_id = form.value.medicine_id;
         const insert_pinecone = await pineconeUpdate(
             medicine_id,
             "medicine", input_text,
@@ -177,21 +177,22 @@ const medicationChangeSubmit = async () => {
         loading.value.close();
         if (insert_pinecone?.success){
                   
-          console.log('Pinecone 插入成功:', insert_pinecone);
+          console.log('Pinecone 修改成功:', insert_pinecone);
           ElMessage({
             message: 'Pinecone 修改成功',
             type: 'success',
           });
-        }else{
-          ElMessage.error(`Pinecone 插入失败: ${insert_pinecone}`);
-
-        }
-      
-      console.log('药品组:', medications.value);
+          console.log('药品组:', medications.value);
       ElMessage({
         message: '修改成功',
         type: 'success',
       });
+
+        }else{
+          ElMessage.info(`Pinecone 修改失败: ${insert_pinecone}`);
+          console.log('Pinecone 修改失败:', insert_pinecone);
+        }
+      
 
       fetchMedications();
 
@@ -291,7 +292,6 @@ const addMedicine = async () => {
             }
         )
         if (insert_pinecone?.success){
-          console.log('Pinecone 插入成功:', insert_pinecone);
           ElMessage({
             message: 'Pinecone 添加成功',
             type: 'success',
@@ -301,6 +301,12 @@ const addMedicine = async () => {
 
         }
       }
+      newMedicine.value = {
+        medicine_name: '',
+        medicine_cost: '',
+        description: '',
+        saveToPinecone: true
+      };
       addVisible.value = false;
     } else {
       ElMessage.error(`添加失败: ${response.data.error_message}`);

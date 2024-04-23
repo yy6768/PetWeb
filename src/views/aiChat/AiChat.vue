@@ -52,24 +52,25 @@ const pineconeIndex = pinecone.index('petweb');
 
 console.log(pineconeIndex);
 let vectorStore;
+const chat = new ChatOpenAI({modelName: "gpt-3.5-turbo", temperature: 0, openAIApiKey: OPENAI_API_KEY,});
 
 const options = [
   {
     value: 'system',
     label: '询问系统信息',
   },
+  {
+    value: 'medicine',
+    label: '询问药品信息',
+  },
   // {
-  //   value: 'medicine',
-  //   label: '询问药品信息',
+  //   value: 'lab',
+  //   label: '询问化验信息',
   // },
-  {
-    value: 'lab',
-    label: '询问化验信息',
-  },
-  {
-    value: 'case',
-    label: '询问病例信息',
-  },
+  // {
+  //   value: 'case',
+  //   label: '询问病例信息',
+  // },
 ]
 
 onMounted(async () => {
@@ -123,7 +124,6 @@ const submitQuery = async () => {
 // 这里你可以将 llmQuery 发送到你的 LLM 服务进行查询
     responseText.value = llmQuery;
 
-    const chat = new ChatOpenAI({modelName: "gpt-3.5-turbo", temperature: 0, openAIApiKey: OPENAI_API_KEY,});
 
     console.log(userInput.value);
     // Send the query to ChatGPT
