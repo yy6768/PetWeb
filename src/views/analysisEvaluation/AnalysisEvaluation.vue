@@ -52,9 +52,6 @@
       :total="totalExams">
     </el-pagination>
     </el-card>
-      <!--<h1>This is 分析测评</h1>
-      <p> Get test</p>
-      <p>{{ testData }}</p>-->
   </div>
 
 </template>

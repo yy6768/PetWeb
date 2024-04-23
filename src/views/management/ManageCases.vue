@@ -34,7 +34,7 @@
 
     </div>
     <div class="margin"></div><!--    间距-->
-    <el-table :data="displayedTableData" stripe style="width: 100%">
+    <el-table :data="displayedTableData" :default-sort="{ prop: 'cid', order: 'descending' }" stripe style="width: 100%">
       <el-table-column
           :width="item.width"
           :prop="item.prop"
@@ -75,7 +75,6 @@
 import axios from 'axios';
 import {computed, onMounted, ref, watch} from 'vue';
 import {ArrowRight, Delete, Edit, Search} from '@element-plus/icons-vue';
-import DialogAdd from '@/views/caseStudy/components/dialog_add.vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll, getLab, getMed} from "@/api/case.js";
 import {isNull} from '@/views/caseStudy/filters.js';

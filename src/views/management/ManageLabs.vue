@@ -33,9 +33,9 @@
     </el-container>
     <el-dialog v-model="changeVisible" title="修改化验信息" width="500">
       <el-form :model="form">
-<!--        <el-form-item label="labId" >-->
-<!--          <el-input v-model="form.labId" autocomplete="off" />-->
-<!--        </el-form-item>-->
+        <el-form-item label="名称" >
+          <el-input v-model="form.labName" autocomplete="off" />
+        </el-form-item>
         <el-form-item label="价格" >
           <el-input v-model="form.labCost" autocomplete="off" />
         </el-form-item>
@@ -113,11 +113,7 @@ onMounted(() => {
 });
 // 定义变量和方法
 const labs = ref([]); // 化验列表数据
-// {
-//   "labId": 2,
-//     "labName": "name",
-//     "labCost": 10.0
-// },
+
 const totalLabs = ref<number>(0); // 总化验数量
 const page = ref<number>(1); // 当前页码
 const pageSize = ref<number>(10); // 每页显示数量
@@ -126,6 +122,7 @@ const addVisible = ref(false)
 
 const form = ref({
   labId: 0,
+  labName: '',
   labCost: 0,
   description: ''
 })
@@ -262,6 +259,12 @@ const addLab = async () => {
         message: '添加成功',
         type: 'success',
       });
+      newLab.value = {
+        saveToPinecone: true,
+        lab_name: '',
+        lab_cost: '',
+        description: ''
+      }
       addVisible.value = false;
     } else {
       ElMessage.error(`添加失败: ${response.data.error_message}`);
