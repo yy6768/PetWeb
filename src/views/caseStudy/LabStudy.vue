@@ -32,8 +32,8 @@
     </el-container>
 
     <el-pagination
-        :current-page="page.value"
-        :page-size="pageSize.value"
+        :current-page="page"
+        :page-size="pageSize"
         :total="totalLabs"
         @current-change="handlePageChange"
         @size-change="handleSizeChange"

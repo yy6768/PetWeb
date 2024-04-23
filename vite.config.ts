@@ -12,19 +12,20 @@ export default defineConfig({
     // ... other server options
     proxy: {
       '/api': {
-        target: 'http://localhost:3000', // the target host
-        changeOrigin: true, // needed for virtual hosted sites
-        ws: true, // proxy websockets
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true,
       },
       '/vid': {
-        target: 'http://localhost:3001', // the target host
-        changeOrigin: true, // needed for virtual hosted sites
-        ws: true, // proxy websockets
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true,
       },
       '/ws': {
-        target: 'ws://localhost:3000', // the target host
-        changeOrigin: true, // needed for virtual hosted sites
-        ws: true, // proxy websockets
+        target: 'ws://localhost:3000',
+        changeOrigin: true,
+        ws: true,
+        secure: false
       }
     }
   },

@@ -41,8 +41,9 @@
 </template>
   
 <script setup lang="ts">
-import { computed, ref, watch, defineProps, reactive, PropType } from 'vue';
-import { AnchorData } from '../assets/scripts/anchor';
+import { computed, ref, watch, defineProps, reactive } from 'vue';
+import type { AnchorData } from '../assets/scripts/anchor';
+import type { PropType } from 'vue';
 import { addAnchor } from '@/api/anchor.js';
 import {
   ElDialog,

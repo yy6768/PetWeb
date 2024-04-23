@@ -82,8 +82,8 @@ const handleConfirm = (selectedItems) => {
   dialogVisible.value = false;
 };
 const currentCase = ref(null);
-const labOptions = ref({});
-const drugOptions = ref({})
+const labOptions = ref([]);
+const drugOptions = ref([])
 
 const router = useRouter();
 const startDate = ref(null);

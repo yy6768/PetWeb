@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import backgroundSvg from '../../assets/background.svg';
+import backgroundSvg from '/background.svg';
 import { reactive, ref } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';

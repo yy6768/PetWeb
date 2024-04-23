@@ -14,7 +14,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import axios from 'axios';
 import AnchorPanel from '@/components/AnchorPanel.vue';
 import UpdateAnchorPanel from '@/components/UpdateAnchorPanel.vue';
-import { Anchor, AnchorData } from '@/assets/scripts/anchor';
+import type { AnchorData } from '@/assets/scripts/anchor';
+import { Anchor} from '@/assets/scripts/anchor';
+
 import { SceneController } from '@/assets/scripts/roomSceneController';
 const props = defineProps<{
     mode:'admin' | 'view'

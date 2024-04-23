@@ -30,7 +30,7 @@ const allQuestionList = ref([])
 const editData = ref({
   paperId: 0,
   paperName: "",
-  time: "",
+  time: 0,
   userName: "",
   date: "",
   questionList: [],
@@ -289,7 +289,7 @@ const confirm = () =>{
       editData.value = {
         paperId: 0,
         paperName: "",
-        time: "",
+        time: 0,
         userName: "",
         date: "",
         questionList: [],
@@ -315,7 +315,7 @@ const confirm = () =>{
       editData.value = {
         paperId: 0,
         paperName: "",
-        time: "",
+        time: 0,
         userName: "",
         date: "",
         questionList: [],
@@ -333,7 +333,7 @@ const create = ()=>{
   editData.value = {
     paperId: 0,
     paperName: "",
-    time: "",
+    time: 0,
     userName: "",
     date: "",
     questionList: [],

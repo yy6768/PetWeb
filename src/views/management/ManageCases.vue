@@ -36,7 +36,6 @@
     <div class="margin"></div><!--    间距-->
     <el-table :data="displayedTableData" :default-sort="{ prop: 'cid', order: 'descending' }" stripe style="width: 100%">
       <el-table-column
-          :width="item.width"
           :prop="item.prop"
           :label="item.label"
           v-for="(item,index) in options "
@@ -88,8 +87,8 @@ const handleConfirm = (selectedItems) => {
   dialogVisible.value = false;
 };
 const currentCase = ref(null);
-const labOptions = ref({});
-const drugOptions = ref({})
+const labOptions = ref([]);
+const drugOptions = ref([])
 
 //查询表
 const queryForm = ref({
