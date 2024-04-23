@@ -79,9 +79,9 @@ const search = () =>{
           console.log(item.time)
           var date = new Date(item.date)
           item.date = moment(date).subtract(8,'hour').format('YYYY-MM-DD')
-          var second = item.time % 60;
-          var minute = (item.time / 60) % 60;
-          var hour = item.time / 3600 ;
+          var second = Math.floor(item.time % 60);
+          var minute = Math.floor((item.time / 60) % 60);
+          var hour = Math.floor(item.time / 3600) ;
           if(hour < 10){
             item.time = `0${hour}:`
           }else{
@@ -168,9 +168,9 @@ const showDetailFunc = (id) =>{
           mark:item.mark
         })
       })
-      editData.value.second = editData.value.time % 60;
-      editData.value.minute = (editData.value.time / 60) % 60;
-      editData.value.hour = editData.value.time / 3600 ;
+      editData.value.second = Math.floor(editData.value.time % 60);
+      editData.value.minute = Math.floor((editData.value.time / 60) % 60);
+      editData.value.hour = Math.floor(editData.value.time / 3600);
       console.log(checkQuestionList.value)
       searchQuestion()
       showDetail.value = true
