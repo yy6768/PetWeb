@@ -98,11 +98,12 @@
 </template>
 <script setup lang="ts">
 import axios from 'axios';
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import { ref, onMounted } from 'vue';
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { embedText, pineconeAdd, pineconeDelete } from '@/components/usePinecone';
+const loading = ref(null); // This ref will store the loading instance
 
 const router = useRouter();
 const queryForm = ref({
@@ -236,6 +237,11 @@ const addLab = async () => {
       console.log('化验组:', labs.value);
       const lab_id = response.data.lab_id
       if (newLab.value.saveToPinecone) {
+        loading.value = ElLoading.service({
+            lock: true,
+            text: 'Adding...',
+            background: 'rgba(0, 0, 0, 0.7)',
+          }); 
         const input_text = "化验名称：" + newLab.value.lab_name + "，化验价格："+ newLab.value.lab_cost.toString() + "，疗效和用途：" + newLab.value.description
 
         const insert_pinecone = await pineconeAdd(
@@ -254,6 +260,7 @@ const addLab = async () => {
           ElMessage.error(`Pinecone 插入失败: ${insert_pinecone}`);
 
         }
+        loading.value.close();
       }
       ElMessage({
         message: '添加成功',
