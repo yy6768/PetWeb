@@ -110,23 +110,20 @@ const submitQuery = async () => {
     })
     console.log("Query Response:", queryResponse);
     responseText.value = "正在查询中...";
-    if (queryResponse?.data?.length === 0) {
-      responseText.value = "没找到相关信息";
-      return;
-    }
+    // if (queryResponse?.data?.length === 0) {
+    //   responseText.value = "没找到相关信息";
+    //   return;
+    // }
 
     const formattedData = medicineFormatForLLM(queryResponse);
     console.log("Formatted Data for LLM:", formattedData);
 
-
     const llmQuery = getMedicineLLMQuery(formattedData, userInput.value);
     console.log("LLM Query:", llmQuery);
-// 这里你可以将 llmQuery 发送到你的 LLM 服务进行查询
     responseText.value = llmQuery;
 
 
     console.log(userInput.value);
-    // Send the query to ChatGPT
 
     const response = await chat.invoke([
       new HumanMessage(
@@ -144,10 +141,10 @@ const submitQuery = async () => {
     })
     console.log("Query Response:", queryResponse);
 
-    if (queryResponse?.data?.length === 0) {
-      responseText.value = "没找到相关信息";
-      return;
-    }
+    // if (queryResponse?.data?.length === 0) {
+    //   responseText.value = "没找到相关信息";
+    //   return;
+    // }
 
     const formattedData = labFormatForLLM(queryResponse);
     console.log("Formatted Data for LLM:", formattedData);

@@ -12,7 +12,6 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: () => import('../views/login/Register.vue')
-      component: () => import('../views/login/Login.vue')
     },
     {
       path: '/register',
@@ -33,7 +32,6 @@ const router = createRouter({
         {
           path:'/role-preview',
           name: 'role-preview',
-          component: () => import('../views/rolePreview/RolePreview.vue')
           component: () => import('../views/rolePreview/RolePreview.vue')
         },
         {
@@ -80,7 +78,6 @@ const router = createRouter({
           name: 'case-modify',
           component: () => import('../views/caseStudy/CaseModify.vue'),
           props: true  // Enable route params to be passed as props
-          component: () => import('../views/caseStudy/CaseStudy.vue')
         },
         {
           path:'/drug-study',
@@ -125,7 +122,6 @@ const router = createRouter({
         {
           path:'/analysis-evaluation',
           name: 'analysis-evaluation',
-          component: () => import('../views/analysisEvaluation/AnalysisEvaluation.vue')
           component: () => import('../views/analysisEvaluation/AnalysisEvaluation.vue')
         },
         {

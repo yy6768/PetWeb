@@ -496,19 +496,21 @@ const newFunc = () =>{
   isEdit.value = false;
   showDetail.value = true;
   editData.value = {
-    id:-1,
-    content:"",
-    type:undefined,
-    typeName:"",
-    disease:undefined,
-    diseaseName:"",
-    optionA:"",
-    optionB:"",
-    optionC:"",
-    optionD:"",
-    answer:0,
-    point:undefined,
-    spread:1
+
+  qid:0,
+  cateId:0,
+  illId:0,
+  cateName:"",
+  illName:"",
+  description:"",
+  contentA:"",
+  contentB:"",
+  contentC:"",
+  contentD:"",
+  mark:0,
+  answer:0,
+  filterAnswer:"error",
+  spread:1
   }
 }
 const questionRule = {
@@ -648,7 +650,7 @@ const questionRule = {
         </el-table>
       </el-container>
       <el-dialog v-model="showDetail" :title="isEdit ? '编辑题目' : isCreate ? '新建题目' : '题目详情'">
-        <el-form :ref="form" :model="editData" :rules="questionRule" label-width="12vh">
+        <el-form :model="editData" :rules="questionRule" label-width="12vh">
           <el-form-item v-if="!isCreate" label="题目id" prop="qid">
             <el-input readonly v-model="editData.qid"></el-input>
           </el-form-item>

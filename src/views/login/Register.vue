@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import { reactive } from 'vue';
-import backgroundSvg from '../../assets/background.svg';
+import backgroundSvg from '/background.svg';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { message } from 'ant-design-vue';

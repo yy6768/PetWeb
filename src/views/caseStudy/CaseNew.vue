@@ -83,6 +83,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElOption, ElSwitch, ElLoading } from 'element-plus';
 import { addCase, getCate, getIll, getName } from '@/api/case.js';
 import type { UploadInstance } from 'element-plus'
+import {ArrowRight} from '@element-plus/icons-vue';
 
 const uploadImageRef = ref(null);
 const uploadVideoRef = ref(null);

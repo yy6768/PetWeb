@@ -46,12 +46,24 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import {getCase, deleteCase, getCaseById, getCate, getCasesByCate, getIll, getCasesByIll} from "@/api/case.js";
+import {ArrowRight} from '@element-plus/icons-vue';
 
 const route = useRoute();
 const cate_name = ref('');
 const ill_name = ref('');
 const username = ref('');
-const caseDetails = ref({});
+const caseDetails = ref({
+  cid: '',
+  cateId: '',
+  illId: '',
+  uid: '',
+  date: '',
+  basicSituation: '',
+  result: '',
+  therapy: '',
+  surgeryVideo: '',
+  photo: ''
+});
 const labTableData = ref([]);
 const medTableData = ref([]);
 

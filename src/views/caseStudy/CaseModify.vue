@@ -84,6 +84,7 @@ import { ElMessage, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, E
 import { addCase, getCate, getIll, getName, getCaseById, updateCase } from '@/api/case.js';
 import type { UploadInstance } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
+import {ArrowRight} from '@element-plus/icons-vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -136,6 +137,7 @@ const form = ref({
   username: '',
   ill_name: '',
   basic_situation: '',
+  basicSituation: '',
   therapy: '',
   photo:'',
   result:'',

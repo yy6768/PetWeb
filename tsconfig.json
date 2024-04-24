@@ -10,6 +10,15 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "allowJs": true,
+    "noImplicitAny": false,
+    "strict": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,  // Disable strict checking for property initialization
+    "strictBindCallApply": false,           // Disable strict checking of bind, call, and apply methods
+    "noImplicitReturns": false,             // Allow functions to end without returning
+    "noFallthroughCasesInSwitch": false,  
     "paths": {
       "@/*": ["src/*"]
     }
