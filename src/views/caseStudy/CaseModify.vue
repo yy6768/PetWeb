@@ -202,9 +202,6 @@ const fetchCaseData = async (cid) => {
   try {
     const response = await getCaseById('', sessionStorage.getItem('token'), cid);
     form.value = response.data.case;
-
-    form.value.photo = '';
-    form.value.surgery_video = '';
     console.log("Loaded case data:", form.value);
   } catch (error) {
     console.error("Failed to load case data:", error);
