@@ -39,12 +39,13 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { getContentByPid } from '@/api/exam';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox,ElLoading } from 'element-plus';
 import {
     ArrowLeft,
 
 } from '@element-plus/icons-vue'
 
+const loading = ref(null); // This ref will store the loading instance
 
 const router = useRouter();
 const route = useRoute()
@@ -90,7 +91,7 @@ const submitExam = async () => {
     await websocket.value.send("endExam")
     ElMessage.success('试卷提交成功');
     cleanup();
-    router.back();
+    router.push('/analysis-evaluation')
   }
   // Add logic to submit answers to the server
 };
@@ -124,24 +125,13 @@ const updateCountdown = () => {
 let timerInterval; // This will hold the interval ID
 
 onMounted(async () => {
+  loading.value = ElLoading.service({
+    lock: true,
+    text: 'Loading...',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
   const token = sessionStorage.getItem('token');
   const paperId = route.params.paper_id;
-
-  const response = await getContentByPid(paperId, token);
-  console.log("getContentByPid", response);
-  if (response.status === 200) {
-    ElMessage.success('试卷加载成功');
-    paperDetails.value.paperName = response.data.paperName;
-    paperDetails.value.totalMark = response.data.totalMark;
-    paperDetails.value.question_list = response.data.question_list;
-    
-    // Initialize answers with null for each question
-    response.data.question_list.forEach(question => {
-      answers[question.num] = null;
-    });
-  } else {
-    // Handle error
-  }
   eu_id.value = route.params.eu_id;
   const wsUri = `ws://localhost:3000/ws/exam/${eu_id.value}`;
   
@@ -172,6 +162,22 @@ onMounted(async () => {
     console.log("startExam response:", data.payload);
   }
 };
+  const response = await getContentByPid(paperId, token);
+  console.log("getContentByPid", response);
+  if (response.status === 200) {
+    ElMessage.success('试卷加载成功');
+    paperDetails.value.paperName = response.data.paperName;
+    paperDetails.value.totalMark = response.data.totalMark;
+    paperDetails.value.question_list = response.data.question_list;
+    
+    // Initialize answers with null for each question
+    response.data.question_list.forEach(question => {
+      answers[question.num] = null;
+    });
+  } 
+  loading.value.close(); // This will stop the loading indicator
+
+
 
 });
 
