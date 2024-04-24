@@ -91,7 +91,7 @@ const submitExam = async () => {
     await websocket.value.send("endExam")
     ElMessage.success('试卷提交成功');
     cleanup();
-    router.back();
+    router.push('/analysis-evaluation')
   }
   // Add logic to submit answers to the server
 };
